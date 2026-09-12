@@ -1,0 +1,79 @@
+[
+  {
+    "model": "QuantumSVM (Fidelity)",
+    "paradigm": "Quantum",
+    "accuracy": 0.6818,
+    "sensitivity": 0.7937,
+    "specificity": 0.4,
+    "f1_score": 0.7812,
+    "roc_auc": 0.8286,
+    "train_time_sec": 5.67,
+    "latency_ms": 73.5
+  },
+  {
+    "model": "VQC (Ansatz + SPSA)",
+    "paradigm": "Quantum",
+    "accuracy": 0.6705,
+    "sensitivity": 0.9365,
+    "specificity": 0.0,
+    "f1_score": 0.8027,
+    "roc_auc": 0.553,
+    "train_time_sec": 15.84,
+    "latency_ms": 10.01
+  },
+  {
+    "model": "XGBoost",
+    "paradigm": "Classical",
+    "accuracy": 0.9886,
+    "sensitivity": 0.9841,
+    "specificity": 1.0,
+    "f1_score": 0.992,
+    "roc_auc": 1.0,
+    "train_time_sec": 0.04,
+    "latency_ms": 0.02
+  },
+  {
+    "model": "LightGBM",
+    "paradigm": "Classical",
+    "accuracy": 0.9886,
+    "sensitivity": 0.9841,
+    "specificity": 1.0,
+    "f1_score": 0.992,
+    "roc_auc": 1.0,
+    "train_time_sec": 0.1,
+    "latency_ms": 0.03
+  },
+  {
+    "model": "Random Forest",
+    "paradigm": "Classical",
+    "accuracy": 1.0,
+    "sensitivity": 1.0,
+    "specificity": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "train_time_sec": 0.18,
+    "latency_ms": 0.08
+  },
+  {
+    "model": "Classical SVC (RBF)",
+    "paradigm": "Classical",
+    "accuracy": 0.9318,
+    "sensitivity": 0.9048,
+    "specificity": 1.0,
+    "f1_score": 0.95,
+    "roc_auc": 0.9911,
+    "train_time_sec": 0.02,
+    "latency_ms": 0.01
+  },
+  {
+    "model": "MLPClassifier",
+    "paradigm": "Classical",
+    "accuracy": 1.0,
+    "sensitivity": 1.0,
+    "specificity": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "train_time_sec": 0.59,
+    "latency_ms": 0.0
+  }
+]

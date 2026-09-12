@@ -1,0 +1,23 @@
+# Environments
+python_env/
+git_env/
+.venv/
+env/
+venv/
+
+# Bytecode & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data caches
+data/raw/*.gz
+data/raw/*.soft
+data/processed/*.parquet
+
+# OS artifacts
+.DS_Store
+Thumbs.db

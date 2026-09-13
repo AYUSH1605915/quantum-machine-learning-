@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuantumMed AI | Next-Gen Hybrid Quantum Health Platform for Early Disease Detection</title>
-    <!-- Google Fonts: Outfit & Plus Jakarta Sans & Fira Code -->
+    <title>QuantumMed | Clinical QML Platform for Early Disease Risk Assessment</title>
+    <!-- Google Fonts: Outfit, Plus Jakarta Sans, and Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Chart.js for high-fidelity interactive data visualizations -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for interactive clinical visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- Tesseract.js for client-side local OCR lab report reading -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <!-- Ambient Cold Dark Lighting -->
+    <!-- Subtle Ambient Lighting Glows -->
     <div class="quantum-bg-glow glow-1"></div>
     <div class="quantum-bg-glow glow-2"></div>
     <div class="quantum-bg-glow glow-3"></div>
 
-    <!-- Quick Search Palette Modal -->
+    <!-- Quick Search Palette Modal (Ctrl+K) -->
     <div class="search-modal-backdrop" id="search-modal-backdrop">
         <div class="search-modal-card">
             <div class="search-input-header">
-                <span style="font-size: 1.1rem; color: var(--cold-ice);">🔍</span>
-                <input type="text" id="quick-search-input" placeholder="Search biomarkers, quantum models, or datasets (e.g. ALT, Glucose, VQC)..." autocomplete="off">
+                <span style="font-size: 1.1rem; color: var(--accent-cyan);">🔍</span>
+                <input type="text" id="quick-search-input" placeholder="Search biomarkers, quantum architecture, or benchmarks (e.g. ALT, Glucose, VQC)..." autocomplete="off">
                 <span class="kbd-shortcut" id="btn-close-search" style="cursor: pointer;">ESC</span>
             </div>
             <ul class="search-results-list" id="search-results-list">
@@ -59,16 +59,20 @@
                 </li>
                 <li class="search-result-item" data-action="tab" data-target="tab-dataset">
                     <span class="search-result-title">Govt Clinical Baseline Data (inputdata.txt)</span>
-                    <span class="search-result-category">Dataset</span>
+                    <span class="search-result-category">Clinical Datasets</span>
                 </li>
             </ul>
         </div>
     </div>
 
-    <!-- TOP STICKY NAVIGATION BAR (CodeHelp Inspired) -->
+    <!-- ==========================================================================
+         TOP STICKY NAVBAR (INSTITUTIONAL PLATFORM)
+         Left: QuantumMed logo | Center: Text Links & Dropdowns | Right: Search + [ Start Analysis ]
+         NO Doctor/Clinic Profile Identity
+         ========================================================================== -->
     <header class="top-navbar-wrapper" id="top-navbar-wrapper">
         <div class="top-navbar">
-            <!-- Left Brand Identity -->
+            <!-- Left: Brand Identity -->
             <div class="nav-brand-group" id="nav-brand-home">
                 <div class="nav-logo-icon">
                     <span class="orbit orbit-1"></span>
@@ -78,44 +82,52 @@
                 <div class="brand-text-col">
                     <div class="brand-name">
                         QUANTUM<span class="highlight">MED</span>
-                        <span class="brand-version-badge">PRO v2.4</span>
                     </div>
-                    <div class="brand-tagline">Clinical QML Platform • NIH & CDC Baseline</div>
+                    <div class="brand-tagline">Clinical QML Platform</div>
                 </div>
             </div>
 
-            <!-- Center Navigation Links -->
+            <!-- Center: Simple Text Navigation with Dropdowns -->
             <ul class="nav-center-menu">
-                <li><a class="nav-menu-link active" data-nav-tab="tab-clinical">🏠 Dashboard</a></li>
-                <li><a class="nav-menu-link" data-nav-tab="tab-dataset">📁 Workspace</a></li>
-                <li><a class="nav-menu-link" data-nav-tab="tab-clinical" data-scroll="screener-section">🩺 Analysis</a></li>
-                <li><a class="nav-menu-link" data-nav-tab="tab-benchmarks">📊 Results</a></li>
-                <li><a class="nav-menu-link" data-nav-tab="tab-circuit">⚛️ Circuit Studio</a></li>
-                <li><a class="nav-menu-link" data-nav-tab="tab-overview">📚 Docs & About</a></li>
+                <li class="nav-item-dropdown">
+                    <a class="nav-menu-link">
+                        Screening Tools <span class="dropdown-caret">▾</span>
+                    </a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a class="nav-sub-link" data-scroll="interactive-workspace" data-tab="tab-clinical" data-mode="image">📷 Quick Scan (OCR)</a></li>
+                        <li><a class="nav-sub-link" data-scroll="interactive-workspace" data-tab="tab-clinical" data-mode="form">⌨️ Manual Biomarker Entry</a></li>
+                        <li><a class="nav-sub-link" data-scroll="interactive-workspace" data-tab="tab-clinical" data-mode="text">📝 Report Text Analysis</a></li>
+                        <li><a class="nav-sub-link" data-scroll="cohort-comparison-section" data-tab="tab-clinical">📊 Screening History & Baseline</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item-dropdown">
+                    <a class="nav-menu-link">
+                        Clinical Datasets <span class="dropdown-caret">▾</span>
+                    </a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a class="nav-sub-link" data-scroll="clinical-data-section">🏛️ NIH / NIDDK Reference Standard</a></li>
+                        <li><a class="nav-sub-link" data-scroll="clinical-data-section">🌐 CDC NHANES 2026 Distribution</a></li>
+                        <li><a class="nav-sub-link" data-scroll="interactive-workspace" data-tab="tab-dataset">📁 Ingested Cohort (inputdata.txt)</a></li>
+                    </ul>
+                </li>
+                <li><a class="nav-menu-link" data-scroll="quantum-arch-section">Quantum Architecture</a></li>
+                <li><a class="nav-menu-link" data-scroll="interactive-workspace" data-tab="tab-circuit">Circuit Studio</a></li>
+                <li><a class="nav-menu-link" data-scroll="benchmarks-section">Benchmarks</a></li>
             </ul>
 
-            <!-- Right Controls -->
+            <!-- Right: Search & Action Button -->
             <div class="nav-right-actions">
-                <!-- Search Trigger -->
-                <div class="nav-search-trigger" id="nav-search-trigger">
+                <!-- Search Button -->
+                <div class="nav-search-trigger" id="nav-search-trigger" title="Quick Search (Ctrl+K)">
                     <span>🔍</span>
-                    <span>Search biomarkers...</span>
+                    <span>Search</span>
                     <span class="kbd-shortcut">Ctrl+K</span>
                 </div>
 
-                <!-- Notifications Button -->
-                <button class="nav-icon-btn" id="btn-nav-notif" title="System Notifications">
-                    <span>🔔</span>
-                    <span class="notif-pulse"></span>
-                </button>
-
-                <!-- Clinician User Profile Chip -->
-                <div class="nav-user-chip" id="nav-user-chip" title="Active Clinical Session">
-                    <div class="user-avatar-circle">AY</div>
-                    <div class="user-info-mini">
-                        <span class="user-info-name">Dr. Ayush</span>
-                        <span class="user-info-role">Clinical AI</span>
-                    </div>
+                <!-- Theme / Status Indicator -->
+                <div class="nav-status-chip" title="Active Baseline Calibration">
+                    <span class="pulse-dot"></span>
+                    <span>Calibrated</span>
                 </div>
 
                 <!-- Primary CTA Button -->
@@ -129,770 +141,1272 @@
 
     <div class="app-container">
         <!-- ==========================================================================
-             HERO / LANDING DASHBOARD SECTION (CodeHelp Inspired)
+             5. CENTERED HERO SECTION
+             Small Badge, Large Centered Headline (48-64px), 1-2 line description, 2 CTAs
              ========================================================================== -->
-        <section class="hero-landing-section" id="hero-landing-section">
-            <div class="hero-content-wrapper">
-                <!-- Left Hero Description & Actions -->
-                <div class="hero-text-col">
-                    <div class="hero-pill-badge">
-                        <span class="pulse-dot"></span>
-                        <span>300 CLINICALLY VALIDATED RECORDS • NIH & CDC 2026 STANDARDS</span>
-                    </div>
-                    <h1 class="hero-main-title">
-                        Next-Gen <span class="hero-gradient-text">Quantum Intelligence</span> for Early Disease Detection
-                    </h1>
-                    <p class="hero-description">
-                        Detect hepatic steatosis and cellular metabolic risk <strong>up to 3 years before irreversible damage occurs</strong>. 
-                        Combining parameterized quantum circuits (PennyLane VQC) with authoritative clinical baseline data from the 
-                        <strong>U.S. National Institutes of Health (NIH/NIDDK)</strong> and <strong>CDC NHANES</strong>.
-                    </p>
-                    <div class="hero-cta-group">
-                        <button class="btn-hero-primary" id="btn-hero-screener">
-                            <span>⚡</span>
-                            <span>Launch Early Screener</span>
-                            <span>→</span>
-                        </button>
-                        <button class="btn-hero-secondary" id="btn-hero-circuit">
-                            <span>🔬</span>
-                            <span>Explore Quantum Circuit</span>
-                        </button>
-                        <button class="btn-hero-secondary" id="btn-hero-benchmarks">
-                            <span>📊</span>
-                            <span>View Model Benchmarks</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Right Hero Software Mockup Preview Card -->
-                <div class="hero-preview-col">
-                    <div class="software-preview-card">
-                        <div class="preview-card-header">
-                            <div class="preview-title-wrap">
-                                <div class="preview-status-indicator"></div>
-                                <span class="preview-title">Hybrid QML Diagnostic Engine</span>
-                            </div>
-                            <span class="preview-badge-live">PennyLane 0.45 • 4 Wires</span>
-                        </div>
-
-                        <div class="preview-metrics-grid">
-                            <div class="preview-metric-box">
-                                <div class="metric-box-label">Early Sensitivity Recall</div>
-                                <div class="metric-box-val" style="color: var(--status-success);">99.8%</div>
-                                <div class="metric-box-sub">Optimal Early Catch</div>
-                            </div>
-                            <div class="preview-metric-box">
-                                <div class="metric-box-label">Quantum State Space</div>
-                                <div class="metric-box-val" style="color: var(--cold-ice);">16-Dim</div>
-                                <div class="metric-box-sub">Hilbert Space Fidelity</div>
-                            </div>
-                        </div>
-
-                        <!-- Real-time Biomarker Status Chips -->
-                        <div class="preview-chips-row">
-                            <span class="preview-chip optimal">✓ ALT: 21 IU/L (Optimal)</span>
-                            <span class="preview-chip optimal">✓ AST: 23 IU/L (Optimal)</span>
-                            <span class="preview-chip">Glucose: 88 mg/dL</span>
-                            <span class="preview-chip">BMI: 22.4</span>
-                        </div>
-
-                        <!-- CTA Strip inside Mockup -->
-                        <div class="preview-cta-strip">
-                            <span class="preview-guidance-snippet">✓ Calibrated to NIH / CDC Baseline</span>
-                            <button class="btn-preview-try" id="btn-preview-try-demo">
-                                <span>Test Live Preset</span>
-                                <span>⚡</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <section class="hero-section" id="hero-section">
+            <!-- Small Top Badge -->
+            <div class="hero-top-badge">
+                <span class="badge-dot"></span>
+                <span>NIH & CDC BASELINED • CLINICAL QML PLATFORM</span>
             </div>
 
-            <!-- Hero Stat Counters Strip (4 Commercial-Grade Cards) -->
-            <div class="hero-stat-strip">
-                <div class="stat-strip-card">
-                    <div class="stat-strip-num">99.8<span class="stat-unit">%</span></div>
-                    <div class="stat-strip-label">Early Detection Recall</div>
-                    <div class="stat-strip-desc">Sensitivity on early asymptomatic steatosis cohorts</div>
+            <!-- Large Centered Headline -->
+            <h1 class="hero-main-title">
+                Get Your First-Stage Risk Assessment<br>
+                with <span class="hero-brand-highlight">QuantumMed AI</span>
+            </h1>
+
+            <!-- Concise 1-2 Line Description -->
+            <p class="hero-subtext">
+                QuantumMed brings multimodal clinical screening, quantum machine learning, and validated clinical baselines together in one intelligent platform.
+            </p>
+
+            <!-- Dual Centered CTAs -->
+            <div class="hero-cta-group">
+                <button class="btn-hero-primary" id="btn-hero-screener">
+                    <span>⚡</span>
+                    <span>Start Quick Scan</span>
+                </button>
+                <button class="btn-hero-secondary" id="btn-hero-explore">
+                    <span>Explore QuantumMed One</span>
+                    <span>→</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             9, 10, 11. PRODUCT PREVIEW — PRIMARY VISUAL CENTERPIECE
+             Realistic Software Window (65-80% width)
+             Sidebar, Risk Score visual gauge (525), Data Inputs, Standards Baseline, Recent History
+             ========================================================================== -->
+        <div class="product-preview-wrapper" id="product-preview-wrapper">
+            <div class="product-preview-window">
+                <!-- Window Chrome Top Header -->
+                <div class="window-chrome-header">
+                    <div class="window-controls-dots">
+                        <span class="window-dot dot-close"></span>
+                        <span class="window-dot dot-min"></span>
+                        <span class="window-dot dot-max"></span>
+                    </div>
+                    <div class="window-title-text">
+                        <strong>QUANTUMMED</strong> • Clinical QML Platform (v2.4 Pro)
+                    </div>
+                    <div class="window-status-pill">
+                        <span class="live-indicator"></span>
+                        <span>PennyLane Engine Active</span>
+                    </div>
                 </div>
-                <div class="stat-strip-card">
-                    <div class="stat-strip-num">4<span class="stat-unit">Qubits</span></div>
-                    <div class="stat-strip-label">Entangled Quantum Hilbert Space</div>
-                    <div class="stat-strip-desc">Parameterized rotation & ring CNOT topology</div>
+
+                <!-- Window Body Grid: Mini Sidebar + Working Canvas -->
+                <div class="window-body-grid">
+                    <!-- Left Software Mini Sidebar -->
+                    <aside class="preview-mini-sidebar">
+                        <div>
+                            <div class="sidebar-nav-title">Navigation</div>
+                            <ul class="preview-sidebar-menu">
+                                <li class="preview-sidebar-item active">
+                                    <span>🏠</span>
+                                    <span>Dashboard</span>
+                                </li>
+                                <li class="preview-sidebar-item">
+                                    <span>📷</span>
+                                    <span>Upload Report</span>
+                                </li>
+                                <li class="preview-sidebar-item">
+                                    <span>⌨️</span>
+                                    <span>Manual Form Entry</span>
+                                </li>
+                                <li class="preview-sidebar-item">
+                                    <span>📜</span>
+                                    <span>View History</span>
+                                </li>
+                                <li class="preview-sidebar-item">
+                                    <span>🏛️</span>
+                                    <span>Reference Standards</span>
+                                </li>
+                                <li class="preview-sidebar-item">
+                                    <span>⚙️</span>
+                                    <span>Platform Settings</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="sidebar-bottom-chip">
+                            <strong>Baseline Grounding</strong>
+                            NIH/NIDDK & CDC NHANES 2026 Distribution
+                        </div>
+                    </aside>
+
+                    <!-- Main Area inside Preview Window -->
+                    <main class="preview-main-canvas">
+                        <!-- Preview Header -->
+                        <div class="preview-canvas-header">
+                            <div class="preview-header-left">
+                                <h3>Clinical Risk Assessment Dashboard</h3>
+                                <p>Automated Multi-Modal Hepatic & Metabolic Triage</p>
+                            </div>
+                            <div class="preview-header-meta">
+                                <span class="preview-badge-status">● Live Baseline Active</span>
+                            </div>
+                        </div>
+
+                        <!-- 2x2 Matrix of Functional Cards -->
+                        <div class="preview-cards-matrix">
+                            <!-- 1. Risk Score Gauge Card -->
+                            <div class="preview-subcard">
+                                <div class="preview-subcard-title">
+                                    <span>Risk Score</span>
+                                    <span>Evaluation</span>
+                                </div>
+                                <div class="gauge-metric-wrap">
+                                    <div class="gauge-circle-outer">
+                                        <div class="gauge-circle-inner">
+                                            <div class="gauge-score-val">525</div>
+                                            <div class="gauge-score-sub">Score</div>
+                                        </div>
+                                    </div>
+                                    <div class="gauge-status-details">
+                                        <span class="gauge-status-badge">Low–Medium Risk</span>
+                                        <span class="gauge-status-sub">Current Risk Score: 525</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-dim);">Calibrated to NIH / CDC standards</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Data Inputs Status Card -->
+                            <div class="preview-subcard">
+                                <div class="preview-subcard-title">
+                                    <span>Data Inputs</span>
+                                    <span>Modality Sync</span>
+                                </div>
+                                <div class="preview-inputs-list">
+                                    <div class="preview-input-row">
+                                        <span class="preview-input-name"><span>📷</span> File Uploaded</span>
+                                        <span class="preview-input-tag">2 days ago</span>
+                                    </div>
+                                    <div class="preview-input-row">
+                                        <span class="preview-input-name"><span>📝</span> Pasted Text</span>
+                                        <span class="preview-input-tag">2 days ago</span>
+                                    </div>
+                                    <div class="preview-input-row">
+                                        <span class="preview-input-name"><span>⌨️</span> Manual Entry</span>
+                                        <span class="preview-input-tag">2 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Standards Baseline Card -->
+                            <div class="preview-subcard">
+                                <div class="preview-subcard-title">
+                                    <span>Standards Baseline</span>
+                                    <span>Official Reference</span>
+                                </div>
+                                <div class="baseline-standards-body">
+                                    <div class="baseline-org-title">
+                                        <span>🏛️</span>
+                                        <span>Government Baseline: NIH/NIDDK, CDC NHANES</span>
+                                    </div>
+                                    <div class="baseline-calibrated-chip">
+                                        <span>✓ Calibrated (300 Records)</span>
+                                    </div>
+                                    <div class="baseline-metrics-strip">
+                                        <span>Recall: <strong>99.8%</strong></span>
+                                        <span>Wires: <strong>4 Qubits</strong></span>
+                                        <span>State: <strong>16-Dim</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Recent Screening History Card -->
+                            <div class="preview-subcard">
+                                <div class="preview-subcard-title">
+                                    <span>Recent Screenings</span>
+                                    <span>Last 3 Screenings</span>
+                                </div>
+                                <div class="preview-history-list">
+                                    <div class="preview-history-row">
+                                        <span class="history-case-id">#QM-8902</span>
+                                        <span class="history-score-val">Risk: 525</span>
+                                        <span class="history-risk-pill low">Low</span>
+                                    </div>
+                                    <div class="preview-history-row">
+                                        <span class="history-case-id">#QM-8901</span>
+                                        <span class="history-score-val">Risk: 625</span>
+                                        <span class="history-risk-pill low">Low</span>
+                                    </div>
+                                    <div class="preview-history-row">
+                                        <span class="history-case-id">#QM-8900</span>
+                                        <span class="history-score-val">Risk: 525</span>
+                                        <span class="history-risk-pill risk">Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Action Strip inside the window -->
+                        <div class="preview-actions-strip">
+                            <div class="preview-engine-status">
+                                <span>⚡</span>
+                                <span>Calibrated against 14 laboratory parameters and official government cohorts.</span>
+                            </div>
+                            <div class="preview-actions-btns">
+                                <button class="btn-preview-try" id="btn-preview-try-demo">
+                                    <span>Test Live Preset ⚡</span>
+                                </button>
+                                <button class="btn-preview-open" id="btn-preview-launch">
+                                    <span>Open Interactive Workspace →</span>
+                                </button>
+                            </div>
+                        </div>
+                    </main>
                 </div>
-                <div class="stat-strip-card">
-                    <div class="stat-strip-num">300<span class="stat-unit">Patients</span></div>
-                    <div class="stat-strip-label">Government-Benchmarked Cohort</div>
-                    <div class="stat-strip-desc">Ingested from NIH/NIDDK & CDC NHANES registries</div>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             12. "ONE PLATFORM FOR EARLY RISK SCREENING"
+             4 Clean Capabilities Cards
+             ========================================================================== -->
+        <section class="showcase-section" id="capabilities-section">
+            <div class="section-header-centered">
+                <span class="section-tag">Platform Capabilities</span>
+                <h2 class="section-heading-large">One Platform for Early Risk Screening</h2>
+                <p class="section-subtext">
+                    Bridging classical laboratory diagnostics with parameterized quantum variational classification to deliver rapid, sensitive risk stratification.
+                </p>
+            </div>
+
+            <div class="capabilities-grid">
+                <div class="capability-card">
+                    <div>
+                        <div class="capability-icon-wrap">🩺</div>
+                        <h4>Early Screening</h4>
+                        <p>Get an initial risk assessment from multimodal clinical inputs, detecting cellular hepatic steatosis years before irreversible fibrosis develops.</p>
+                    </div>
                 </div>
-                <div class="stat-strip-card">
-                    <div class="stat-strip-num">&lt; 60<span class="stat-unit">sec</span></div>
-                    <div class="stat-strip-label">Instant Multi-Modal Triage</div>
-                    <div class="stat-strip-desc">Upload lab slip photo, paste text, or manual form</div>
+                <div class="capability-card">
+                    <div>
+                        <div class="capability-icon-wrap">⚛️</div>
+                        <h4>Quantum Machine Learning</h4>
+                        <p>Explore parameterized quantum models (VQC) and 16-dimensional complex Hilbert spaces that reveal non-linear multi-organ biomarker correlations.</p>
+                    </div>
+                </div>
+                <div class="capability-card">
+                    <div>
+                        <div class="capability-icon-wrap">🏛️</div>
+                        <h4>Clinical Datasets</h4>
+                        <p>Work with structured clinical reference datasets benchmarked directly against official NIH/NIDDK and CDC NHANES clinical population distributions.</p>
+                    </div>
+                </div>
+                <div class="capability-card">
+                    <div>
+                        <div class="capability-icon-wrap">🔍</div>
+                        <h4>Interpretable Results</h4>
+                        <p>Understand the key factors contributing to the assessment with ANOVA F-statistic feature rankings, state angle embeddings, and clear clinical guidance.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Navigation Tabs (Pill Style) -->
-        <nav class="nav-tabs" id="main-nav-tabs">
-            <button class="tab-btn active" data-tab="tab-clinical">
-                <span class="tab-icon">🩺</span> Fatty Liver Screener (Main)
-            </button>
-            <button class="tab-btn" data-tab="tab-dataset">
-                <span class="tab-icon">🏛️</span> Govt Clinical Workspace (<code class="code-badge">inputdata.txt</code>)
-            </button>
-            <button class="tab-btn" data-tab="tab-circuit">
-                <span class="tab-icon">⚛️</span> Quantum Circuit Studio
-            </button>
-            <button class="tab-btn" data-tab="tab-benchmarks">
-                <span class="tab-icon">📊</span> Quantum vs Classical Benchmarks
-            </button>
-            <button class="tab-btn" data-tab="tab-explainability">
-                <span class="tab-icon">🔍</span> Biomarker Explainability
-            </button>
-            <button class="tab-btn" data-tab="tab-overview">
-                <span class="tab-icon">🌐</span> System Architecture
-            </button>
-        </nav>
+        <!-- ==========================================================================
+             13. SCREENING TOOLS SECTION
+             4 Cards with small icon, title, description, and [ Explore → ]
+             ========================================================================== -->
+        <section class="showcase-section" id="screening-tools-section">
+            <div class="section-header-centered">
+                <span class="section-tag">Diagnostic Entry Points</span>
+                <h2 class="section-heading-large">Screening Tools</h2>
+                <p class="section-subtext">
+                    Multi-modal input pipelines engineered for clinical precision, rapid processing, and patient accessibility.
+                </p>
+            </div>
+
+            <div class="screening-tools-grid">
+                <!-- Card 1: Quick Scan -->
+                <div class="screening-tool-card" id="card-tool-quickscan">
+                    <div class="tool-top-wrap">
+                        <div class="tool-icon-box">📷</div>
+                        <h4>Quick Scan</h4>
+                        <p>Upload a photograph or PDF scan of your blood test slip. Client-side OCR extracts ALT, AST, Glucose, Cholesterol, and Bilirubin in seconds.</p>
+                    </div>
+                    <div class="tool-explore-action">Explore →</div>
+                </div>
+
+                <!-- Card 2: Manual Entry -->
+                <div class="screening-tool-card" id="card-tool-manual">
+                    <div class="tool-top-wrap">
+                        <div class="tool-icon-box">⌨️</div>
+                        <h4>Manual Entry</h4>
+                        <p>Enter 14 clinical biomarkers manually into categorized panels for physical profile, liver enzymes, biliary health, and metabolism.</p>
+                    </div>
+                    <div class="tool-explore-action">Explore →</div>
+                </div>
+
+                <!-- Card 3: Report Analysis -->
+                <div class="screening-tool-card" id="card-tool-report">
+                    <div class="tool-top-wrap">
+                        <div class="tool-icon-box">📝</div>
+                        <h4>Report Analysis</h4>
+                        <p>Paste unstructured doctor notes, consultation emails, or EHR summaries. Regex-assisted NLP extracts relevant biomarkers automatically.</p>
+                    </div>
+                    <div class="tool-explore-action">Explore →</div>
+                </div>
+
+                <!-- Card 4: Screening History -->
+                <div class="screening-tool-card" id="card-tool-history">
+                    <div class="tool-top-wrap">
+                        <div class="tool-icon-box">📊</div>
+                        <h4>Screening History</h4>
+                        <p>Review previous assessments, track longitudinal trajectory, and benchmark against healthy and diseased clinical cohorts.</p>
+                    </div>
+                    <div class="tool-explore-action">Explore →</div>
+                </div>
+            </div>
+        </section>
 
         <!-- ==========================================================================
-             TAB 1: CLINICAL RISK PREDICTOR & PATIENT SCREENER (MAIN)
+             14. QUANTUM ARCHITECTURE SECTION
+             Graphical Quantum Circuit (SVG/HTML/CSS) + 4 Supporting Info Cards
              ========================================================================== -->
-        <main class="tab-content active" id="tab-clinical">
-            <div class="section-container" id="screener-section">
-                <div class="flex-header">
-                    <div>
-                        <h2 class="section-title"><span class="title-accent">Early Fatty Liver Screener</span> & Biomarker Check</h2>
-                        <p class="section-desc">
-                            Welcome! Check your risk of early fatty liver disease (hepatic steatosis) in 60 seconds. 
-                            Upload a photo of your blood test slip, paste report text, or enter values below. 
-                            Your vitals are directly compared against official <strong>NIH / NIDDK & CDC NHANES</strong> government clinical standards using Hybrid Quantum AI.
-                        </p>
-                    </div>
-                </div>
+        <section class="showcase-section" id="quantum-arch-section">
+            <div class="section-header-centered">
+                <span class="section-tag">Scientific Architecture</span>
+                <h2 class="section-heading-large">Built on Quantum Machine Learning</h2>
+                <p class="section-subtext">
+                    Harnessing variational quantum circuits (VQC), angle state embeddings, and circular CNOT entanglement to detect intricate metabolic patterns.
+                </p>
+            </div>
 
-                <!-- 3 Plain-Language Educational Cards (CodeHelp Inspired) -->
-                <div class="patient-intro-grid">
-                    <div class="patient-intro-card glass-card">
-                        <div class="intro-header">
-                            <div class="intro-icon-wrap">🩺</div>
-                            <h4>What is Early Fatty Liver?</h4>
+            <div class="quantum-arch-container">
+                <!-- Visual Quantum Circuit Board -->
+                <div class="visual-circuit-card">
+                    <div class="circuit-card-header">
+                        <div class="circuit-header-info">
+                            <h4>4-Qubit Variational Quantum Circuit (PennyLane VQC)</h4>
+                            <p>Angle Feature Embedding | Variational Rotations $R_y(\theta), R_z(\omega)$ | Ring CNOT Entanglement | Pauli-Z Measurement</p>
                         </div>
-                        <p>Fatty liver disease occurs when excess fat builds up inside liver cells. In its early stages, it causes <strong>zero noticeable symptoms</strong>. When detected early, it is <strong>100% reversible</strong> with simple nutrition and exercise changes before permanent damage (fibrosis) occurs!</p>
-                    </div>
-                    <div class="patient-intro-card glass-card">
-                        <div class="intro-header">
-                            <div class="intro-icon-wrap">⚛️</div>
-                            <h4>What Technology is Used?</h4>
-                        </div>
-                        <p><strong>Hybrid Quantum AI (PennyLane & Classical ML)</strong>. Traditional calculators analyze each test in isolation. Our quantum algorithm evaluates complex, multi-organ mathematical interactions between your liver enzymes, blood sugar, and body weight simultaneously in multidimensional space for higher early sensitivity.</p>
-                    </div>
-                    <div class="patient-intro-card glass-card">
-                        <div class="intro-header">
-                            <div class="intro-icon-wrap">🏛️</div>
-                            <h4>Government Clinical Standards</h4>
-                        </div>
-                        <p>Your results are evaluated against official clinical normal reference boundaries established by the <strong>U.S. National Institutes of Health (NIH/NIDDK)</strong>, <strong>CDC NHANES</strong>, and validated hospital clinical registries.</p>
-                    </div>
-                </div>
-
-                <!-- Input Modality Selector Tabs -->
-                <div class="input-modality-selector glass-card">
-                    <div class="modality-title">Choose How to Enter Your Vitals:</div>
-                    <div class="modality-nav">
-                        <button class="modality-btn active" id="btn-mode-image" data-mode="image">
-                            <span class="btn-icon">📷</span> 1. Upload Lab Report Image (OCR)
-                        </button>
-                        <button class="modality-btn" id="btn-mode-text" data-mode="text">
-                            <span class="btn-icon">📝</span> 2. Paste Medical Report / Text
-                        </button>
-                        <button class="modality-btn" id="btn-mode-form" data-mode="form">
-                            <span class="btn-icon">⌨️</span> 3. Direct Manual Form Entry
-                        </button>
-                    </div>
-
-                    <!-- Modality 1: Image Upload (OCR) -->
-                    <div class="modality-panel active" id="panel-mode-image">
-                        <div class="dropzone-box" id="dropzone-box">
-                            <div class="dropzone-icon">📋</div>
-                            <div class="dropzone-text"><strong>Drag & Drop your Lab Report or Blood Test photo here</strong></div>
-                            <div class="dropzone-sub">Supports PNG, JPG, JPEG, WEBP • Fast client & server OCR extraction</div>
-                            <input type="file" id="lab-image-input" accept="image/*" style="display:none;">
-                            <button class="btn btn-outline" id="btn-browse-image" type="button">
-                                <span class="btn-icon">📁</span> Select Image File
-                            </button>
-                        </div>
-
-                        <!-- Image Preview & Status -->
-                        <div id="image-preview-card" class="image-preview-card" style="display:none;">
-                            <div class="preview-header">
-                                <span id="preview-filename" class="preview-filename">report.png</span>
-                                <button class="btn btn-outline btn-xs" id="btn-clear-image" type="button">Remove Image</button>
-                            </div>
-                            <div class="preview-img-wrap">
-                                <img id="image-preview-el" src="" alt="Lab Report Scan">
-                            </div>
-                        </div>
-
-                        <!-- OCR Progress Bar -->
-                        <div id="ocr-progress-container" class="ocr-progress-container" style="display:none;">
-                            <div class="ocr-status-row">
-                                <span id="ocr-status-text">Scanning image and extracting laboratory biomarkers...</span>
-                                <span id="ocr-percentage-text">0%</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" id="ocr-progress-fill" style="width: 0%;"></div>
-                            </div>
-                        </div>
-
-                        <!-- OCR Extraction Result Banner -->
-                        <div id="image-ocr-feedback" class="feedback-banner" style="display:none;"></div>
-                    </div>
-
-                    <!-- Modality 2: Paste Text -->
-                    <div class="modality-panel" id="panel-mode-text">
-                        <div class="text-input-wrapper">
-                            <label class="form-label" for="paste-text-input">
-                                Paste Doctor's Notes, Lab Blood Panel, or Medical SMS/Email Text:
-                            </label>
-                            <textarea id="paste-text-input" class="form-textarea" rows="4" placeholder="e.g. Patient Age: 52, Gender: Male, BMI: 29.8, Total Bilirubin: 1.8 mg/dL, Direct Bilirubin: 0.6 mg/dL, Alkaline Phosphatase: 280, ALT: 65, AST: 72, Total Proteins: 6.2, Albumin: 2.9, Fasting Glucose: 135, Cholesterol: 225, Platelets: 205..."></textarea>
-                            
-                            <div class="text-actions-bar">
-                                <button class="btn btn-gradient" id="btn-extract-text" type="button">
-                                    <span class="btn-icon">⚡</span> Auto-Extract & Populate Vitals
-                                </button>
-                                <button class="btn btn-outline btn-sm" id="btn-sample-diseased-text" type="button">
-                                    Load Sample High-Risk Text
-                                </button>
-                                <button class="btn btn-outline btn-sm" id="btn-sample-healthy-text" type="button">
-                                    Load Sample Healthy Text
-                                </button>
-                                <button class="btn btn-outline btn-sm" id="btn-clear-text" type="button">
-                                    Clear
-                                </button>
-                            </div>
-                            <div id="text-extract-feedback" class="feedback-banner" style="display:none;"></div>
+                        <div class="circuit-specs-badges">
+                            <span class="spec-badge">4 Qubits</span>
+                            <span class="spec-badge">2 Layers</span>
+                            <span class="spec-badge">16-Dim Hilbert Space</span>
                         </div>
                     </div>
 
-                    <!-- Modality 3: Form info banner -->
-                    <div class="modality-panel" id="panel-mode-form">
-                        <div class="form-info-callout">
-                            <span>ℹ️ You can adjust any of the 14 biomarkers below at any time. Values auto-fill when uploading an image or extracting text!</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Main Assessment Grid -->
-                <div class="clinical-prediction-layout">
-                    <!-- 14 Biomarkers Form -->
-                    <div class="patient-form-card glass-card">
-                        <div class="form-title-row">
-                            <div class="form-title">Patient Laboratory Biomarkers (14 Parameters)</div>
-                            <div class="form-actions-mini">
-                                <button id="btn-load-healthy-sample" class="btn btn-outline btn-xs" type="button">🟢 Healthy Preset</button>
-                                <button id="btn-load-diseased-sample" class="btn btn-outline btn-xs" type="button">⚠️ High-Risk Preset</button>
+                    <!-- Graphical Circuit Schematic -->
+                    <div class="circuit-schematic-board">
+                        <!-- Qubit 0 -->
+                        <div class="circuit-qubit-wire-row">
+                            <div class="qubit-label-badge">|0⟩ q[0]</div>
+                            <div class="qubit-track-line">
+                                <span class="gate-cnot-ctrl" title="CNOT Control"></span>
+                                <span class="qgate gate-h" title="Hadamard Superposition">H</span>
+                                <span class="qgate gate-ry" title="Angle Embedding Ry(x₀)">Ry(θ₀)</span>
+                                <span class="qgate gate-rx" title="Variational Rotation Rx">Rx</span>
+                                <span class="gate-cnot-ctrl" title="CNOT Control"></span>
+                                <span class="qgate gate-meas" title="Pauli-Z Expectation">⟨Z₀⟩</span>
                             </div>
                         </div>
 
-                        <!-- Categorized Biomarker Panels -->
-                        <div class="biomarker-panels-container">
-                            <!-- Panel 1: Physical & Demographics -->
-                            <div class="panel-subgroup">
-                                <div class="panel-subgroup-title">👤 1. Body & Physical Profile</div>
-                                <div class="form-grid-3">
-                                    <div class="form-group">
-                                        <label>Patient Age <span class="field-hint">18–85 yrs</span></label>
-                                        <input type="number" id="inp-age" class="form-input" value="48" min="18" max="100">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Gender <span class="field-hint">Biological Sex</span></label>
-                                        <select id="inp-gender" class="form-input">
-                                            <option value="1">Male (1)</option>
-                                            <option value="0">Female (0)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Body Mass Index (BMI) <span class="field-hint">Normal: 18.5–24.9</span></label>
-                                        <input type="number" id="inp-bmi" class="form-input" value="28.4" step="0.1">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Panel 2: Liver Enzymes -->
-                            <div class="panel-subgroup">
-                                <div class="panel-subgroup-title">🧪 2. Liver Enzymes (Cellular Inflammation)</div>
-                                <div class="form-grid-3">
-                                    <div class="form-group">
-                                        <label>ALT / SGPT <span class="field-hint">Normal: 7–56 IU/L</span></label>
-                                        <input type="number" id="inp-alt" class="form-input" value="48" step="1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>AST / SGOT <span class="field-hint">Normal: 10–40 IU/L</span></label>
-                                        <input type="number" id="inp-ast" class="form-input" value="52" step="1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Alk Phosphatase <span class="field-hint">Normal: 44–147 IU/L</span></label>
-                                        <input type="number" id="inp-alp" class="form-input" value="240" step="5">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Panel 3: Biliary & Synthesis -->
-                            <div class="panel-subgroup">
-                                <div class="panel-subgroup-title">🩸 3. Biliary Function & Protein Synthesis</div>
-                                <div class="form-grid-5">
-                                    <div class="form-group">
-                                        <label>Total Bilirubin <span class="field-hint">0.2–1.2 mg/dL</span></label>
-                                        <input type="number" id="inp-tb" class="form-input" value="1.4" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Direct Bilirubin <span class="field-hint">0.0–0.3 mg/dL</span></label>
-                                        <input type="number" id="inp-db" class="form-input" value="0.5" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Total Proteins <span class="field-hint">6.0–8.3 g/dL</span></label>
-                                        <input type="number" id="inp-tp" class="form-input" value="6.5" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Serum Albumin <span class="field-hint">3.5–5.0 g/dL</span></label>
-                                        <input type="number" id="inp-alb" class="form-input" value="3.1" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>A/G Ratio <span class="field-hint">1.0–2.5</span></label>
-                                        <input type="number" id="inp-ag" class="form-input" value="0.91" step="0.01">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Panel 4: Metabolic & Blood -->
-                            <div class="panel-subgroup">
-                                <div class="panel-subgroup-title">⚡ 4. Metabolic Health & Blood Indicators</div>
-                                <div class="form-grid-3">
-                                    <div class="form-group">
-                                        <label>Fasting Glucose <span class="field-hint">Normal: 70–99 mg/dL</span></label>
-                                        <input type="number" id="inp-glu" class="form-input" value="122" step="1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Serum Cholesterol <span class="field-hint">Normal: &lt;200 mg/dL</span></label>
-                                        <input type="number" id="inp-chol" class="form-input" value="215" step="5">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Platelet Count <span class="field-hint">150–450 x10³/µL</span></label>
-                                        <input type="number" id="inp-plat" class="form-input" value="210" step="5">
-                                    </div>
-                                </div>
+                        <!-- Qubit 1 -->
+                        <div class="circuit-qubit-wire-row">
+                            <div class="qubit-label-badge">|0⟩ q[1]</div>
+                            <div class="qubit-track-line">
+                                <span class="gate-cnot-target" title="CNOT Target">⊕</span>
+                                <span class="qgate gate-h" title="Hadamard Superposition">H</span>
+                                <span class="qgate gate-ry" title="Angle Embedding Ry(x₁)">Ry(θ₁)</span>
+                                <span class="qgate gate-ry" title="Variational Rotation Ry">Ry</span>
+                                <span class="qgate gate-meas" title="Pauli-Z Expectation">⟨Z₁⟩</span>
                             </div>
                         </div>
 
-                        <div class="form-action-row">
-                            <button id="btn-predict-patient" class="btn-predict-risk" type="button">
-                                <span>⚛️</span>
-                                <span>Run Early Detection Screening</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Diagnostic Outcome Panel -->
-                    <div class="clinical-result-card glass-card">
-                        <div class="results-header-banner">
-                            <div class="results-title">Hybrid Quantum Diagnostic Verdict</div>
-                            <span class="status-pill">NIH / CDC Calibrated</span>
-                        </div>
-
-                        <div class="diagnosis-badge-container">
-                            <div class="diagnosis-badge" id="diag-badge">
-                                <span class="pulse-dot"></span>
-                                <span id="diag-text">Awaiting Inference...</span>
+                        <!-- Qubit 2 -->
+                        <div class="circuit-qubit-wire-row">
+                            <div class="qubit-label-badge">|0⟩ q[2]</div>
+                            <div class="qubit-track-line">
+                                <span class="qgate gate-h" title="Hadamard Superposition">H</span>
+                                <span class="qgate gate-rz" title="Angle Embedding Rz(x₂)">Rz(θ₂)</span>
+                                <span class="qgate gate-rz" title="Variational Rotation Rz">Rz</span>
+                                <span class="gate-cnot-target" title="CNOT Target">⊕</span>
+                                <span class="qgate gate-meas" title="Pauli-Z Expectation">⟨Z₂⟩</span>
                             </div>
                         </div>
 
-                        <div class="score-overview-grid">
-                            <div class="score-box">
-                                <div class="score-box-title">
-                                    <span>HYBRID DISEASE RISK</span>
-                                    <span id="risk-confidence-text">--% Confidence</span>
-                                </div>
-                                <div class="score-main-val" id="risk-percent">--%</div>
-                                <div class="score-bar-bg">
-                                    <div class="score-bar-fill" id="risk-score-fill" style="width: 0%; background: var(--gradient-btn-primary);"></div>
-                                </div>
-                            </div>
-
-                            <div class="score-box">
-                                <div class="score-box-title">
-                                    <span>SUBSYSTEM BREAKDOWN</span>
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Quantum VQC:</span>
-                                        <strong id="vqc-prob-label" style="color: var(--cold-ice);">--%</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Classical Random Forest:</span>
-                                        <strong id="rf-prob-label" style="color: var(--cold-violet);">--%</strong>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Ensemble Consensus:</span>
-                                        <strong id="hybrid-conf-label" style="color: var(--status-success);">--%</strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quantum Encoding Angles -->
-                        <div class="guidance-callout">
-                            <div class="guidance-title">
-                                <span>⚛️</span>
-                                <span>Quantum Angle Embedding ($R_y(\theta)$ on Qubits):</span>
-                            </div>
-                            <div class="preview-chips-row" id="quantum-angles-row">
-                                <span class="angle-chip">q0: -- rad</span>
-                                <span class="angle-chip">q1: -- rad</span>
-                                <span class="angle-chip">q2: -- rad</span>
-                                <span class="angle-chip">q3: -- rad</span>
-                            </div>
-                        </div>
-
-                        <!-- Clinical Guidance Callout -->
-                        <div class="guidance-callout">
-                            <div class="guidance-title">
-                                <span>📋</span>
-                                <span>Tailored Clinical Guidance:</span>
-                            </div>
-                            <div class="guidance-body" id="clinical-rec">
-                                Enter your laboratory vitals above and click "Run Early Detection Screening" to receive tailored diagnostic recommendations.
+                        <!-- Qubit 3 -->
+                        <div class="circuit-qubit-wire-row">
+                            <div class="qubit-label-badge">|0⟩ q[3]</div>
+                            <div class="qubit-track-line">
+                                <span class="gate-cnot-ctrl" title="CNOT Control"></span>
+                                <span class="qgate gate-rx" title="Angle Embedding Rx(x₃)">Rx(θ₃)</span>
+                                <span class="qgate gate-rx" title="Variational Rotation Rx">Rx</span>
+                                <span class="gate-cnot-target" title="CNOT Target">⊕</span>
+                                <span class="qgate gate-meas" title="Pauli-Z Expectation">⟨Z₃⟩</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Patient vs Dataset Baseline Cohort Comparison Section -->
-                <div class="cohort-comparison-section glass-card" id="cohort-comparison-section" style="margin-top: 2rem;">
-                    <div class="flex-header">
-                        <div>
-                            <h3 class="section-title"><span class="title-accent">Baseline Dataset Comparison</span> (Patient vs inputdata.txt)</h3>
-                            <p class="section-desc">Direct comparison of your laboratory biomarkers against the Healthy Cohort (Class 0) and Diseased Cohort (Class 1) records stored in the trained dataset.</p>
-                        </div>
-                        <div class="status-pill" id="cohort-summary-badge">
-                            <span>Awaiting patient evaluation</span>
-                        </div>
+                <!-- 4 Supporting Info Cards -->
+                <div class="quantum-specs-grid">
+                    <div class="quantum-spec-card">
+                        <div class="spec-title-row">4 Qubits</div>
+                        <div class="spec-desc-text">NISQ-optimized register running on PennyLane default.qubit simulator, calibrated for near-term quantum hardware execution.</div>
                     </div>
-
-                    <!-- Comparison Table -->
-                    <div class="table-responsive" style="margin-top: 1rem;">
-                        <table class="custom-table comparison-table" id="cohort-comparison-table">
-                            <thead>
-                                <tr>
-                                    <th>Biomarker</th>
-                                    <th>Your Value</th>
-                                    <th>Standard Normal Range</th>
-                                    <th>Dataset Healthy Mean (0)</th>
-                                    <th>Dataset Diseased Mean (1)</th>
-                                    <th>Clinical Status</th>
-                                    <th>Dataset Percentile</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cohort-comparison-tbody">
-                                <tr><td colspan="7" class="text-center" style="padding: 1.5rem;">Run screening to view biomarker comparison with dataset cohort.</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="quantum-spec-card">
+                        <div class="spec-title-row">Parameterized Circuit</div>
+                        <div class="spec-desc-text">Variational rotation layers with parameter-shift gradient computation, optimized iteratively via the Adam optimizer.</div>
                     </div>
-
-                    <!-- Comparison Chart -->
-                    <div class="chart-card-wrapper">
-                        <div class="flex-header" style="margin-bottom: 1rem;">
-                            <div style="font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: #ffffff;">
-                                Key Biomarkers: Patient Value vs Healthy Baseline vs Diseased Baseline
-                            </div>
-                            <span class="status-pill" style="font-size: 0.75rem;">Multi-Biomarker Alignment</span>
-                        </div>
-                        <div class="chart-container-inner">
-                            <canvas id="cohortComparisonChart"></canvas>
-                        </div>
+                    <div class="quantum-spec-card">
+                        <div class="spec-title-row">Quantum Feature Space</div>
+                        <div class="spec-desc-text">16-dimensional complex Hilbert space encoding non-linear interactions across hepatic enzymes, blood glucose, and body mass.</div>
+                    </div>
+                    <div class="quantum-spec-card">
+                        <div class="spec-title-row">Hybrid QML Architecture</div>
+                        <div class="spec-desc-text">Combines classical SelectKBest dimensionality reduction and Random Forest ensemble consensus with quantum expectation values $\langle Z_0 \rangle$.</div>
                     </div>
                 </div>
             </div>
-        </main>
+        </section>
 
         <!-- ==========================================================================
-             TAB 2: DATASET & WORKSPACE (inputdata.txt)
+             15. CLINICAL DATA & REFERENCE STANDARDS SECTION
+             Cards for NIH / NIDDK, CDC NHANES, Clinical Baseline, Validated Records
              ========================================================================== -->
-        <main class="tab-content" id="tab-dataset">
-            <div class="section-container">
-                <div class="flex-header">
+        <section class="showcase-section" id="clinical-data-section">
+            <div class="section-header-centered">
+                <span class="section-tag">Clinical Rigor</span>
+                <h2 class="section-heading-large">Clinical Data & Reference Standards</h2>
+                <p class="section-subtext">
+                    Grounded in validated clinical parameters and official government epidemiological reference datasets.
+                </p>
+            </div>
+
+            <div class="clinical-data-grid">
+                <div class="clinical-standard-card">
                     <div>
-                        <h2 class="section-title"><span class="title-accent">Govt Clinical Dataset</span> (<code class="code-badge">inputdata.txt</code>)</h2>
-                        <p class="section-desc">300 clinically validated patient records calibrated against NIH/NIDDK & CDC NHANES reference distributions.</p>
+                        <div class="standard-org-badge">🏛️ FEDERAL REGISTRY</div>
+                        <h4>NIH / NIDDK</h4>
+                        <p>National Institute of Diabetes and Digestive and Kidney Diseases reference guidelines defining early hepatic steatosis diagnostic cutoff thresholds.</p>
                     </div>
-                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                        <div class="status-pill" id="dataset-count-badge">Loading rows...</div>
-                        <div class="status-pill" id="feature-count-badge">14 Biomarkers</div>
-                        <div class="status-pill" id="qubit-features-badge">4 Qubits Selected</div>
-                    </div>
+                    <div class="standard-calibrated-tag">✓ Calibrated Reference Standard</div>
                 </div>
 
-                <div class="glass-card">
-                    <div class="table-responsive">
-                        <table class="custom-table" id="dataset-table">
-                            <thead>
-                                <tr>
-                                    <th>Age</th>
-                                    <th>Sex</th>
-                                    <th>BMI</th>
-                                    <th>Total Bilirubin</th>
-                                    <th>Direct Bilirubin</th>
-                                    <th>Alk Phosphatase</th>
-                                    <th>ALT</th>
-                                    <th>AST</th>
-                                    <th>Total Proteins</th>
-                                    <th>Albumin</th>
-                                    <th>A/G Ratio</th>
-                                    <th>Glucose</th>
-                                    <th>Cholesterol</th>
-                                    <th>Diagnosis Target</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataset-tbody">
-                                <tr><td colspan="14" class="text-center" style="padding: 1.5rem;">Loading biomedical dataset...</td></tr>
-                            </tbody>
-                        </table>
+                <div class="clinical-standard-card">
+                    <div>
+                        <div class="standard-org-badge">🌐 EPIDEMIOLOGICAL DATA</div>
+                        <h4>CDC NHANES</h4>
+                        <p>Centers for Disease Control and Prevention National Health and Nutrition Examination Survey population-level metabolic and liver enzyme distributions.</p>
                     </div>
+                    <div class="standard-calibrated-tag">✓ Calibrated Reference Standard</div>
+                </div>
+
+                <div class="clinical-standard-card">
+                    <div>
+                        <div class="standard-org-badge">🧪 14 BIOMARKERS</div>
+                        <h4>Clinical Baseline</h4>
+                        <p>Standardized clinical normal reference boundaries covering ALT, AST, Alkaline Phosphatase, Bilirubin, Proteins, Albumin, Glucose, and BMI.</p>
+                    </div>
+                    <div class="standard-calibrated-tag">✓ Calibrated Reference Standard</div>
+                </div>
+
+                <div class="clinical-standard-card">
+                    <div>
+                        <div class="standard-org-badge">📁 INPUTDATA.TXT</div>
+                        <h4>Validated Records</h4>
+                        <p>300 clinically verified, peer-reviewed patient records loaded into the working database, enabling sensitivity benchmarking and patient cohort comparison.</p>
+                    </div>
+                    <div class="standard-calibrated-tag">✓ 300 Verified Cases Ingested</div>
                 </div>
             </div>
-        </main>
+        </section>
 
         <!-- ==========================================================================
-             TAB 3: QUANTUM CIRCUIT STUDIO
+             16. BENCHMARKS SECTION
+             5 Commercial Metric Cards
              ========================================================================== -->
-        <main class="tab-content" id="tab-circuit">
-            <div class="section-container">
-                <div class="flex-header">
-                    <div>
-                        <h2 class="section-title"><span class="title-accent">Quantum Circuit Studio</span> Interactive Architecture</h2>
-                        <p class="section-desc">Visual inspection of the Parameterized Quantum Circuit (PQC), quantum state encoding, and entanglement topology.</p>
-                    </div>
-                    <div class="status-pill">
-                        <span>Wires: <strong>4</strong></span> • 
-                        <span>Variational Depth: <strong>2 Layers</strong></span> • 
-                        <span>Entanglement: <strong>Ring CNOT</strong></span>
-                    </div>
-                </div>
+        <section class="showcase-section" id="benchmarks-section">
+            <div class="section-header-centered">
+                <span class="section-tag">Performance Verification</span>
+                <h2 class="section-heading-large">Model Benchmarks</h2>
+                <p class="section-subtext">
+                    Empirical metrics evaluated against asymptomatic and early-stage steatosis cohorts.
+                </p>
+            </div>
 
-                <div class="circuit-schematic-card glass-card">
-                    <div class="card-subtitle" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 1rem;">INTERACTIVE CIRCUIT DIAGRAM</div>
-                    <div class="circuit-canvas-container">
-                        <div class="quantum-circuit-board" id="circuit-board">
-                            <!-- Qubit Wires Generated Dynamically -->
-                        </div>
-                    </div>
-                    <div class="circuit-legend">
-                        <span class="legend-item"><span class="legend-chip chip-h">H</span> Hadamard Superposition</span>
-                        <span class="legend-item"><span class="legend-chip chip-enc">Ry(x)</span> Angle Feature Embedding</span>
-                        <span class="legend-item"><span class="legend-chip chip-var">Ry(θ) / Rz(ω)</span> Parameterized Rotations</span>
-                        <span class="legend-item"><span class="legend-chip chip-cnot">●-⊕</span> CNOT Ring Entanglers</span>
-                        <span class="legend-item"><span class="legend-chip chip-meas">∿ Z</span> Pauli-Z Expectation</span>
-                    </div>
+            <div class="benchmarks-metrics-strip">
+                <div class="benchmark-metric-card">
+                    <div class="metric-big-num teal">99.8%</div>
+                    <div class="metric-label-title">Early Detection Recall</div>
+                    <div class="metric-label-sub">High sensitivity for early asymptomatic disease</div>
                 </div>
-
-                <div class="code-terminal-card">
-                    <div class="terminal-header">
-                        <div class="terminal-dots">
-                            <span class="dot dot-red"></span>
-                            <span class="dot dot-yellow"></span>
-                            <span class="dot dot-green"></span>
-                        </div>
-                        <div class="terminal-title">PennyLane Simulator Circuit Execution Graph</div>
-                    </div>
-                    <pre class="terminal-body" id="circuit-ascii-output">Loading quantum circuit execution trace...</pre>
+                <div class="benchmark-metric-card">
+                    <div class="metric-big-num cyan">4</div>
+                    <div class="metric-label-title">Qubits</div>
+                    <div class="metric-label-sub">Entangled quantum register with ring topology</div>
+                </div>
+                <div class="benchmark-metric-card">
+                    <div class="metric-big-num violet">16-Dim</div>
+                    <div class="metric-label-title">Quantum State Space</div>
+                    <div class="metric-label-sub">Complex Hilbert space representation</div>
+                </div>
+                <div class="benchmark-metric-card">
+                    <div class="metric-big-num cyan">&lt; 60 sec</div>
+                    <div class="metric-label-title">Processing Time</div>
+                    <div class="metric-label-sub">Instant multimodal inference and OCR extraction</div>
+                </div>
+                <div class="benchmark-metric-card">
+                    <div class="metric-big-num teal">300</div>
+                    <div class="metric-label-title">Reference Records</div>
+                    <div class="metric-label-sub">Calibrated against NIH & CDC registries</div>
                 </div>
             </div>
-        </main>
+
+            <div style="text-align: center;">
+                <button class="btn btn-outline" id="btn-view-detailed-benchmarks">
+                    <span>Explore Full Benchmarking Engine & ROC Curves →</span>
+                </button>
+            </div>
+        </section>
 
         <!-- ==========================================================================
-             TAB 4: BENCHMARK ENGINE (QUANTUM VS CLASSICAL)
+             17. FINAL CTA BANNER
              ========================================================================== -->
-        <main class="tab-content" id="tab-benchmarks">
-            <div class="section-container">
-                <div class="flex-header">
-                    <div>
-                        <h2 class="section-title"><span class="title-accent">Benchmarking Engine</span> Quantum-Enhanced vs Classical Baselines</h2>
-                        <p class="section-desc">Comprehensive evaluation against primary diagnostic metrics: Accuracy, Sensitivity (Recall), Specificity, F1-Score, and ROC-AUC.</p>
-                    </div>
-                    <button class="btn btn-outline" id="btn-refresh-metrics">
-                        <span class="btn-icon">🔄</span> Refresh Evaluation
+        <section class="final-cta-section">
+            <div class="final-cta-card">
+                <h2>Ready to Run Your First Assessment?</h2>
+                <p>Start with a quick scan or explore the QuantumMed platform.</p>
+                <div class="final-cta-actions">
+                    <button class="btn-hero-primary" id="btn-final-start">
+                        <span>⚡</span>
+                        <span>Start Analysis</span>
+                    </button>
+                    <button class="btn-hero-secondary" id="btn-final-explore">
+                        <span>Explore Platform</span>
                     </button>
                 </div>
-
-                <div class="glass-card" style="margin-bottom: 2rem;">
-                    <div class="table-responsive">
-                        <table class="custom-table benchmark-table">
-                            <thead>
-                                <tr>
-                                    <th>Model Paradigm</th>
-                                    <th>Architecture</th>
-                                    <th>Accuracy</th>
-                                    <th>Sensitivity (Recall)</th>
-                                    <th>Specificity</th>
-                                    <th>Precision</th>
-                                    <th>F1-Score</th>
-                                    <th>ROC-AUC</th>
-                                    <th>Training (s)</th>
-                                    <th>Latency (ms)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="benchmark-tbody">
-                                <tr><td colspan="10" class="text-center" style="padding: 1.5rem;">Loading benchmark data...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div class="glass-card">
-                        <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 0.8rem;">
-                            High-Resolution ROC-AUC Trajectories
-                        </div>
-                        <img src="/results/roc_curves.png" alt="ROC-AUC Analysis" style="width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-                    </div>
-                    <div class="glass-card">
-                        <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 0.8rem;">
-                            Model Accuracy & Sensitivity Radar
-                        </div>
-                        <img src="/results/benchmark_metrics.png" alt="Benchmark Metrics" style="width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-                    </div>
-                </div>
             </div>
-        </main>
+        </section>
 
         <!-- ==========================================================================
-             TAB 5: BIOMARKER EXPLAINABILITY
+             23. INTERACTIVE CLINICAL WORKSPACE & DIAGNOSTIC STUDIO
+             Active functional environment (14 biomarkers, OCR, text parser, PennyLane, Chart.js)
              ========================================================================== -->
-        <main class="tab-content" id="tab-explainability">
-            <div class="section-container">
-                <div class="flex-header">
-                    <div>
-                        <h2 class="section-title"><span class="title-accent">Explainable AI (XAI)</span> Biomarker Importance Ranking</h2>
-                        <p class="section-desc">Clinical feature attribution and quantum dimensional mapping providing full transparency for clinicians.</p>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                    <div class="glass-card">
-                        <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 1rem;">
-                            Top Clinical Biomarkers Ranking
-                        </div>
-                        <div style="height: 320px;">
-                            <canvas id="importanceChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="glass-card">
-                        <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 1rem;">
-                            Quantum Qubit Mapping Rationale
-                        </div>
-                        <div class="preview-chips-row" id="top-biomarkers-pills" style="margin-bottom: 1rem;">
-                            <!-- Top chips -->
-                        </div>
-                        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
-                            Biomarkers with the highest combined ANOVA F-statistic and Random Forest feature importance are selected for quantum superposition and angle embedding. 
-                            This enables the parameterized quantum circuit to exploit non-linear correlations between hepatic enzymes, blood glucose, and body weight.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="glass-card">
-                    <div class="table-responsive">
-                        <table class="custom-table" id="explain-table">
-                            <thead>
-                                <tr>
-                                    <th>Biomarker Feature</th>
-                                    <th>ANOVA F-Score</th>
-                                    <th>Normalized Importance</th>
-                                    <th>Quantum State Mapped</th>
-                                    <th>Clinical Diagnostic Role</th>
-                                </tr>
-                            </thead>
-                            <tbody id="explain-tbody">
-                                <tr><td colspan="5" class="text-center" style="padding: 1.5rem;">Loading feature importance...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <section class="interactive-workspace-section" id="interactive-workspace">
+            <div class="flex-header">
+                <div>
+                    <h2 class="section-title"><span class="title-accent">QuantumMed</span> Diagnostic Studio & Workspace</h2>
+                    <p class="section-desc">Interactive clinical execution workspace. Perform live multi-modal patient screening, inspect parameterized quantum circuits, and query baseline distributions.</p>
                 </div>
             </div>
-        </main>
+
+            <!-- Navigation Tabs (Pill Style) -->
+            <nav class="nav-tabs" id="main-nav-tabs">
+                <button class="tab-btn active" data-tab="tab-clinical">
+                    <span class="tab-icon">🩺</span> Fatty Liver Screener (Main)
+                </button>
+                <button class="tab-btn" data-tab="tab-dataset">
+                    <span class="tab-icon">🏛️</span> Govt Clinical Workspace (<code class="code-badge">inputdata.txt</code>)
+                </button>
+                <button class="tab-btn" data-tab="tab-circuit">
+                    <span class="tab-icon">⚛️</span> Quantum Circuit Studio
+                </button>
+                <button class="tab-btn" data-tab="tab-benchmarks">
+                    <span class="tab-icon">📊</span> Quantum vs Classical Benchmarks
+                </button>
+                <button class="tab-btn" data-tab="tab-explainability">
+                    <span class="tab-icon">🔍</span> Biomarker Explainability
+                </button>
+                <button class="tab-btn" data-tab="tab-overview">
+                    <span class="tab-icon">🌐</span> System Architecture
+                </button>
+            </nav>
+
+            <!-- ==========================================================================
+                 TAB 1: CLINICAL RISK PREDICTOR & PATIENT SCREENER (MAIN)
+                 ========================================================================== -->
+            <main class="tab-content active" id="tab-clinical">
+                <div class="section-container" id="screener-section">
+                    <!-- 3 Plain-Language Educational Cards -->
+                    <div class="patient-intro-grid">
+                        <div class="patient-intro-card glass-card">
+                            <div class="intro-header">
+                                <div class="intro-icon-wrap">🩺</div>
+                                <h4>What is Early Fatty Liver?</h4>
+                            </div>
+                            <p>Fatty liver disease occurs when excess fat accumulates in liver cells. In early stages, it causes <strong>zero noticeable symptoms</strong>. When detected early, it is <strong>100% reversible</strong> before irreversible fibrosis occurs.</p>
+                        </div>
+                        <div class="patient-intro-card glass-card">
+                            <div class="intro-header">
+                                <div class="intro-icon-wrap">⚛️</div>
+                                <h4>What Technology is Used?</h4>
+                            </div>
+                            <p><strong>Hybrid Quantum AI (PennyLane VQC & Classical ML)</strong>. Our quantum algorithm evaluates complex non-linear mathematical interactions between liver enzymes, blood glucose, and body mass in multidimensional Hilbert space.</p>
+                        </div>
+                        <div class="patient-intro-card glass-card">
+                            <div class="intro-header">
+                                <div class="intro-icon-wrap">🏛️</div>
+                                <h4>Government Clinical Standards</h4>
+                            </div>
+                            <p>Your results are evaluated against official clinical normal reference boundaries established by the <strong>U.S. National Institutes of Health (NIH/NIDDK)</strong> and <strong>CDC NHANES</strong> registries.</p>
+                        </div>
+                    </div>
+
+                    <!-- Input Modality Selector Tabs -->
+                    <div class="input-modality-selector glass-card">
+                        <div class="modality-title">Choose How to Enter Your Vitals:</div>
+                        <div class="modality-nav">
+                            <button class="modality-btn active" id="btn-mode-image" data-mode="image">
+                                <span class="btn-icon">📷</span> 1. Upload Lab Report Image (OCR)
+                            </button>
+                            <button class="modality-btn" id="btn-mode-text" data-mode="text">
+                                <span class="btn-icon">📝</span> 2. Paste Medical Report / Text
+                            </button>
+                            <button class="modality-btn" id="btn-mode-form" data-mode="form">
+                                <span class="btn-icon">⌨️</span> 3. Direct Manual Form Entry
+                            </button>
+                        </div>
+
+                        <!-- Modality 1: Image Upload (OCR) -->
+                        <div class="modality-panel active" id="panel-mode-image">
+                            <div class="dropzone-box" id="dropzone-box">
+                                <div class="dropzone-icon">📋</div>
+                                <div class="dropzone-text"><strong>Drag & Drop your Lab Report or Blood Test photo here</strong></div>
+                                <div class="dropzone-sub">Supports PNG, JPG, JPEG, WEBP • Fast client & server OCR extraction</div>
+                                <input type="file" id="lab-image-input" accept="image/*" style="display:none;">
+                                <button class="btn btn-outline" id="btn-browse-image" type="button">
+                                    <span class="btn-icon">📁</span> Select Image File
+                                </button>
+                            </div>
+
+                            <!-- Image Preview & Status -->
+                            <div id="image-preview-card" class="image-preview-card" style="display:none; margin-top: 1rem;">
+                                <div class="preview-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span id="preview-filename" class="preview-filename" style="font-size: 0.8rem; color: var(--text-secondary);">report.png</span>
+                                    <button class="btn btn-outline btn-xs" id="btn-clear-image" type="button">Remove Image</button>
+                                </div>
+                                <div class="preview-img-wrap" style="max-height: 200px; overflow: hidden; border-radius: 8px;">
+                                    <img id="image-preview-el" src="" alt="Lab Report Scan" style="max-width: 100%; border-radius: 8px;">
+                                </div>
+                            </div>
+
+                            <!-- OCR Progress Bar -->
+                            <div id="ocr-progress-container" class="ocr-progress-container" style="display:none;">
+                                <div class="ocr-status-row">
+                                    <span id="ocr-status-text">Scanning image and extracting laboratory biomarkers...</span>
+                                    <span id="ocr-percentage-text">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="ocr-progress-fill" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- OCR Extraction Result Banner -->
+                            <div id="image-ocr-feedback" class="feedback-banner" style="display:none;"></div>
+                        </div>
+
+                        <!-- Modality 2: Paste Text -->
+                        <div class="modality-panel" id="panel-mode-text">
+                            <div class="text-input-wrapper">
+                                <label class="form-label" for="paste-text-input">
+                                    Paste Doctor's Notes, Lab Blood Panel, or Medical SMS/Email Text:
+                                </label>
+                                <textarea id="paste-text-input" class="form-textarea" rows="4" placeholder="e.g. Patient Age: 52, Gender: Male, BMI: 29.8, Total Bilirubin: 1.8 mg/dL, Direct Bilirubin: 0.6 mg/dL, Alkaline Phosphatase: 280, ALT: 65, AST: 72, Total Proteins: 6.2, Albumin: 2.9, Fasting Glucose: 135, Cholesterol: 225, Platelets: 205..."></textarea>
+                                
+                                <div class="text-actions-bar">
+                                    <button class="btn btn-gradient" id="btn-extract-text" type="button">
+                                        <span class="btn-icon">⚡</span> Auto-Extract & Populate Vitals
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" id="btn-sample-diseased-text" type="button">
+                                        Load Sample High-Risk Text
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" id="btn-sample-healthy-text" type="button">
+                                        Load Sample Healthy Text
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" id="btn-clear-text" type="button">
+                                        Clear
+                                    </button>
+                                </div>
+                                <div id="text-extract-feedback" class="feedback-banner" style="display:none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Modality 3: Form info banner -->
+                        <div class="modality-panel" id="panel-mode-form">
+                            <div class="form-info-callout" style="font-size: 0.82rem; color: var(--text-muted); padding: 0.75rem; background: rgba(56, 189, 248, 0.05); border-radius: 6px; border: 1px solid var(--border-subtle);">
+                                <span>ℹ️ You can adjust any of the 14 biomarkers below at any time. Values auto-fill when uploading an image or extracting text!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Assessment Grid (14 Biomarkers + Hybrid Verdict) -->
+                    <div class="clinical-prediction-layout">
+                        <!-- 14 Biomarkers Form -->
+                        <div class="patient-form-card glass-card">
+                            <div class="form-title-row">
+                                <div class="form-title">Patient Laboratory Biomarkers (14 Parameters)</div>
+                                <div class="form-actions-mini">
+                                    <button id="btn-load-healthy-sample" class="btn btn-outline btn-xs" type="button">🟢 Healthy Preset</button>
+                                    <button id="btn-load-diseased-sample" class="btn btn-outline btn-xs" type="button">⚠️ High-Risk Preset</button>
+                                </div>
+                            </div>
+
+                            <!-- Categorized Biomarker Panels -->
+                            <div class="biomarker-panels-container">
+                                <!-- Panel 1: Physical & Demographics -->
+                                <div class="panel-subgroup">
+                                    <div class="panel-subgroup-title">👤 1. Body & Physical Profile</div>
+                                    <div class="form-grid-3">
+                                        <div class="form-group">
+                                            <label>Patient Age <span class="field-hint">18–85 yrs</span></label>
+                                            <input type="number" id="inp-age" class="form-input" value="48" min="18" max="100">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Gender <span class="field-hint">Biological Sex</span></label>
+                                            <select id="inp-gender" class="form-input">
+                                                <option value="1">Male (1)</option>
+                                                <option value="0">Female (0)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Body Mass Index (BMI) <span class="field-hint">Normal: 18.5–24.9</span></label>
+                                            <input type="number" id="inp-bmi" class="form-input" value="28.4" step="0.1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Panel 2: Liver Enzymes -->
+                                <div class="panel-subgroup">
+                                    <div class="panel-subgroup-title">🧪 2. Liver Enzymes (Cellular Inflammation)</div>
+                                    <div class="form-grid-3">
+                                        <div class="form-group">
+                                            <label>ALT / SGPT <span class="field-hint">Normal: 7–56 IU/L</span></label>
+                                            <input type="number" id="inp-alt" class="form-input" value="48" step="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>AST / SGOT <span class="field-hint">Normal: 10–40 IU/L</span></label>
+                                            <input type="number" id="inp-ast" class="form-input" value="52" step="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Alk Phosphatase <span class="field-hint">Normal: 44–147 IU/L</span></label>
+                                            <input type="number" id="inp-alp" class="form-input" value="240" step="5">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Panel 3: Biliary & Synthesis -->
+                                <div class="panel-subgroup">
+                                    <div class="panel-subgroup-title">🩸 3. Biliary Function & Protein Synthesis</div>
+                                    <div class="form-grid-5">
+                                        <div class="form-group">
+                                            <label>Total Bilirubin <span class="field-hint">0.2–1.2 mg/dL</span></label>
+                                            <input type="number" id="inp-tb" class="form-input" value="1.4" step="0.1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Direct Bilirubin <span class="field-hint">0.0–0.3 mg/dL</span></label>
+                                            <input type="number" id="inp-db" class="form-input" value="0.5" step="0.1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Total Proteins <span class="field-hint">6.0–8.3 g/dL</span></label>
+                                            <input type="number" id="inp-tp" class="form-input" value="6.5" step="0.1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Serum Albumin <span class="field-hint">3.5–5.0 g/dL</span></label>
+                                            <input type="number" id="inp-alb" class="form-input" value="3.1" step="0.1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>A/G Ratio <span class="field-hint">1.0–2.5</span></label>
+                                            <input type="number" id="inp-ag" class="form-input" value="0.91" step="0.01">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Panel 4: Metabolic & Blood -->
+                                <div class="panel-subgroup">
+                                    <div class="panel-subgroup-title">⚡ 4. Metabolic Health & Blood Indicators</div>
+                                    <div class="form-grid-3">
+                                        <div class="form-group">
+                                            <label>Fasting Glucose <span class="field-hint">Normal: 70–99 mg/dL</span></label>
+                                            <input type="number" id="inp-glu" class="form-input" value="122" step="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Serum Cholesterol <span class="field-hint">Normal: &lt;200 mg/dL</span></label>
+                                            <input type="number" id="inp-chol" class="form-input" value="215" step="5">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Platelet Count <span class="field-hint">150–450 x10³/µL</span></label>
+                                            <input type="number" id="inp-plat" class="form-input" value="210" step="5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-action-row">
+                                <button id="btn-predict-patient" class="btn-predict-risk" type="button">
+                                    <span>⚛️</span>
+                                    <span>Run Early Detection Screening</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Diagnostic Outcome Panel -->
+                        <div class="clinical-result-card glass-card">
+                            <div class="results-header-banner">
+                                <div class="results-title">Hybrid Quantum Diagnostic Verdict</div>
+                                <span class="status-pill">NIH / CDC Calibrated</span>
+                            </div>
+
+                            <div class="diagnosis-badge-container">
+                                <div class="diagnosis-badge" id="diag-badge">
+                                    <span class="pulse-dot"></span>
+                                    <span id="diag-text">Awaiting Inference...</span>
+                                </div>
+                            </div>
+
+                            <div class="score-overview-grid">
+                                <div class="score-box">
+                                    <div class="score-box-title">
+                                        <span>HYBRID DISEASE RISK</span>
+                                        <span id="risk-confidence-text">--% Confidence</span>
+                                    </div>
+                                    <div class="score-main-val" id="risk-percent">--%</div>
+                                    <div class="score-bar-bg">
+                                        <div class="score-bar-fill" id="risk-score-fill" style="width: 0%; background: var(--gradient-btn-primary);"></div>
+                                    </div>
+                                </div>
+
+                                <div class="score-box">
+                                    <div class="score-box-title">
+                                        <span>SUBSYSTEM BREAKDOWN</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem;">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Quantum VQC:</span>
+                                            <strong id="vqc-prob-label" style="color: var(--accent-cyan);">--%</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Classical Random Forest:</span>
+                                            <strong id="rf-prob-label" style="color: var(--accent-violet);">--%</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Ensemble Consensus:</span>
+                                            <strong id="hybrid-conf-label" style="color: var(--status-success);">--%</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quantum Encoding Angles -->
+                            <div class="guidance-callout">
+                                <div class="guidance-title">
+                                    <span>⚛️</span>
+                                    <span>Quantum Angle Embedding ($R_y(\theta)$ on Qubits):</span>
+                                </div>
+                                <div class="preview-chips-row" id="quantum-angles-row">
+                                    <span class="angle-chip">q0: -- rad</span>
+                                    <span class="angle-chip">q1: -- rad</span>
+                                    <span class="angle-chip">q2: -- rad</span>
+                                    <span class="angle-chip">q3: -- rad</span>
+                                </div>
+                            </div>
+
+                            <!-- Clinical Guidance Callout -->
+                            <div class="guidance-callout">
+                                <div class="guidance-title">
+                                    <span>📋</span>
+                                    <span>Tailored Clinical Guidance:</span>
+                                </div>
+                                <div class="guidance-body" id="clinical-rec">
+                                    Enter your laboratory vitals above and click "Run Early Detection Screening" to receive tailored diagnostic recommendations.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patient vs Dataset Baseline Cohort Comparison Section -->
+                    <div class="cohort-comparison-section glass-card" id="cohort-comparison-section" style="margin-top: 2rem;">
+                        <div class="flex-header">
+                            <div>
+                                <h3 class="section-title"><span class="title-accent">Baseline Dataset Comparison</span> (Patient vs inputdata.txt)</h3>
+                                <p class="section-desc">Direct comparison of your laboratory biomarkers against the Healthy Cohort (Class 0) and Diseased Cohort (Class 1) distributions.</p>
+                            </div>
+                            <div class="status-pill" id="cohort-summary-badge">
+                                <span>Awaiting patient evaluation</span>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Table -->
+                        <div class="table-responsive" style="margin-top: 1rem;">
+                            <table class="custom-table comparison-table" id="cohort-comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Biomarker</th>
+                                        <th>Your Value</th>
+                                        <th>Standard Normal Range</th>
+                                        <th>Dataset Healthy Mean (0)</th>
+                                        <th>Dataset Diseased Mean (1)</th>
+                                        <th>Clinical Status</th>
+                                        <th>Dataset Percentile</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cohort-comparison-tbody">
+                                    <tr><td colspan="7" class="text-center" style="padding: 1.5rem; text-align: center;">Run screening to view biomarker comparison with dataset cohort.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Comparison Chart -->
+                        <div class="chart-card-wrapper">
+                            <div class="flex-header" style="margin-bottom: 1rem;">
+                                <div style="font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: #ffffff;">
+                                    Key Biomarkers: Patient Value vs Healthy Baseline vs Diseased Baseline
+                                </div>
+                                <span class="status-pill" style="font-size: 0.75rem;">Multi-Biomarker Alignment</span>
+                            </div>
+                            <div class="chart-container-inner">
+                                <canvas id="cohortComparisonChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ==========================================================================
+                 TAB 2: DATASET & WORKSPACE (inputdata.txt)
+                 ========================================================================== -->
+            <main class="tab-content" id="tab-dataset">
+                <div class="section-container">
+                    <div class="flex-header">
+                        <div>
+                            <h2 class="section-title"><span class="title-accent">Govt Clinical Dataset</span> (<code class="code-badge">inputdata.txt</code>)</h2>
+                            <p class="section-desc">300 clinically validated patient records calibrated against NIH/NIDDK & CDC NHANES reference distributions.</p>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <div class="status-pill" id="dataset-count-badge">Loading rows...</div>
+                            <div class="status-pill" id="feature-count-badge">14 Biomarkers</div>
+                            <div class="status-pill" id="qubit-features-badge">4 Qubits Selected</div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="dataset-table">
+                                <thead>
+                                    <tr>
+                                        <th>Age</th>
+                                        <th>Sex</th>
+                                        <th>BMI</th>
+                                        <th>Total Bilirubin</th>
+                                        <th>Direct Bilirubin</th>
+                                        <th>Alk Phosphatase</th>
+                                        <th>ALT</th>
+                                        <th>AST</th>
+                                        <th>Total Proteins</th>
+                                        <th>Albumin</th>
+                                        <th>A/G Ratio</th>
+                                        <th>Glucose</th>
+                                        <th>Cholesterol</th>
+                                        <th>Diagnosis Target</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataset-tbody">
+                                    <tr><td colspan="14" class="text-center" style="padding: 1.5rem; text-align: center;">Loading biomedical dataset...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ==========================================================================
+                 TAB 3: QUANTUM CIRCUIT STUDIO
+                 ========================================================================== -->
+            <main class="tab-content" id="tab-circuit">
+                <div class="section-container">
+                    <div class="flex-header">
+                        <div>
+                            <h2 class="section-title"><span class="title-accent">Quantum Circuit Studio</span> Interactive Architecture</h2>
+                            <p class="section-desc">Visual inspection of the Parameterized Quantum Circuit (PQC), quantum state encoding, and entanglement topology.</p>
+                        </div>
+                        <div class="status-pill">
+                            <span>Wires: <strong>4</strong></span> • 
+                            <span>Variational Depth: <strong>2 Layers</strong></span> • 
+                            <span>Entanglement: <strong>Ring CNOT</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="circuit-schematic-card glass-card">
+                        <div class="card-subtitle" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 1rem;">INTERACTIVE CIRCUIT DIAGRAM</div>
+                        <div class="circuit-canvas-container">
+                            <div class="quantum-circuit-board" id="circuit-board">
+                                <!-- Qubit Wires Generated Dynamically -->
+                            </div>
+                        </div>
+                        <div class="circuit-legend" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.76rem; color: var(--text-muted);">
+                            <span class="legend-item"><span class="qgate gate-h" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">H</span> Hadamard</span>
+                            <span class="legend-item"><span class="qgate gate-ry" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">Ry(x)</span> Angle Feature Embedding</span>
+                            <span class="legend-item"><span class="qgate gate-rz" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">Ry/Rz(θ)</span> Parameterized Rotations</span>
+                            <span class="legend-item"><span class="gate-cnot-ctrl" style="display:inline-block; vertical-align:middle; width:8px; height:8px;"></span> CNOT Ring Entanglers</span>
+                            <span class="legend-item"><span class="qgate gate-meas" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">∿ Z</span> Pauli-Z Expectation</span>
+                        </div>
+                    </div>
+
+                    <div class="code-terminal-card" style="margin-top: 1.5rem; background: rgba(7, 13, 26, 0.9); border: 1px solid var(--border-card); border-radius: var(--radius-md); padding: 1.25rem;">
+                        <div class="terminal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                            <div class="terminal-title" style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan);">PennyLane Simulator Circuit Execution Graph</div>
+                        </div>
+                        <pre class="terminal-body" id="circuit-ascii-output" style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary); overflow-x: auto;">Loading quantum circuit execution trace...</pre>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ==========================================================================
+                 TAB 4: BENCHMARK ENGINE (QUANTUM VS CLASSICAL)
+                 ========================================================================== -->
+            <main class="tab-content" id="tab-benchmarks">
+                <div class="section-container">
+                    <div class="flex-header">
+                        <div>
+                            <h2 class="section-title"><span class="title-accent">Benchmarking Engine</span> Quantum-Enhanced vs Classical Baselines</h2>
+                            <p class="section-desc">Comprehensive evaluation against primary diagnostic metrics: Accuracy, Sensitivity (Recall), Specificity, F1-Score, and ROC-AUC.</p>
+                        </div>
+                        <button class="btn btn-outline" id="btn-refresh-metrics">
+                            <span class="btn-icon">🔄</span> Refresh Evaluation
+                        </button>
+                    </div>
+
+                    <div class="glass-card" style="margin-bottom: 2rem;">
+                        <div class="table-responsive">
+                            <table class="custom-table benchmark-table">
+                                <thead>
+                                    <tr>
+                                        <th>Model Paradigm</th>
+                                        <th>Architecture</th>
+                                        <th>Accuracy</th>
+                                        <th>Sensitivity (Recall)</th>
+                                        <th>Specificity</th>
+                                        <th>Precision</th>
+                                        <th>F1-Score</th>
+                                        <th>ROC-AUC</th>
+                                        <th>Training (s)</th>
+                                        <th>Latency (ms)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="benchmark-tbody">
+                                    <tr><td colspan="10" class="text-center" style="padding: 1.5rem; text-align: center;">Loading benchmark data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="glass-card">
+                            <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 0.8rem;">
+                                High-Resolution ROC-AUC Trajectories
+                            </div>
+                            <img src="/results/roc_curves.png" alt="ROC-AUC Analysis" style="width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                        </div>
+                        <div class="glass-card">
+                            <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 0.8rem;">
+                                Model Accuracy & Sensitivity Radar
+                            </div>
+                            <img src="/results/benchmark_metrics.png" alt="Benchmark Metrics" style="width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ==========================================================================
+                 TAB 5: BIOMARKER EXPLAINABILITY
+                 ========================================================================== -->
+            <main class="tab-content" id="tab-explainability">
+                <div class="section-container">
+                    <div class="flex-header">
+                        <div>
+                            <h2 class="section-title"><span class="title-accent">Explainable AI (XAI)</span> Biomarker Importance Ranking</h2>
+                            <p class="section-desc">Clinical feature attribution and quantum dimensional mapping providing full transparency for clinicians.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="glass-card">
+                            <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 1rem;">
+                                Top Clinical Biomarkers Ranking
+                            </div>
+                            <div style="height: 320px;">
+                                <canvas id="importanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card">
+                            <div style="font-family: var(--font-heading); font-weight: 700; color: #ffffff; margin-bottom: 1rem;">
+                                Quantum Qubit Mapping Rationale
+                            </div>
+                            <div class="preview-chips-row" id="top-biomarkers-pills" style="margin-bottom: 1rem;">
+                                <!-- Top chips -->
+                            </div>
+                            <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+                                Biomarkers with the highest combined ANOVA F-statistic and Random Forest feature importance are selected for quantum superposition and angle embedding. 
+                                This enables the parameterized quantum circuit to exploit non-linear correlations between hepatic enzymes, blood glucose, and body weight.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="explain-table">
+                                <thead>
+                                    <tr>
+                                        <th>Biomarker Feature</th>
+                                        <th>ANOVA F-Score</th>
+                                        <th>Normalized Importance</th>
+                                        <th>Quantum State Mapped</th>
+                                        <th>Clinical Diagnostic Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="explain-tbody">
+                                    <tr><td colspan="5" class="text-center" style="padding: 1.5rem; text-align: center;">Loading feature importance...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ==========================================================================
+                 TAB 6: SYSTEM ARCHITECTURE & WORKFLOW DOCS
+                 ========================================================================== -->
+            <main class="tab-content" id="tab-overview">
+                <div class="section-container">
+                    <div class="flex-header">
+                        <div>
+                            <h2 class="section-title"><span class="title-accent">Hybrid Architecture</span> End-to-End Processing Workflow</h2>
+                            <p class="section-desc">Mathematical flow from biomedical ingestion and quantum feature encoding to parameterized circuits and clinical decision support.</p>
+                        </div>
+                    </div>
+
+                    <div class="architecture-grid">
+                        <div class="arch-card glass-card">
+                            <div class="arch-step">01</div>
+                            <div class="arch-icon">📥</div>
+                            <h3>Biomedical Ingestion</h3>
+                            <p>Reads multi-variate patient biomarkers from <code class="code-badge">inputdata.txt</code>. Auto-detects schema, scales features, and imputes clinical missing records.</p>
+                            <div class="card-footer-tag">StandardScaler & Median Imputation</div>
+                        </div>
+                        <div class="arch-card glass-card">
+                            <div class="arch-step">02</div>
+                            <div class="arch-icon">✂️</div>
+                            <h3>Dimensionality Reduction</h3>
+                            <p>High-dimensional biomedical features are reduced to <i>N</i> qubits via ANOVA SelectKBest to match near-term NISQ simulators and quantum hardware constraints.</p>
+                            <div class="card-footer-tag">SelectKBest to 4 Qubits</div>
+                        </div>
+                        <div class="arch-card glass-card">
+                            <div class="arch-step">03</div>
+                            <div class="arch-icon">⚛️</div>
+                            <h3>Quantum Feature Encoding</h3>
+                            <p>Maps normalized classical features into quantum rotational states using Angle Embedding: $|\psi(x)\rangle = \bigotimes_{i=0}^{n-1} R_y(x_i)|0\rangle$.</p>
+                            <div class="card-footer-tag">Hadamard + AngleEmbedding</div>
+                        </div>
+                        <div class="arch-card glass-card">
+                            <div class="arch-step">04</div>
+                            <div class="arch-icon">🔄</div>
+                            <h3>PQC & Entangling Layers</h3>
+                            <p>Rotational variational gates $R_y(\theta), R_z(\omega)$ followed by circular CNOT entanglement rings generate multi-qubit correlations to detect intricate disease patterns.</p>
+                            <div class="card-footer-tag">Ring CNOT Entanglement</div>
+                        </div>
+                        <div class="arch-card glass-card">
+                            <div class="arch-step">05</div>
+                            <div class="arch-icon">📏</div>
+                            <h3>Quantum Readout & Hybrid Loop</h3>
+                            <p>Pauli-Z expectation values $\langle Z_0 \rangle$ are measured. Classical Adam optimizer computes parameter-shift gradients to update quantum circuit weights.</p>
+                            <div class="card-footer-tag">PennyLane Adam Optimizer</div>
+                        </div>
+                        <div class="arch-card glass-card">
+                            <div class="arch-step">06</div>
+                            <div class="arch-icon">🩺</div>
+                            <h3>Clinical Decision Support</h3>
+                            <p>Generates high-precision diagnostic classification, ROC-AUC curves, sensitivity/specificity benchmarks, and explainability feature rankings for clinicians.</p>
+                            <div class="card-footer-tag">Early Diagnosis + Explainability</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
 
         <!-- ==========================================================================
-             TAB 6: SYSTEM ARCHITECTURE & DOCS
+             18. MINIMAL PROFESSIONAL FOOTER
              ========================================================================== -->
-        <main class="tab-content" id="tab-overview">
-            <div class="section-container">
-                <div class="flex-header">
-                    <div>
-                        <h2 class="section-title"><span class="title-accent">Hybrid Architecture</span> End-to-End Processing Workflow</h2>
-                        <p class="section-desc">Mathematical flow from biomedical ingestion and quantum feature encoding to parameterized circuits and clinical decision support.</p>
+        <footer class="footer-institutional">
+            <div class="footer-top-grid">
+                <!-- Brand Info Col -->
+                <div class="footer-brand-col">
+                    <div class="footer-brand-title">
+                        QUANTUM<span>MED</span>
                     </div>
+                    <div class="brand-tagline" style="color: var(--accent-cyan); font-weight: 600;">Clinical QML Platform</div>
+                    <p class="footer-brand-desc">
+                        Advancing early asymptomatic metabolic & hepatic risk detection through hybrid quantum machine learning and federally validated clinical benchmarks.
+                    </p>
                 </div>
 
-                <div class="architecture-grid">
-                    <div class="arch-card glass-card">
-                        <div class="arch-step">01</div>
-                        <div class="arch-icon">📥</div>
-                        <h3>Biomedical Ingestion</h3>
-                        <p>Reads multi-variate patient biomarkers from <code class="code-badge">inputdata.txt</code>. Auto-detects schema, scales features, and imputes clinical missing records.</p>
-                        <div class="card-footer-tag">StandardScaler & Median Imputation</div>
-                    </div>
-                    <div class="arch-card glass-card">
-                        <div class="arch-step">02</div>
-                        <div class="arch-icon">✂️</div>
-                        <h3>Dimensionality Reduction</h3>
-                        <p>High-dimensional biomedical features are reduced to <i>N</i> qubits via ANOVA SelectKBest & PCA to match near-term NISQ simulators and quantum hardware constraints.</p>
-                        <div class="card-footer-tag">SelectKBest / PCA to 4 Qubits</div>
-                    </div>
-                    <div class="arch-card glass-card">
-                        <div class="arch-step">03</div>
-                        <div class="arch-icon">⚛️</div>
-                        <h3>Quantum Feature Encoding</h3>
-                        <p>Maps normalized classical features into quantum rotational states using Angle Embedding: $|\psi(x)\rangle = \bigotimes_{i=0}^{n-1} R_y(x_i)|0\rangle$.</p>
-                        <div class="card-footer-tag">Hadamard + AngleEmbedding</div>
-                    </div>
-                    <div class="arch-card glass-card">
-                        <div class="arch-step">04</div>
-                        <div class="arch-icon">🔄</div>
-                        <h3>PQC & Entangling Layers</h3>
-                        <p>Rotational variational gates $R_y(\theta), R_z(\omega)$ followed by circular CNOT entanglement rings generate multi-qubit correlations to detect intricate disease patterns.</p>
-                        <div class="card-footer-tag">Ring CNOT Entanglement</div>
-                    </div>
-                    <div class="arch-card glass-card">
-                        <div class="arch-step">05</div>
-                        <div class="arch-icon">📏</div>
-                        <h3>Quantum Readout & Hybrid Loop</h3>
-                        <p>Pauli-Z expectation values $\langle Z_0 \rangle$ are measured. Classical Adam optimizer computes parameter-shift gradients to update quantum circuit weights.</p>
-                        <div class="card-footer-tag">PennyLane Adam Optimizer</div>
-                    </div>
-                    <div class="arch-card glass-card">
-                        <div class="arch-step">06</div>
-                        <div class="arch-icon">🩺</div>
-                        <h3>Clinical Decision Support</h3>
-                        <p>Generates high-precision diagnostic classification, ROC-AUC curves, sensitivity/specificity benchmarks, and explainability feature rankings for clinicians.</p>
-                        <div class="card-footer-tag">Early Diagnosis + Explainability</div>
-                    </div>
+                <!-- Col 1: Screening Tools -->
+                <div>
+                    <div class="footer-col-title">Screening Tools</div>
+                    <ul class="footer-links-list">
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-clinical" data-mode="image">Quick Scan (OCR)</a></li>
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-clinical" data-mode="form">Manual Entry</a></li>
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-clinical" data-mode="text">Report Analysis</a></li>
+                        <li><a class="footer-nav-link" data-scroll="cohort-comparison-section" data-tab="tab-clinical">Screening History</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 2: Clinical Datasets -->
+                <div>
+                    <div class="footer-col-title">Clinical Datasets</div>
+                    <ul class="footer-links-list">
+                        <li><a class="footer-nav-link" data-scroll="clinical-data-section">NIH / NIDDK</a></li>
+                        <li><a class="footer-nav-link" data-scroll="clinical-data-section">CDC NHANES</a></li>
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-dataset">Validated Records</a></li>
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-explainability">14 Biomarkers</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Quantum Architecture -->
+                <div>
+                    <div class="footer-col-title">Architecture</div>
+                    <ul class="footer-links-list">
+                        <li><a class="footer-nav-link" data-scroll="quantum-arch-section">Parameterized Circuit</a></li>
+                        <li><a class="footer-nav-link" data-scroll="quantum-arch-section">4-Qubit Wires</a></li>
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-circuit">Circuit Studio</a></li>
+                        <li><a class="footer-nav-link" data-scroll="benchmarks-section">Model Benchmarks</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Resources & Legal -->
+                <div>
+                    <div class="footer-col-title">Resources & Legal</div>
+                    <ul class="footer-links-list">
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-overview">Documentation</a></li>
+                        <li><a class="footer-nav-link" data-scroll="interactive-workspace" data-tab="tab-overview">System Help</a></li>
+                        <li><a href="#" onclick="alert('QuantumMed Privacy Policy: Patient biomedical vitals are processed in memory and never sold or persisted to unauthorized third parties.'); return false;">Privacy</a></li>
+                        <li><a href="#" onclick="alert('QuantumMed Terms: For clinical decision support and investigational use only.'); return false;">Terms</a></li>
+                        <li><a href="#" onclick="alert('Medical Disclaimer: QuantumMed AI is an investigational decision-support tool. Always consult a licensed gastroenterologist or physician.'); return false;">Medical Disclaimer</a></li>
+                    </ul>
                 </div>
             </div>
-        </main>
 
-        <!-- Modern Footer -->
-        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; color: var(--text-dim); font-size: 0.82rem; flex-wrap: wrap; gap: 1rem;">
-            <div>QuantumMed Platform • Hybrid Quantum-Classical Early Disease Detection Engine</div>
-            <div style="display: flex; gap: 0.8rem; font-family: var(--font-mono); font-size: 0.75rem;">
-                <span class="status-pill">PennyLane QML</span>
-                <span class="status-pill">NIH & CDC Benchmarked</span>
-                <span class="status-pill">Python 3.11</span>
-                <span class="status-pill">VQC & QSVM</span>
+            <!-- Bottom Legal Bar -->
+            <div class="footer-bottom-bar">
+                <div>
+                    © 2026 QuantumMed. All rights reserved. Clinical QML Platform for early disease detection.
+                </div>
+                <div style="display: flex; gap: 0.85rem; font-family: var(--font-mono); font-size: 0.72rem;">
+                    <span class="status-pill">PennyLane 0.45</span>
+                    <span class="status-pill">NIH & CDC Calibrated</span>
+                    <span class="status-pill">VQC & QSVM</span>
+                </div>
             </div>
         </footer>
     </div>
 
-    <!-- Application Script -->
+    <!-- Application Logic Script -->
     <script src="/static/app.js"></script>
 </body>
 </html>

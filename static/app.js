@@ -53,6 +53,7 @@ function initTabs() {
 // Top Sticky Navbar & Hero CTA Handlers
 function initTopNavAndHero() {
     const navLinks = document.querySelectorAll(".nav-menu-link");
+    const subLinks = document.querySelectorAll(".nav-sub-link, .footer-nav-link");
     const topNavbar = document.getElementById("top-navbar-wrapper");
     const brandHome = document.getElementById("nav-brand-home");
 
@@ -65,11 +66,10 @@ function initTopNavAndHero() {
         }
     });
 
-    // Nav Links
+    // Nav Top Links
     navLinks.forEach(link => {
         link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const targetTab = link.getAttribute("data-nav-tab");
+            const targetTab = link.getAttribute("data-nav-tab") || link.getAttribute("data-tab");
             const scrollToId = link.getAttribute("data-scroll");
             if (targetTab) switchTab(targetTab);
             if (scrollToId) {
@@ -79,45 +79,64 @@ function initTopNavAndHero() {
         });
     });
 
+    // Sub-links in Dropdowns & Footer
+    subLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const targetTab = link.getAttribute("data-tab");
+            const scrollToId = link.getAttribute("data-scroll");
+            const targetMode = link.getAttribute("data-mode");
+
+            if (targetTab) switchTab(targetTab);
+            if (targetMode) {
+                const modeBtn = document.getElementById(`btn-mode-${targetMode}`);
+                if (modeBtn) modeBtn.click();
+            }
+            if (scrollToId) {
+                const el = document.getElementById(scrollToId);
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+        });
+    });
+
     if (brandHome) {
         brandHome.addEventListener("click", () => {
-            switchTab("tab-clinical");
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
     }
 
     // Hero Action Buttons
     const btnHeroScreener = document.getElementById("btn-hero-screener");
+    const btnHeroExplore = document.getElementById("btn-hero-explore");
     const btnNavStart = document.getElementById("btn-nav-start-analysis");
-    const btnHeroCircuit = document.getElementById("btn-hero-circuit");
-    const btnHeroBenchmarks = document.getElementById("btn-hero-benchmarks");
     const btnPreviewDemo = document.getElementById("btn-preview-try-demo");
+    const btnPreviewLaunch = document.getElementById("btn-preview-launch");
+    const btnFinalStart = document.getElementById("btn-final-start");
+    const btnFinalExplore = document.getElementById("btn-final-explore");
+    const btnViewDetailedBench = document.getElementById("btn-view-detailed-benchmarks");
 
-    if (btnHeroScreener) {
-        btnHeroScreener.addEventListener("click", () => {
-            switchTab("tab-clinical");
-            const el = document.getElementById("screener-section");
+    const launchScreener = () => {
+        switchTab("tab-clinical");
+        const el = document.getElementById("screener-section");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+    };
+
+    if (btnHeroScreener) btnHeroScreener.addEventListener("click", launchScreener);
+    if (btnNavStart) btnNavStart.addEventListener("click", launchScreener);
+    if (btnPreviewLaunch) btnPreviewLaunch.addEventListener("click", launchScreener);
+    if (btnFinalStart) btnFinalStart.addEventListener("click", launchScreener);
+
+    if (btnHeroExplore) {
+        btnHeroExplore.addEventListener("click", () => {
+            const el = document.getElementById("capabilities-section");
             if (el) el.scrollIntoView({ behavior: "smooth" });
         });
     }
 
-    if (btnNavStart) {
-        btnNavStart.addEventListener("click", () => {
-            switchTab("tab-clinical");
-            const el = document.getElementById("screener-section");
+    if (btnFinalExplore) {
+        btnFinalExplore.addEventListener("click", () => {
+            const el = document.getElementById("capabilities-section");
             if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-
-    if (btnHeroCircuit) {
-        btnHeroCircuit.addEventListener("click", () => {
-            switchTab("tab-circuit");
-        });
-    }
-
-    if (btnHeroBenchmarks) {
-        btnHeroBenchmarks.addEventListener("click", () => {
-            switchTab("tab-benchmarks");
         });
     }
 
@@ -127,6 +146,55 @@ function initTopNavAndHero() {
             const btnHealthy = document.getElementById("btn-load-healthy-sample");
             if (btnHealthy) btnHealthy.click();
             const el = document.getElementById("screener-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+
+    if (btnViewDetailedBench) {
+        btnViewDetailedBench.addEventListener("click", () => {
+            switchTab("tab-benchmarks");
+            const el = document.getElementById("interactive-workspace");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+
+    // Screening Tool Card Jumps
+    const cardQuickScan = document.getElementById("card-tool-quickscan");
+    const cardManual = document.getElementById("card-tool-manual");
+    const cardReport = document.getElementById("card-tool-report");
+    const cardHistory = document.getElementById("card-tool-history");
+
+    if (cardQuickScan) {
+        cardQuickScan.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            const b = document.getElementById("btn-mode-image");
+            if (b) b.click();
+            const el = document.getElementById("screener-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+    if (cardManual) {
+        cardManual.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            const b = document.getElementById("btn-mode-form");
+            if (b) b.click();
+            const el = document.getElementById("screener-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+    if (cardReport) {
+        cardReport.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            const b = document.getElementById("btn-mode-text");
+            if (b) b.click();
+            const el = document.getElementById("screener-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+    if (cardHistory) {
+        cardHistory.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            const el = document.getElementById("cohort-comparison-section");
             if (el) el.scrollIntoView({ behavior: "smooth" });
         });
     }
@@ -222,18 +290,27 @@ async function loadDatasetInfo() {
         const data = await res.json();
 
         // Update Stats
-        const rowCount = data.rows || 100;
-        document.getElementById("dataset-row-count").innerText = `${rowCount} Records`;
-        document.getElementById("dataset-feature-count").innerText = `${data.columns.length - 1} Biomarkers`;
-        document.getElementById("active-file-name").innerText = data.filename;
+        const rowCount = data.rows || 300;
+        const elRowCount = document.getElementById("dataset-row-count") || document.getElementById("dataset-count-badge");
+        if (elRowCount) elRowCount.innerText = `${rowCount} Records`;
+
+        const elFeatCount = document.getElementById("dataset-feature-count") || document.getElementById("feature-count-badge");
+        if (elFeatCount && data.columns) elFeatCount.innerText = `${data.columns.length - 1} Biomarkers`;
+
+        const elActiveFile = document.getElementById("active-file-name");
+        if (elActiveFile) elActiveFile.innerText = data.filename;
 
         const posCount = (data.class_balance && data.class_balance[1]) || 55;
         const negCount = (data.class_balance && data.class_balance[0]) || 45;
-        document.getElementById("class-pos-count").innerText = `${posCount} (${((posCount / rowCount) * 100).toFixed(1)}%)`;
-        document.getElementById("class-neg-count").innerText = `${negCount} (${((negCount / rowCount) * 100).toFixed(1)}%)`;
+        const elPos = document.getElementById("class-pos-count");
+        if (elPos) elPos.innerText = `${posCount} (${((posCount / rowCount) * 100).toFixed(1)}%)`;
 
-        if (data.selected_quantum_features && data.selected_quantum_features.length > 0) {
-            document.getElementById("quantum-selected-features").innerText = data.selected_quantum_features.join(", ");
+        const elNeg = document.getElementById("class-neg-count");
+        if (elNeg) elNeg.innerText = `${negCount} (${((negCount / rowCount) * 100).toFixed(1)}%)`;
+
+        const elQubitFeat = document.getElementById("quantum-selected-features") || document.getElementById("qubit-features-badge");
+        if (elQubitFeat && data.selected_quantum_features && data.selected_quantum_features.length > 0) {
+            elQubitFeat.innerText = `${data.selected_quantum_features.length} Qubits Selected`;
         }
 
         // Populate Table

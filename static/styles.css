@@ -1,23 +1,23 @@
 /* ==========================================================================
    QUANTUMMED • CLINICAL QML PLATFORM
    Premium Institutional Healthcare & Quantum Machine Learning Design System
-   Visual Language: Premium, Scientific, Clinical, Modern, Minimal, Trustworthy, Technical
+   Visual Language: Pitch Black, Scientific, Clinical, Modern, Minimal, Trustworthy, Technical
    ========================================================================== */
 
 :root {
-    /* Sophisticated Dark Navy & Clinical Palette */
-    --bg-deep: #050A14;
-    --bg-base: #070D1A;
-    --bg-surface: #0B1220;
-    --bg-surface-elevated: #0E1626;
-    --bg-surface-hover: #131E33;
+    /* Pure Pitch Black & Deep Clinical Palette */
+    --bg-deep: #000000;
+    --bg-base: #000000;
+    --bg-surface: #04070e;
+    --bg-surface-elevated: #080d16;
+    --bg-surface-hover: #0d1422;
     
-    --bg-card: rgba(14, 22, 38, 0.75);
-    --bg-card-elevated: rgba(18, 28, 48, 0.85);
+    --bg-card: rgba(5, 8, 16, 0.88);
+    --bg-card-elevated: rgba(8, 14, 26, 0.95);
     --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-card: rgba(255, 255, 255, 0.11);
-    --border-accent: rgba(56, 189, 248, 0.28);
-    --border-accent-strong: rgba(56, 189, 248, 0.55);
+    --border-card: rgba(255, 255, 255, 0.12);
+    --border-accent: rgba(56, 189, 248, 0.32);
+    --border-accent-strong: rgba(56, 189, 248, 0.65);
     
     /* Restrained Scientific Accents */
     --accent-cyan: #38bdf8;
@@ -56,10 +56,10 @@
     --radius-xl: 20px;
     --radius-full: 9999px;
     
-    --shadow-window: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.07);
-    --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.1);
-    --shadow-card-hover: 0 16px 36px -6px rgba(0, 0, 0, 0.75), 0 0 20px rgba(56, 189, 248, 0.12);
-    --shadow-btn-glow: 0 6px 20px rgba(2, 132, 199, 0.35);
+    --shadow-window: 0 25px 65px -15px rgba(0, 0, 0, 0.95), 0 0 35px rgba(56, 189, 248, 0.08);
+    --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.12);
+    --shadow-card-hover: 0 16px 40px -6px rgba(0, 0, 0, 0.9), 0 0 22px rgba(56, 189, 248, 0.15);
+    --shadow-btn-glow: 0 6px 22px rgba(2, 132, 199, 0.4);
 }
 
 /* Base Reset & Setup */
@@ -71,15 +71,16 @@
 
 html {
     scroll-behavior: smooth;
+    background-color: #000000;
 }
 
 body {
-    background-color: var(--bg-deep);
+    background-color: #000000;
     background-image: 
-        radial-gradient(circle at 50% 12%, rgba(2, 132, 199, 0.11) 0%, transparent 55%),
-        radial-gradient(circle at 85% 35%, rgba(99, 102, 241, 0.07) 0%, transparent 45%),
-        linear-gradient(rgba(56, 189, 248, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(56, 189, 248, 0.025) 1px, transparent 1px);
+        radial-gradient(circle at 50% 10%, rgba(2, 132, 199, 0.13) 0%, transparent 55%),
+        radial-gradient(circle at 85% 35%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+        linear-gradient(rgba(56, 189, 248, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
     background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
     background-position: 0 0, 0 0, center center, center center;
     color: var(--text-primary);
@@ -98,7 +99,7 @@ body {
     filter: blur(160px);
     pointer-events: none;
     z-index: 0;
-    opacity: 0.14;
+    opacity: 0.15;
 }
 .glow-1 {
     width: 650px;
@@ -132,7 +133,7 @@ body {
 }
 
 /* ==========================================================================
-   TOP STICKY NAVBAR (PREMIUM, ELEGANT, SCIENTIFIC)
+   TOP STICKY NAVBAR (PREMIUM, PURE BLACK BACKGROUND)
    Height: ~68px, Sticky, Simple Text Navigation, Search, [ Start Analysis ]
    ========================================================================== */
 .top-navbar-wrapper {
@@ -141,16 +142,16 @@ body {
     z-index: 1000;
     width: 100%;
     height: 68px;
-    background: rgba(5, 10, 20, 0.85);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: rgba(0, 0, 0, 0.90);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border-subtle);
     transition: all 0.3s ease;
 }
 .top-navbar-wrapper.scrolled {
-    background: rgba(4, 8, 16, 0.96);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-    border-bottom-color: rgba(56, 189, 248, 0.2);
+    background: rgba(0, 0, 0, 0.98);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+    border-bottom-color: rgba(56, 189, 248, 0.25);
 }
 
 .top-navbar {
@@ -180,7 +181,7 @@ body {
     align-items: center;
     justify-content: center;
     background: rgba(56, 189, 248, 0.08);
-    border: 1px solid rgba(56, 189, 248, 0.25);
+    border: 1px solid rgba(56, 189, 248, 0.28);
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
 }
@@ -195,7 +196,7 @@ body {
     position: absolute;
     width: 28px;
     height: 12px;
-    border: 1.5px solid rgba(56, 189, 248, 0.65);
+    border: 1.5px solid rgba(56, 189, 248, 0.7);
     border-radius: 50%;
     animation: spinOrbit 5s linear infinite;
 }
@@ -203,7 +204,7 @@ body {
 .nav-logo-icon .orbit-2 {
     transform: rotate(-45deg);
     animation-duration: 7s;
-    border-color: rgba(99, 102, 241, 0.7);
+    border-color: rgba(99, 102, 241, 0.75);
 }
 
 @keyframes spinOrbit {
@@ -266,7 +267,7 @@ body {
 }
 .nav-menu-link:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
 }
 .nav-menu-link.active {
     color: var(--accent-cyan);
@@ -282,10 +283,10 @@ body {
     top: 100%;
     left: 0;
     min-width: 220px;
-    background: var(--bg-surface-elevated);
+    background: #060912;
     border: 1px solid var(--border-card);
     border-radius: var(--radius-md);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
     padding: 0.5rem;
     list-style: none;
     opacity: 0;
@@ -329,7 +330,7 @@ body {
     align-items: center;
     gap: 0.6rem;
     padding: 0.42rem 0.85rem;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     color: var(--text-muted);
@@ -338,7 +339,7 @@ body {
     transition: all 0.2s ease;
 }
 .nav-search-trigger:hover {
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.08);
     border-color: var(--border-accent);
     color: var(--text-secondary);
 }
@@ -392,7 +393,7 @@ body {
 }
 .btn-nav-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(2, 132, 199, 0.5);
+    box-shadow: 0 8px 25px rgba(2, 132, 199, 0.55);
     border-color: var(--accent-cyan);
 }
 
@@ -415,7 +416,7 @@ body {
     gap: 0.5rem;
     padding: 0.35rem 0.95rem;
     background: rgba(56, 189, 248, 0.08);
-    border: 1px solid rgba(56, 189, 248, 0.22);
+    border: 1px solid rgba(56, 189, 248, 0.25);
     border-radius: var(--radius-full);
     font-family: var(--font-mono);
     font-size: 0.74rem;
@@ -515,8 +516,7 @@ body {
 }
 
 /* ==========================================================================
-   PRODUCT PREVIEW — THE PRIMARY VISUAL CENTERPIECE
-   Window Chrome, Mini Sidebar, Visual Gauge, Data Inputs, Baseline, History
+   PRODUCT PREVIEW — THE PRIMARY VISUAL CENTERPIECE (PITCH BLACK THEME)
    ========================================================================== */
 .product-preview-wrapper {
     width: 100%;
@@ -528,22 +528,22 @@ body {
 .product-preview-window {
     width: 100%;
     max-width: 1140px;
-    background: var(--bg-surface);
+    background: #03060c;
     border: 1px solid var(--border-accent);
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-window);
+    box-shadow: 0 25px 65px -15px rgba(0, 0, 0, 0.95), 0 0 35px rgba(56, 189, 248, 0.08);
     overflow: hidden;
     position: relative;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .product-preview-window:hover {
-    box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 45px rgba(56, 189, 248, 0.12);
+    box-shadow: 0 30px 75px -15px rgba(0, 0, 0, 1), 0 0 45px rgba(56, 189, 248, 0.14);
 }
 
 /* Window Chrome Top Bar */
 .window-chrome-header {
     height: 44px;
-    background: rgba(7, 13, 26, 0.95);
+    background: rgba(0, 0, 0, 0.98);
     border-bottom: 1px solid var(--border-subtle);
     padding: 0 1.25rem;
     display: flex;
@@ -560,9 +560,9 @@ body {
     height: 10px;
     border-radius: 50%;
 }
-.window-dot.dot-close { background: #ef4444; opacity: 0.75; }
-.window-dot.dot-min { background: #f59e0b; opacity: 0.75; }
-.window-dot.dot-max { background: #10b981; opacity: 0.75; }
+.window-dot.dot-close { background: #ef4444; opacity: 0.8; }
+.window-dot.dot-min { background: #f59e0b; opacity: 0.8; }
+.window-dot.dot-max { background: #10b981; opacity: 0.8; }
 
 .window-title-text {
     font-size: 0.78rem;
@@ -602,7 +602,7 @@ body {
 
 /* Software Mini Sidebar */
 .preview-mini-sidebar {
-    background: rgba(7, 12, 24, 0.85);
+    background: rgba(2, 4, 8, 0.96);
     border-right: 1px solid var(--border-subtle);
     padding: 1.25rem 0.85rem;
     display: flex;
@@ -664,7 +664,7 @@ body {
 /* Preview Main Working Canvas */
 .preview-main-canvas {
     padding: 1.5rem 1.75rem;
-    background: var(--bg-surface);
+    background: #03060c;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -712,7 +712,7 @@ body {
 
 /* Individual Preview Sub-Card */
 .preview-subcard {
-    background: rgba(7, 13, 26, 0.6);
+    background: rgba(4, 7, 15, 0.85);
     border: 1px solid var(--border-card);
     border-radius: var(--radius-md);
     padding: 1.15rem;
@@ -755,7 +755,7 @@ body {
     width: 66px;
     height: 66px;
     border-radius: 50%;
-    background: var(--bg-surface-elevated);
+    background: #080d16;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -896,7 +896,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.85rem 1.15rem;
-    background: rgba(7, 13, 26, 0.7);
+    background: rgba(2, 4, 8, 0.95);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     flex-wrap: wrap;
@@ -987,7 +987,7 @@ body {
 
 /* ==========================================================================
    12. "ONE PLATFORM FOR EARLY RISK SCREENING"
-   4 Clean Capabilities Cards
+   4 Clean Capabilities Cards (Pitch Black Style)
    ========================================================================== */
 .capabilities-grid {
     display: grid;
@@ -996,7 +996,7 @@ body {
 }
 
 .capability-card {
-    background: var(--bg-surface);
+    background: #04070e;
     border: 1px solid var(--border-card);
     border-radius: var(--radius-lg);
     padding: 1.85rem 1.5rem;
@@ -1010,7 +1010,7 @@ body {
     transform: translateY(-4px);
     border-color: var(--border-accent);
     box-shadow: var(--shadow-card-hover);
-    background: var(--bg-surface-elevated);
+    background: #070c18;
 }
 .capability-icon-wrap {
     width: 46px;
@@ -1050,7 +1050,7 @@ body {
 }
 
 .screening-tool-card {
-    background: var(--bg-surface);
+    background: #04070e;
     border: 1px solid var(--border-card);
     border-radius: var(--radius-lg);
     padding: 1.85rem 1.5rem;
@@ -1065,7 +1065,7 @@ body {
     transform: translateY(-4px);
     border-color: var(--border-accent);
     box-shadow: var(--shadow-card-hover);
-    background: var(--bg-surface-elevated);
+    background: #070c18;
 }
 .tool-top-wrap {
     display: flex;
@@ -1121,7 +1121,7 @@ body {
 }
 
 .visual-circuit-card {
-    background: var(--bg-surface);
+    background: #03060c;
     border: 1px solid var(--border-accent);
     border-radius: var(--radius-xl);
     padding: 2.25rem 2.5rem;
@@ -1207,7 +1207,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
     cursor: default;
     transition: transform 0.2s ease;
 }
@@ -1267,7 +1267,7 @@ body {
     gap: 1.35rem;
 }
 .quantum-spec-card {
-    background: var(--bg-surface);
+    background: #04070e;
     border: 1px solid var(--border-card);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
@@ -1275,7 +1275,7 @@ body {
 }
 .quantum-spec-card:hover {
     border-color: var(--border-accent);
-    background: var(--bg-surface-elevated);
+    background: #070c18;
 }
 .spec-title-row {
     font-family: var(--font-heading);
@@ -1300,7 +1300,7 @@ body {
     gap: 1.35rem;
 }
 .clinical-standard-card {
-    background: var(--bg-surface);
+    background: #04070e;
     border: 1px solid var(--border-card);
     border-radius: var(--radius-lg);
     padding: 1.75rem 1.5rem;
@@ -1312,6 +1312,7 @@ body {
 .clinical-standard-card:hover {
     border-color: var(--accent-teal);
     box-shadow: 0 10px 30px -5px rgba(20, 184, 166, 0.15);
+    background: #070c18;
 }
 .standard-org-badge {
     font-family: var(--font-mono);
@@ -1354,7 +1355,7 @@ body {
     margin-bottom: 2.5rem;
 }
 .benchmark-metric-card {
-    background: var(--bg-surface);
+    background: #04070e;
     border: 1px solid var(--border-card);
     border-radius: var(--radius-lg);
     padding: 1.75rem 1.25rem;
@@ -1364,7 +1365,7 @@ body {
 .benchmark-metric-card:hover {
     border-color: var(--border-accent);
     transform: translateY(-3px);
-    background: var(--bg-surface-elevated);
+    background: #070c18;
 }
 .metric-big-num {
     font-family: var(--font-heading);
@@ -1397,12 +1398,12 @@ body {
     padding: 6rem 0 4rem 0;
 }
 .final-cta-card {
-    background: linear-gradient(135deg, rgba(14, 22, 38, 0.95), rgba(7, 13, 26, 0.95));
+    background: linear-gradient(135deg, rgba(6, 10, 20, 0.98), rgba(0, 0, 0, 0.98));
     border: 1px solid var(--border-accent);
     border-radius: var(--radius-xl);
     padding: 4rem 2rem;
     text-align: center;
-    box-shadow: var(--shadow-window);
+    box-shadow: 0 25px 65px -15px rgba(0, 0, 0, 0.95);
     position: relative;
     overflow: hidden;
 }
@@ -1500,8 +1501,7 @@ body {
 }
 
 /* ==========================================================================
-   23. INTERACTIVE CLINICAL WORKSPACE & DIAGNOSTIC STUDIO
-   Housed for users when clicking [ Start Analysis ], [ ⚡ Quick Scan ], etc.
+   23. INTERACTIVE CLINICAL WORKSPACE & DIAGNOSTIC STUDIO (PITCH BLACK)
    ========================================================================== */
 .interactive-workspace-section {
     padding: 4rem 0 2rem 0;
@@ -1519,7 +1519,7 @@ body {
 }
 .tab-btn {
     font-family: var(--font-heading);
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border-card);
     border-radius: var(--radius-md);
     padding: 0.65rem 1.15rem;
@@ -1534,7 +1534,7 @@ body {
     white-space: nowrap;
 }
 .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.08);
     color: #ffffff;
 }
 .tab-btn.active {
@@ -1584,7 +1584,7 @@ body {
 
 /* Glass Card Container */
 .glass-card {
-    background: var(--bg-surface);
+    background: #04070e;
     border: 1px solid var(--border-card);
     border-radius: var(--radius-lg);
     padding: 1.75rem;
@@ -1676,13 +1676,13 @@ body {
     border-radius: var(--radius-lg);
     padding: 2.25rem 1.5rem;
     text-align: center;
-    background: rgba(7, 13, 26, 0.4);
+    background: rgba(2, 4, 8, 0.7);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 .dropzone-box:hover {
     border-color: var(--accent-cyan);
-    background: rgba(56, 189, 248, 0.04);
+    background: rgba(56, 189, 248, 0.05);
 }
 .dropzone-icon {
     font-size: 2.2rem;
@@ -1703,7 +1703,7 @@ body {
 .ocr-progress-container {
     margin-top: 1.25rem;
     padding: 1rem;
-    background: rgba(7, 13, 26, 0.6);
+    background: rgba(2, 4, 8, 0.8);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-subtle);
 }
@@ -1750,7 +1750,7 @@ body {
 }
 .form-textarea {
     width: 100%;
-    background: rgba(7, 13, 26, 0.7);
+    background: rgba(2, 4, 8, 0.95);
     border: 1px solid var(--border-card);
     border-radius: var(--radius-md);
     padding: 0.85rem;
@@ -1806,7 +1806,7 @@ body {
     gap: 1.25rem;
 }
 .panel-subgroup {
-    background: rgba(7, 13, 26, 0.5);
+    background: rgba(2, 4, 8, 0.8);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 1.15rem;
@@ -1847,7 +1847,7 @@ body {
 }
 .form-input {
     width: 100%;
-    background: rgba(14, 22, 38, 0.9);
+    background: rgba(2, 4, 8, 0.95);
     border: 1px solid var(--border-card);
     border-radius: var(--radius-sm);
     padding: 0.48rem 0.65rem;
@@ -1938,7 +1938,7 @@ body {
     gap: 0.85rem;
 }
 .score-box {
-    background: rgba(7, 13, 26, 0.6);
+    background: rgba(2, 4, 8, 0.8);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 1rem;
@@ -1973,7 +1973,7 @@ body {
 }
 
 .guidance-callout {
-    background: rgba(7, 13, 26, 0.5);
+    background: rgba(2, 4, 8, 0.7);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 1rem;
@@ -2021,7 +2021,7 @@ body {
     text-align: left;
 }
 .custom-table th {
-    background: rgba(7, 13, 26, 0.8);
+    background: rgba(2, 4, 8, 0.98);
     color: var(--text-muted);
     font-weight: 600;
     padding: 0.75rem 0.85rem;
@@ -2041,7 +2041,7 @@ body {
 /* Chart Canvas Wrapper */
 .chart-card-wrapper {
     margin-top: 1.5rem;
-    background: rgba(7, 13, 26, 0.5);
+    background: rgba(2, 4, 8, 0.75);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 1.25rem;
@@ -2160,8 +2160,8 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(10px);
     z-index: 2000;
     display: flex;
     align-items: flex-start;
@@ -2178,10 +2178,10 @@ body {
 .search-modal-card {
     width: 100%;
     max-width: 580px;
-    background: var(--bg-surface-elevated);
+    background: #050810;
     border: 1px solid var(--border-accent);
     border-radius: var(--radius-lg);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.95);
     overflow: hidden;
 }
 .search-input-header {

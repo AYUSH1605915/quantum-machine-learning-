@@ -8,6 +8,8 @@ let cohortComparisonChartInstance = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     initTabs();
+    initTopNavAndHero();
+    initQuickSearch();
     loadDatasetInfo();
     loadBenchmarkData();
     initPredictionActions();
@@ -17,22 +19,198 @@ document.addEventListener("DOMContentLoaded", () => {
     initTextParsing();
 });
 
+// Centralized Tab Switching Function
+function switchTab(targetId) {
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+    const navLinks = document.querySelectorAll(".nav-menu-link");
+
+    tabButtons.forEach(b => {
+        if (b.getAttribute("data-tab") === targetId) b.classList.add("active");
+        else b.classList.remove("active");
+    });
+    tabContents.forEach(c => {
+        if (c.id === targetId) c.classList.add("active");
+        else c.classList.remove("active");
+    });
+    navLinks.forEach(link => {
+        if (link.getAttribute("data-nav-tab") === targetId) link.classList.add("active");
+        else link.classList.remove("active");
+    });
+}
+
 // 1. Tab Switching
 function initTabs() {
     const tabButtons = document.querySelectorAll(".tab-btn");
-    const tabContents = document.querySelectorAll(".tab-content");
-
     tabButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const targetId = btn.getAttribute("data-tab");
-            
-            tabButtons.forEach(b => b.classList.remove("active"));
-            tabContents.forEach(c => c.classList.remove("active"));
-
-            btn.classList.add("active");
-            const targetEl = document.getElementById(targetId);
-            if (targetEl) targetEl.classList.add("active");
+            switchTab(targetId);
         });
+    });
+}
+
+// Top Sticky Navbar & Hero CTA Handlers
+function initTopNavAndHero() {
+    const navLinks = document.querySelectorAll(".nav-menu-link");
+    const topNavbar = document.getElementById("top-navbar-wrapper");
+    const brandHome = document.getElementById("nav-brand-home");
+
+    // Navbar Scroll Background Transition
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 25) {
+            topNavbar.classList.add("scrolled");
+        } else {
+            topNavbar.classList.remove("scrolled");
+        }
+    });
+
+    // Nav Links
+    navLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const targetTab = link.getAttribute("data-nav-tab");
+            const scrollToId = link.getAttribute("data-scroll");
+            if (targetTab) switchTab(targetTab);
+            if (scrollToId) {
+                const el = document.getElementById(scrollToId);
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+        });
+    });
+
+    if (brandHome) {
+        brandHome.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
+
+    // Hero Action Buttons
+    const btnHeroScreener = document.getElementById("btn-hero-screener");
+    const btnNavStart = document.getElementById("btn-nav-start-analysis");
+    const btnHeroCircuit = document.getElementById("btn-hero-circuit");
+    const btnHeroBenchmarks = document.getElementById("btn-hero-benchmarks");
+    const btnPreviewDemo = document.getElementById("btn-preview-try-demo");
+
+    if (btnHeroScreener) {
+        btnHeroScreener.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            const el = document.getElementById("screener-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+
+    if (btnNavStart) {
+        btnNavStart.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            const el = document.getElementById("screener-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+
+    if (btnHeroCircuit) {
+        btnHeroCircuit.addEventListener("click", () => {
+            switchTab("tab-circuit");
+        });
+    }
+
+    if (btnHeroBenchmarks) {
+        btnHeroBenchmarks.addEventListener("click", () => {
+            switchTab("tab-benchmarks");
+        });
+    }
+
+    if (btnPreviewDemo) {
+        btnPreviewDemo.addEventListener("click", () => {
+            switchTab("tab-clinical");
+            const btnHealthy = document.getElementById("btn-load-healthy-sample");
+            if (btnHealthy) btnHealthy.click();
+            const el = document.getElementById("screener-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+}
+
+// Quick Search Modal Palette
+function initQuickSearch() {
+    const trigger = document.getElementById("nav-search-trigger");
+    const backdrop = document.getElementById("search-modal-backdrop");
+    const closeBtn = document.getElementById("btn-close-search");
+    const searchInput = document.getElementById("quick-search-input");
+    const resultsList = document.getElementById("search-results-list");
+
+    if (!backdrop || !searchInput) return;
+
+    const openSearch = () => {
+        backdrop.classList.add("open");
+        searchInput.value = "";
+        filterResults("");
+        setTimeout(() => searchInput.focus(), 50);
+    };
+
+    const closeSearch = () => {
+        backdrop.classList.remove("open");
+    };
+
+    if (trigger) trigger.addEventListener("click", openSearch);
+    if (closeBtn) closeBtn.addEventListener("click", closeSearch);
+
+    backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop) closeSearch();
+    });
+
+    // Keyboard Shortcuts (Ctrl+K or Cmd+K to open, ESC to close)
+    window.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+            e.preventDefault();
+            if (backdrop.classList.contains("open")) closeSearch();
+            else openSearch();
+        } else if (e.key === "Escape" && backdrop.classList.contains("open")) {
+            closeSearch();
+        }
+    });
+
+    // Filter results on typing
+    const filterResults = (query) => {
+        const q = query.toLowerCase().trim();
+        const items = resultsList.querySelectorAll(".search-result-item");
+        items.forEach(item => {
+            const text = item.innerText.toLowerCase();
+            if (!q || text.includes(q)) {
+                item.style.display = "flex";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    };
+
+    searchInput.addEventListener("input", (e) => {
+        filterResults(e.target.value);
+    });
+
+    // Handle Item Selection
+    resultsList.addEventListener("click", (e) => {
+        const item = e.target.closest(".search-result-item");
+        if (!item) return;
+
+        const action = item.getAttribute("data-action");
+        const target = item.getAttribute("data-target");
+
+        closeSearch();
+
+        if (action === "tab") {
+            switchTab(target);
+        } else if (action === "scroll") {
+            switchTab("tab-clinical");
+            const targetEl = document.getElementById(target);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                targetEl.focus();
+                targetEl.style.boxShadow = "0 0 20px #38bdf8";
+                setTimeout(() => { targetEl.style.boxShadow = ""; }, 1800);
+            }
+        }
     });
 }
 

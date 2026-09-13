@@ -64,7 +64,7 @@
         ]
       },
       "training_time_sec": 0.008,
-      "inference_latency_ms": 0.021
+      "inference_latency_ms": 0.0
     },
     {
       "model_name": "Classical SVM (RBF)",
@@ -94,8 +94,8 @@
           1.0
         ]
       },
-      "training_time_sec": 0.009,
-      "inference_latency_ms": 0.0
+      "training_time_sec": 0.007,
+      "inference_latency_ms": 0.014
     },
     {
       "model_name": "Random Forest",
@@ -123,8 +123,8 @@
           1.0
         ]
       },
-      "training_time_sec": 0.257,
-      "inference_latency_ms": 0.203
+      "training_time_sec": 0.203,
+      "inference_latency_ms": 0.16
     },
     {
       "model_name": "Multilayer Perceptron (MLP)",
@@ -154,8 +154,8 @@
           1.0
         ]
       },
-      "training_time_sec": 0.186,
-      "inference_latency_ms": 0.021
+      "training_time_sec": 0.18,
+      "inference_latency_ms": 0.0
     },
     {
       "model_name": "Quantum VQC (PQC)",
@@ -185,8 +185,8 @@
           1.0
         ]
       },
-      "training_time_sec": 104.049,
-      "inference_latency_ms": 14.744
+      "training_time_sec": 76.92,
+      "inference_latency_ms": 12.041
     },
     {
       "model_name": "Quantum SVM (QSVM Kernel)",
@@ -216,8 +216,8 @@
           1.0
         ]
       },
-      "training_time_sec": 0.008,
-      "inference_latency_ms": 0.047
+      "training_time_sec": 0.009,
+      "inference_latency_ms": 0.027
     }
   ],
   "feature_importance": [

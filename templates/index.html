@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Chart.js for high-fidelity interactive data visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Tesseract.js for client-side local OCR lab report reading -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
@@ -29,18 +31,18 @@
                 </div>
                 <div>
                     <div class="brand-title">QUANTUM<span class="highlight">MED</span></div>
-                    <div class="brand-subtitle">Hybrid Quantum-Classical Disease Detection Engine</div>
+                    <div class="brand-subtitle">Early Fatty Liver Disease Screener • Govt Clinical Baseline (NIH / CDC)</div>
                 </div>
             </div>
 
             <div class="navbar-status-group">
                 <div class="status-pill simulator-active">
                     <span class="pulse-dot"></span>
-                    <span>QPU Simulator: <strong>PennyLane 0.45 (default.qubit)</strong></span>
+                    <span>Govt Standards: <strong>NIH / NIDDK & CDC NHANES</strong></span>
                 </div>
                 <div class="status-pill circuit-state">
                     <span class="icon">⚛</span>
-                    <span>Qubits: <strong>4 Wires</strong> | Entanglement: <strong>Full Ring</strong></span>
+                    <span>QPU Simulator: <strong>PennyLane 0.45 (4 Wires)</strong></span>
                 </div>
                 <button id="btn-re-benchmark" class="btn btn-gradient">
                     <span class="btn-icon">⚡</span> Run Hybrid Benchmark
@@ -50,11 +52,14 @@
 
         <!-- Navigation Tabs -->
         <nav class="nav-tabs">
-            <button class="tab-btn active" data-tab="tab-overview">
-                <span class="tab-icon">🌐</span> Architecture Overview
+            <button class="tab-btn active" data-tab="tab-clinical">
+                <span class="tab-icon">🩺</span> Fatty Liver Screener (Main)
             </button>
             <button class="tab-btn" data-tab="tab-dataset">
-                <span class="tab-icon">📂</span> Ingestion & Dataset (<code class="code-badge">inputdata.txt</code>)
+                <span class="tab-icon">🏛️</span> Govt Clinical Dataset (<code class="code-badge">inputdata.txt</code>)
+            </button>
+            <button class="tab-btn" data-tab="tab-overview">
+                <span class="tab-icon">🌐</span> System Architecture
             </button>
             <button class="tab-btn" data-tab="tab-circuit">
                 <span class="tab-icon">⚛</span> Quantum Circuit Studio
@@ -63,15 +68,12 @@
                 <span class="tab-icon">📊</span> Quantum vs Classical Benchmarks
             </button>
             <button class="tab-btn" data-tab="tab-explainability">
-                <span class="tab-icon">🔍</span> Model Explainability & Saliency
-            </button>
-            <button class="tab-btn" data-tab="tab-clinical">
-                <span class="tab-icon">🩺</span> Clinical Risk Predictor
+                <span class="tab-icon">🔍</span> Biomarker Explainability
             </button>
         </nav>
 
         <!-- Tab 1: Architecture Overview -->
-        <main class="tab-content active" id="tab-overview">
+        <main class="tab-content" id="tab-overview">
             <div class="hero-banner glass-card">
                 <div class="hero-text">
                     <div class="hero-tag">SIH PROBLEM STATEMENT IMPLEMENTATION</div>
@@ -390,99 +392,244 @@
             </div>
         </main>
 
-        <!-- Tab 6: Clinical Risk Predictor -->
-        <main class="tab-content" id="tab-clinical">
+        <!-- Tab 6: Clinical Risk Predictor & Patient Screener (Default Main Screen) -->
+        <main class="tab-content active" id="tab-clinical">
             <div class="section-container">
                 <div class="flex-header">
                     <div>
-                        <h2 class="section-title"><span class="title-accent">Clinical Decision Support</span> Single-Patient Diagnostic Predictor</h2>
-                        <p class="section-desc">Enter or adjust patient laboratory biomarkers to compute real-time early disease detection risk using the Hybrid Quantum-Classical Ensemble.</p>
+                        <h2 class="section-title"><span class="title-accent">Early Fatty Liver Screener</span> & Biomarker Check</h2>
+                        <p class="section-desc">
+                            Welcome! Check your risk of early fatty liver disease (hepatic steatosis) in 60 seconds. 
+                            Upload a photo of your blood test slip, paste report text, or enter values below. 
+                            Your vitals are directly compared against official <strong>NIH / NIDDK & CDC NHANES</strong> government clinical standards using Hybrid Quantum AI.
+                        </p>
                     </div>
                 </div>
 
+                <!-- Simple-Language Overview Cards -->
+                <div class="patient-intro-grid">
+                    <div class="patient-intro-card glass-card">
+                        <div class="intro-header">
+                            <span class="intro-icon">🩺</span>
+                            <h4>What is Early Fatty Liver?</h4>
+                        </div>
+                        <p>Fatty liver disease occurs when excess fat builds up inside liver cells. In its early stages, it causes <strong>zero noticeable symptoms</strong>. When detected early, it is <strong>100% reversible</strong> with simple nutrition and exercise changes before permanent damage (fibrosis) occurs!</p>
+                    </div>
+                    <div class="patient-intro-card glass-card">
+                        <div class="intro-header">
+                            <span class="intro-icon">⚛️</span>
+                            <h4>What Technology is Used?</h4>
+                        </div>
+                        <p><strong>Hybrid Quantum AI (PennyLane & Classical ML)</strong>. Traditional calculators analyze each test in isolation. Our quantum algorithm evaluates complex, multi-organ mathematical interactions between your liver enzymes, blood sugar, and body weight simultaneously in multidimensional space for higher early sensitivity.</p>
+                    </div>
+                    <div class="patient-intro-card glass-card">
+                        <div class="intro-header">
+                            <span class="intro-icon">🏛️</span>
+                            <h4>Government Clinical Standards</h4>
+                        </div>
+                        <p>Your results are evaluated against official clinical normal reference boundaries established by the <strong>U.S. National Institutes of Health (NIH/NIDDK)</strong>, <strong>CDC NHANES</strong>, and validated hospital clinical registries.</p>
+                    </div>
+                </div>
+
+                <!-- Input Modality Selector Tabs -->
+                <div class="input-modality-selector glass-card">
+                    <div class="modality-title">Choose How to Enter Your Vitals:</div>
+                    <div class="modality-nav">
+                        <button class="modality-btn active" id="btn-mode-image" data-mode="image">
+                            <span class="btn-icon">📷</span> 1. Upload Lab Report Image (OCR)
+                        </button>
+                        <button class="modality-btn" id="btn-mode-text" data-mode="text">
+                            <span class="btn-icon">📝</span> 2. Paste Medical Report / Text
+                        </button>
+                        <button class="modality-btn" id="btn-mode-form" data-mode="form">
+                            <span class="btn-icon">⌨️</span> 3. Direct Manual Form Entry
+                        </button>
+                    </div>
+
+                    <!-- Modality 1: Image Upload (OCR) -->
+                    <div class="modality-panel active" id="panel-mode-image">
+                        <div class="dropzone-box" id="dropzone-box">
+                            <div class="dropzone-icon">📋</div>
+                            <div class="dropzone-text"><strong>Drag & Drop your Lab Report or Blood Test photo here</strong></div>
+                            <div class="dropzone-sub">Supports PNG, JPG, JPEG, WEBP • Fast client & server OCR extraction</div>
+                            <input type="file" id="lab-image-input" accept="image/*" style="display:none;">
+                            <button class="btn btn-outline" id="btn-browse-image" type="button">
+                                <span class="btn-icon">📁</span> Select Image File
+                            </button>
+                        </div>
+
+                        <!-- Image Preview & Status -->
+                        <div id="image-preview-card" class="image-preview-card" style="display:none;">
+                            <div class="preview-header">
+                                <span id="preview-filename" class="preview-filename">report.png</span>
+                                <button class="btn btn-outline btn-xs" id="btn-clear-image" type="button">Remove Image</button>
+                            </div>
+                            <div class="preview-img-wrap">
+                                <img id="image-preview-el" src="" alt="Lab Report Scan">
+                            </div>
+                        </div>
+
+                        <!-- OCR Progress Bar -->
+                        <div id="ocr-progress-container" class="ocr-progress-container" style="display:none;">
+                            <div class="ocr-status-row">
+                                <span id="ocr-status-text">Scanning image and extracting laboratory biomarkers...</span>
+                                <span id="ocr-percentage-text">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="ocr-progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- OCR Extraction Result Banner -->
+                        <div id="image-ocr-feedback" class="feedback-banner" style="display:none;"></div>
+                    </div>
+
+                    <!-- Modality 2: Paste Text -->
+                    <div class="modality-panel" id="panel-mode-text">
+                        <div class="text-input-wrapper">
+                            <label class="form-label" for="paste-text-input">
+                                Paste Doctor's Notes, Lab Blood Panel, or Medical SMS/Email Text:
+                            </label>
+                            <textarea id="paste-text-input" class="form-textarea" rows="4" placeholder="e.g. Patient Age: 52, Gender: Male, BMI: 29.8, Total Bilirubin: 1.8 mg/dL, Direct Bilirubin: 0.6 mg/dL, Alkaline Phosphatase: 280, ALT: 65, AST: 72, Total Proteins: 6.2, Albumin: 2.9, Fasting Glucose: 135, Cholesterol: 225, Platelets: 205..."></textarea>
+                            
+                            <div class="text-actions-bar">
+                                <button class="btn btn-gradient" id="btn-extract-text" type="button">
+                                    <span class="btn-icon">⚡</span> Auto-Extract & Populate Vitals
+                                </button>
+                                <button class="btn btn-outline btn-sm" id="btn-sample-diseased-text" type="button">
+                                    Load Sample High-Risk Text
+                                </button>
+                                <button class="btn btn-outline btn-sm" id="btn-sample-healthy-text" type="button">
+                                    Load Sample Healthy Text
+                                </button>
+                                <button class="btn btn-outline btn-sm" id="btn-clear-text" type="button">
+                                    Clear
+                                </button>
+                            </div>
+                            <div id="text-extract-feedback" class="feedback-banner" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Modality 3: Form info banner -->
+                    <div class="modality-panel" id="panel-mode-form">
+                        <div class="form-info-callout">
+                            <span>ℹ️ You can adjust any of the 14 biomarkers below at any time. Values auto-fill when uploading an image or extracting text!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Assessment Grid -->
                 <div class="clinical-prediction-layout">
-                    <!-- Input Form -->
+                    <!-- 14 Biomarkers Form -->
                     <div class="patient-form-card glass-card">
-                        <div class="form-title">Patient Laboratory Biomarkers</div>
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Patient Age (Years)</label>
-                                <input type="number" id="inp-age" class="form-input" value="55" min="18" max="100">
+                        <div class="form-title-row">
+                            <div class="form-title">Patient Laboratory Biomarkers (14 Parameters)</div>
+                            <div class="form-actions-mini">
+                                <button id="btn-load-healthy-sample" class="btn btn-outline btn-xs" type="button">🟢 Healthy Preset</button>
+                                <button id="btn-load-diseased-sample" class="btn btn-outline btn-xs" type="button">⚠️ High-Risk Preset</button>
                             </div>
-                            <div class="form-group">
-                                <label>Gender</label>
-                                <select id="inp-gender" class="form-input">
-                                    <option value="1">Male (1)</option>
-                                    <option value="0">Female (0)</option>
-                                </select>
+                        </div>
+
+                        <!-- Categorized Biomarker Panels -->
+                        <div class="biomarker-panels-container">
+                            <!-- Panel 1: Physical & Demographics -->
+                            <div class="panel-subgroup">
+                                <div class="panel-subgroup-title">👤 1. Body & Physical Profile</div>
+                                <div class="form-grid-3">
+                                    <div class="form-group">
+                                        <label>Patient Age <span class="field-hint">18–85 yrs</span></label>
+                                        <input type="number" id="inp-age" class="form-input" value="48" min="18" max="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Gender <span class="field-hint">Biological Sex</span></label>
+                                        <select id="inp-gender" class="form-input">
+                                            <option value="1">Male (1)</option>
+                                            <option value="0">Female (0)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Body Mass Index (BMI) <span class="field-hint">Normal: 18.5–24.9</span></label>
+                                        <input type="number" id="inp-bmi" class="form-input" value="28.4" step="0.1">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Body Mass Index (BMI)</label>
-                                <input type="number" id="inp-bmi" class="form-input" value="31.5" step="0.1">
+
+                            <!-- Panel 2: Liver Enzymes -->
+                            <div class="panel-subgroup">
+                                <div class="panel-subgroup-title">🧪 2. Liver Enzymes (Cellular Inflammation)</div>
+                                <div class="form-grid-3">
+                                    <div class="form-group">
+                                        <label>ALT / SGPT <span class="field-hint">Normal: 7–56 IU/L</span></label>
+                                        <input type="number" id="inp-alt" class="form-input" value="48" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>AST / SGOT <span class="field-hint">Normal: 10–40 IU/L</span></label>
+                                        <input type="number" id="inp-ast" class="form-input" value="52" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Alk Phosphatase <span class="field-hint">Normal: 44–147 IU/L</span></label>
+                                        <input type="number" id="inp-alp" class="form-input" value="240" step="5">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Total Bilirubin (mg/dL)</label>
-                                <input type="number" id="inp-tb" class="form-input" value="1.8" step="0.1">
+
+                            <!-- Panel 3: Biliary & Synthesis -->
+                            <div class="panel-subgroup">
+                                <div class="panel-subgroup-title">🩸 3. Biliary Function & Protein Synthesis</div>
+                                <div class="form-grid-5">
+                                    <div class="form-group">
+                                        <label>Total Bilirubin <span class="field-hint">0.2–1.2 mg/dL</span></label>
+                                        <input type="number" id="inp-tb" class="form-input" value="1.4" step="0.1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Direct Bilirubin <span class="field-hint">0.0–0.3 mg/dL</span></label>
+                                        <input type="number" id="inp-db" class="form-input" value="0.5" step="0.1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Total Proteins <span class="field-hint">6.0–8.3 g/dL</span></label>
+                                        <input type="number" id="inp-tp" class="form-input" value="6.5" step="0.1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Serum Albumin <span class="field-hint">3.5–5.0 g/dL</span></label>
+                                        <input type="number" id="inp-alb" class="form-input" value="3.1" step="0.1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>A/G Ratio <span class="field-hint">1.0–2.5</span></label>
+                                        <input type="number" id="inp-ag" class="form-input" value="0.91" step="0.01">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Direct Bilirubin (mg/dL)</label>
-                                <input type="number" id="inp-db" class="form-input" value="0.7" step="0.1">
-                            </div>
-                            <div class="form-group">
-                                <label>Alkaline Phosphatase (IU/L)</label>
-                                <input type="number" id="inp-alp" class="form-input" value="310" step="5">
-                            </div>
-                            <div class="form-group">
-                                <label>ALT / GPT (IU/L)</label>
-                                <input type="number" id="inp-alt" class="form-input" value="65" step="1">
-                            </div>
-                            <div class="form-group">
-                                <label>AST / GOT (IU/L)</label>
-                                <input type="number" id="inp-ast" class="form-input" value="72" step="1">
-                            </div>
-                            <div class="form-group">
-                                <label>Total Proteins (g/dL)</label>
-                                <input type="number" id="inp-tp" class="form-input" value="6.2" step="0.1">
-                            </div>
-                            <div class="form-group">
-                                <label>Serum Albumin (g/dL)</label>
-                                <input type="number" id="inp-alb" class="form-input" value="2.8" step="0.1">
-                            </div>
-                            <div class="form-group">
-                                <label>A/G Ratio</label>
-                                <input type="number" id="inp-ag" class="form-input" value="0.82" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label>Fasting Glucose (mg/dL)</label>
-                                <input type="number" id="inp-glu" class="form-input" value="140" step="1">
-                            </div>
-                            <div class="form-group">
-                                <label>Serum Cholesterol (mg/dL)</label>
-                                <input type="number" id="inp-chol" class="form-input" value="230" step="5">
-                            </div>
-                            <div class="form-group">
-                                <label>Platelet Count (x10^3/uL)</label>
-                                <input type="number" id="inp-plat" class="form-input" value="195" step="5">
+
+                            <!-- Panel 4: Metabolic & Blood -->
+                            <div class="panel-subgroup">
+                                <div class="panel-subgroup-title">⚡ 4. Metabolic Health & Blood Indicators</div>
+                                <div class="form-grid-3">
+                                    <div class="form-group">
+                                        <label>Fasting Glucose <span class="field-hint">Normal: 70–99 mg/dL</span></label>
+                                        <input type="number" id="inp-glu" class="form-input" value="122" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Serum Cholesterol <span class="field-hint">Normal: &lt;200 mg/dL</span></label>
+                                        <input type="number" id="inp-chol" class="form-input" value="215" step="5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Platelet Count <span class="field-hint">150–450 x10³/µL</span></label>
+                                        <input type="number" id="inp-plat" class="form-input" value="210" step="5">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-action-row">
-                            <button id="btn-predict-patient" class="btn btn-gradient btn-large">
-                                <span class="btn-icon">⚡</span> Run Hybrid Quantum Inference
-                            </button>
-                            <button id="btn-load-healthy-sample" class="btn btn-outline">
-                                Load Healthy Sample
-                            </button>
-                            <button id="btn-load-diseased-sample" class="btn btn-outline">
-                                Load High-Risk Sample
+                            <button id="btn-predict-patient" class="btn btn-gradient btn-large" type="button">
+                                <span class="btn-icon">⚛️</span> Check My Fatty Liver Risk Now
                             </button>
                         </div>
                     </div>
 
-                    <!-- Prediction Result Panel -->
+                    <!-- Diagnostic Outcome Panel -->
                     <div class="prediction-output-card glass-card">
-                        <div class="prediction-header">Hybrid Quantum Diagnostic Outcome</div>
+                        <div class="prediction-header">Hybrid Quantum Diagnostic Verdict</div>
                         <div class="diagnosis-status-badge" id="diag-badge">
                             <span class="status-indicator"></span>
                             <span id="diag-text">Awaiting Inference...</span>
@@ -491,7 +638,7 @@
                         <div class="risk-gauge-container">
                             <div class="risk-score-circle" id="risk-score-circle">
                                 <span class="risk-percent" id="risk-percent">--%</span>
-                                <span class="risk-sub">Disease Probability</span>
+                                <span class="risk-sub">Hybrid Disease Risk</span>
                             </div>
                         </div>
 
@@ -521,7 +668,51 @@
                         </div>
 
                         <div class="clinical-recommendation" id="clinical-rec">
-                            Click "Run Hybrid Quantum Inference" to evaluate patient biomarkers.
+                            Click "Run Hybrid Quantum Disease Screening" to analyze your biomarkers.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient vs Dataset Baseline Cohort Comparison Section -->
+                <div class="cohort-comparison-section glass-card" id="cohort-comparison-section" style="margin-top: 2rem;">
+                    <div class="flex-header">
+                        <div>
+                            <h3 class="section-title"><span class="title-accent">Baseline Dataset Comparison</span> (Patient vs inputdata.txt)</h3>
+                            <p class="section-desc">Direct comparison of your laboratory biomarkers against the Healthy Cohort (Class 0) and Diseased Cohort (Class 1) records stored in the trained dataset.</p>
+                        </div>
+                        <div class="cohort-summary-pill" id="cohort-summary-badge">
+                            <span>Awaiting patient evaluation</span>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="table-responsive" style="margin-top: 1rem;">
+                        <table class="custom-table comparison-table" id="cohort-comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Biomarker</th>
+                                    <th>Your Value</th>
+                                    <th>Standard Normal Range</th>
+                                    <th>Dataset Healthy Mean (0)</th>
+                                    <th>Dataset Diseased Mean (1)</th>
+                                    <th>Clinical Status</th>
+                                    <th>Dataset Percentile</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cohort-comparison-tbody">
+                                <tr><td colspan="7" class="text-center">Run screening to view biomarker comparison with dataset cohort.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Comparison Chart -->
+                    <div class="comparison-chart-card" style="margin-top: 1.5rem;">
+                        <div class="chart-header">
+                            <div class="chart-title">Key Biomarkers: Patient Value vs Healthy Baseline vs Diseased Baseline</div>
+                            <span class="badge badge-info">Multi-Biomarker Cohort Alignment</span>
+                        </div>
+                        <div class="chart-wrapper" style="height: 320px;">
+                            <canvas id="cohortComparisonChart"></canvas>
                         </div>
                     </div>
                 </div>

@@ -12,6 +12,7 @@ from qml_platform.dataset_loader import BiomedicalDatasetLoader
 from qml_platform.quantum_models import VariationalQuantumClassifier, QuantumSVM
 from qml_platform.classical_models import ClassicalBaselines
 from qml_platform.evaluation import ModelEvaluator, ExplainabilityEngine
+from qml_platform.report_parser import MedicalReportParser
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)
@@ -30,11 +31,18 @@ PLATFORM_STATE = {
     "is_training": False
 }
 
-def init_default_pipeline(epochs=15, n_qubits=4):
+def get_or_create_loader(n_qubits=4):
+    """Retrieves or instantly initializes the dataset loader without training models."""
+    if PLATFORM_STATE["loader"] is None:
+        data_file = "inputdata.txt" if os.path.exists("inputdata.txt") else "inputdata.txt.txt"
+        loader = BiomedicalDatasetLoader(filepath=data_file, n_qubits=n_qubits)
+        loader.load_data()
+        PLATFORM_STATE["loader"] = loader
+    return PLATFORM_STATE["loader"]
+
+def init_default_pipeline(epochs=6, n_qubits=4):
     """Initializes and trains the pipeline once if not already trained."""
-    data_file = "inputdata.txt" if os.path.exists("inputdata.txt") else "inputdata.txt.txt"
-    loader = BiomedicalDatasetLoader(filepath=data_file, n_qubits=n_qubits)
-    loader.load_data()
+    loader = get_or_create_loader(n_qubits=n_qubits)
 
     classical = ClassicalBaselines()
     classical.fit_all(loader.X_train_classical, loader.y_train)
@@ -152,9 +160,41 @@ def api_train():
         "results": PLATFORM_STATE["evaluation_results"]
     })
 
+@app.route("/api/parse-text", methods=["POST"])
+def api_parse_text():
+    """Extract clinical biomarkers from user-entered or pasted medical report text."""
+    data = request.get_json(silent=True) or {}
+    raw_text = data.get("text", "")
+    if not raw_text:
+        return jsonify({"error": "No text provided"}), 400
+
+    parsed = MedicalReportParser.parse_text(raw_text)
+    return jsonify(parsed)
+
+@app.route("/api/parse-image", methods=["POST"])
+def api_parse_image():
+    """Performs OCR and biomarker extraction on an uploaded lab report image."""
+    if "image" not in request.files and "file" not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+
+    file = request.files.get("image") or request.files.get("file")
+    image_bytes = file.read()
+    if not image_bytes:
+        return jsonify({"error": "Empty image file"}), 400
+
+    parsed = MedicalReportParser.parse_image_bytes(image_bytes)
+    return jsonify(parsed)
+
+@app.route("/api/cohort-stats", methods=["GET"])
+def api_cohort_stats():
+    """Returns baseline healthy vs diseased cohort statistical benchmarks from inputdata.txt."""
+    loader = get_or_create_loader()
+    stats = loader.get_cohort_statistics()
+    return jsonify(stats)
+
 @app.route("/api/predict", methods=["POST"])
 def api_predict():
-    """Predict early disease diagnosis for a single patient record."""
+    """Predict early disease diagnosis for a single patient record and compare with dataset cohort."""
     if PLATFORM_STATE["loader"] is None or PLATFORM_STATE["vqc"] is None:
         init_default_pipeline(epochs=10, n_qubits=4)
 
@@ -178,6 +218,39 @@ def api_predict():
     hybrid_prob = float(0.60 * vqc_prob[1] + 0.40 * rf_prob[1])
     hybrid_pred = 1 if hybrid_prob >= 0.50 else 0
 
+    # Compare patient vitals with dataset cohort distributions
+    cohort_comparison = loader.compare_patient_with_cohort(patient_data)
+
+    # Generate biomarker-specific clinical guidance
+    elevated_biomarkers = [
+        item["display_name"] for item in cohort_comparison["comparisons"]
+        if item["status_level"] in ["danger", "warning"] and item["biomarker"] != "Gender"
+    ]
+    if hybrid_pred == 1:
+        if elevated_biomarkers:
+            guidance = (
+                f"Elevated biomarkers detected: {', '.join(elevated_biomarkers[:4])}. "
+                "Hybrid quantum risk indicates early-stage cellular or metabolic disease pattern. "
+                "Recommended follow-up: Confirmatory hepatic ultrasound/fibroscan, comprehensive metabolic panel (CMP), "
+                "and consultation with a specialist."
+            )
+        else:
+            guidance = (
+                "Hybrid quantum risk indicates subtle multi-biomarker correlation indicative of early disease pattern. "
+                "Recommend follow-up clinical screening and repeat blood panel in 4-6 weeks."
+            )
+    else:
+        if elevated_biomarkers:
+            guidance = (
+                f"Overall hybrid quantum risk is low/healthy, but note mild elevation in: {', '.join(elevated_biomarkers[:3])}. "
+                "Routine annual screening and healthy lifestyle/dietary maintenance advised."
+            )
+        else:
+            guidance = (
+                "All primary biomedical biomarkers align closely with the dataset healthy cohort baseline. "
+                "Normal metabolic and hepatic health profile detected. Routine preventive checkups recommended."
+            )
+
     return jsonify({
         "patient_inputs": patient_data,
         "hybrid_prediction": {
@@ -196,7 +269,9 @@ def api_predict():
         },
         "quantum_encoded_features": {
             name: round(float(x_quantum[0][i]), 4) for i, name in enumerate(loader.selected_feature_names)
-        }
+        },
+        "cohort_comparison": cohort_comparison,
+        "clinical_guidance": guidance
     })
 
 @app.route("/results/<path:filename>")

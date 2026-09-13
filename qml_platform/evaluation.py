@@ -1,4 +1,5 @@
 import time
+# pyrefly: ignore [missing-import]
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,

@@ -1,8 +1,8 @@
 {
   "dataset_summary": {
-    "total_samples": 100,
-    "train_samples": 75,
-    "test_samples": 25,
+    "total_samples": 300,
+    "train_samples": 225,
+    "test_samples": 75,
     "total_features": 14,
     "target_name": "Diagnosis",
     "feature_names": [
@@ -23,15 +23,15 @@
     ],
     "n_qubits": 4,
     "selected_features": [
-      "BMI",
       "Alamine_Aminotransferase",
-      "Aspartate_Aminotransferase",
+      "Albumin",
+      "Albumin_and_Globulin_Ratio",
       "Fasting_Glucose"
     ],
     "reduction_method": "select_k_best",
     "class_distribution": {
-      "negative (0)": 45,
-      "positive (1)": 55
+      "negative (0)": 150,
+      "positive (1)": 150
     }
   },
   "models_evaluation": [
@@ -44,9 +44,9 @@
       "f1_score": 1.0,
       "roc_auc": 1.0,
       "confusion_matrix": {
-        "tp": 14,
+        "tp": 37,
         "fp": 0,
-        "tn": 11,
+        "tn": 38,
         "fn": 0
       },
       "roc_curve": {
@@ -58,13 +58,13 @@
         ],
         "tpr": [
           0.0,
-          0.07142857142857142,
+          0.02702702702702703,
           1.0,
           1.0
         ]
       },
-      "training_time_sec": 0.014,
-      "inference_latency_ms": 0.04
+      "training_time_sec": 0.008,
+      "inference_latency_ms": 0.021
     },
     {
       "model_name": "Classical SVM (RBF)",
@@ -75,9 +75,9 @@
       "f1_score": 1.0,
       "roc_auc": 1.0,
       "confusion_matrix": {
-        "tp": 14,
+        "tp": 37,
         "fp": 0,
-        "tn": 11,
+        "tn": 38,
         "fn": 0
       },
       "roc_curve": {
@@ -89,13 +89,13 @@
         ],
         "tpr": [
           0.0,
-          0.07142857142857142,
+          0.02702702702702703,
           1.0,
           1.0
         ]
       },
-      "training_time_sec": 0.004,
-      "inference_latency_ms": 0.04
+      "training_time_sec": 0.009,
+      "inference_latency_ms": 0.0
     },
     {
       "model_name": "Random Forest",
@@ -106,27 +106,25 @@
       "f1_score": 1.0,
       "roc_auc": 1.0,
       "confusion_matrix": {
-        "tp": 14,
+        "tp": 37,
         "fp": 0,
-        "tn": 11,
+        "tn": 38,
         "fn": 0
       },
       "roc_curve": {
         "fpr": [
           0.0,
           0.0,
-          0.0,
           1.0
         ],
         "tpr": [
           0.0,
-          0.7857142857142857,
           1.0,
           1.0
         ]
       },
-      "training_time_sec": 0.34,
-      "inference_latency_ms": 1.134
+      "training_time_sec": 0.257,
+      "inference_latency_ms": 0.203
     },
     {
       "model_name": "Multilayer Perceptron (MLP)",
@@ -137,9 +135,9 @@
       "f1_score": 1.0,
       "roc_auc": 1.0,
       "confusion_matrix": {
-        "tp": 14,
+        "tp": 37,
         "fp": 0,
-        "tn": 11,
+        "tn": 38,
         "fn": 0
       },
       "roc_curve": {
@@ -151,13 +149,13 @@
         ],
         "tpr": [
           0.0,
-          0.07142857142857142,
+          0.02702702702702703,
           1.0,
           1.0
         ]
       },
-      "training_time_sec": 0.326,
-      "inference_latency_ms": 0.039
+      "training_time_sec": 0.186,
+      "inference_latency_ms": 0.021
     },
     {
       "model_name": "Quantum VQC (PQC)",
@@ -168,9 +166,9 @@
       "f1_score": 1.0,
       "roc_auc": 1.0,
       "confusion_matrix": {
-        "tp": 14,
+        "tp": 37,
         "fp": 0,
-        "tn": 11,
+        "tn": 38,
         "fn": 0
       },
       "roc_curve": {
@@ -182,13 +180,13 @@
         ],
         "tpr": [
           0.0,
-          0.07142857142857142,
+          0.02702702702702703,
           1.0,
           1.0
         ]
       },
-      "training_time_sec": 29.965,
-      "inference_latency_ms": 10.345
+      "training_time_sec": 104.049,
+      "inference_latency_ms": 14.744
     },
     {
       "model_name": "Quantum SVM (QSVM Kernel)",
@@ -199,9 +197,9 @@
       "f1_score": 1.0,
       "roc_auc": 1.0,
       "confusion_matrix": {
-        "tp": 14,
+        "tp": 37,
         "fp": 0,
-        "tn": 11,
+        "tn": 38,
         "fn": 0
       },
       "roc_curve": {
@@ -213,110 +211,110 @@
         ],
         "tpr": [
           0.0,
-          0.07142857142857142,
+          0.02702702702702703,
           1.0,
           1.0
         ]
       },
-      "training_time_sec": 8.554,
-      "inference_latency_ms": 248.601
+      "training_time_sec": 0.008,
+      "inference_latency_ms": 0.047
     }
   ],
   "feature_importance": [
     {
-      "feature": "Aspartate_Aminotransferase",
-      "f_score": 282.62,
-      "normalized_importance": 0.19,
-      "is_quantum_encoded": true,
-      "rf_importance": 0.19
+      "feature": "Total_Bilirubin",
+      "f_score": 512.64,
+      "normalized_importance": 0.12,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.12
     },
     {
-      "feature": "Gender",
-      "f_score": 0.0,
-      "normalized_importance": 0.14,
+      "feature": "Aspartate_Aminotransferase",
+      "f_score": 609.18,
+      "normalized_importance": 0.12,
       "is_quantum_encoded": false,
-      "rf_importance": 0.14
+      "rf_importance": 0.12
     },
     {
       "feature": "Serum_Cholesterol",
-      "f_score": 273.98,
+      "f_score": 646.19,
       "normalized_importance": 0.12,
       "is_quantum_encoded": false,
       "rf_importance": 0.12
     },
     {
       "feature": "BMI",
-      "f_score": 298.05,
-      "normalized_importance": 0.1006,
-      "is_quantum_encoded": true,
-      "rf_importance": 0.1006
-    },
-    {
-      "feature": "Alamine_Aminotransferase",
-      "f_score": 281.74,
-      "normalized_importance": 0.0811,
-      "is_quantum_encoded": true,
-      "rf_importance": 0.0811
-    },
-    {
-      "feature": "Fasting_Glucose",
-      "f_score": 328.18,
-      "normalized_importance": 0.0694,
-      "is_quantum_encoded": true,
-      "rf_importance": 0.0694
-    },
-    {
-      "feature": "Albumin_and_Globulin_Ratio",
-      "f_score": 246.39,
-      "normalized_importance": 0.06,
+      "f_score": 650.21,
+      "normalized_importance": 0.11,
       "is_quantum_encoded": false,
-      "rf_importance": 0.06
-    },
-    {
-      "feature": "Platelet_Count",
-      "f_score": 272.76,
-      "normalized_importance": 0.06,
-      "is_quantum_encoded": false,
-      "rf_importance": 0.06
-    },
-    {
-      "feature": "Albumin",
-      "f_score": 261.23,
-      "normalized_importance": 0.052,
-      "is_quantum_encoded": false,
-      "rf_importance": 0.052
-    },
-    {
-      "feature": "Total_Bilirubin",
-      "f_score": 205.57,
-      "normalized_importance": 0.049,
-      "is_quantum_encoded": false,
-      "rf_importance": 0.049
+      "rf_importance": 0.11
     },
     {
       "feature": "Alkaline_Phosphatase",
-      "f_score": 189.97,
-      "normalized_importance": 0.0394,
+      "f_score": 528.2,
+      "normalized_importance": 0.1,
       "is_quantum_encoded": false,
-      "rf_importance": 0.0394
+      "rf_importance": 0.1
     },
     {
-      "feature": "Total_Proteins",
-      "f_score": 238.59,
-      "normalized_importance": 0.0284,
-      "is_quantum_encoded": false,
-      "rf_importance": 0.0284
+      "feature": "Alamine_Aminotransferase",
+      "f_score": 664.49,
+      "normalized_importance": 0.1,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.1
+    },
+    {
+      "feature": "Albumin",
+      "f_score": 652.09,
+      "normalized_importance": 0.1,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.1
+    },
+    {
+      "feature": "Albumin_and_Globulin_Ratio",
+      "f_score": 731.03,
+      "normalized_importance": 0.08,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.08
     },
     {
       "feature": "Direct_Bilirubin",
-      "f_score": 155.68,
-      "normalized_importance": 0.01,
+      "f_score": 590.07,
+      "normalized_importance": 0.0722,
       "is_quantum_encoded": false,
-      "rf_importance": 0.01
+      "rf_importance": 0.0722
+    },
+    {
+      "feature": "Fasting_Glucose",
+      "f_score": 720.48,
+      "normalized_importance": 0.07,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.07
+    },
+    {
+      "feature": "Platelet_Count",
+      "f_score": 515.18,
+      "normalized_importance": 0.0078,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0078
     },
     {
       "feature": "Age",
-      "f_score": 96.89,
+      "f_score": 64.84,
+      "normalized_importance": 0.0,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0
+    },
+    {
+      "feature": "Gender",
+      "f_score": 6.44,
+      "normalized_importance": 0.0,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0
+    },
+    {
+      "feature": "Total_Proteins",
+      "f_score": 345.29,
       "normalized_importance": 0.0,
       "is_quantum_encoded": false,
       "rf_importance": 0.0

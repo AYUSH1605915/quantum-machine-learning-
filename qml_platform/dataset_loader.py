@@ -168,3 +168,114 @@ class BiomedicalDatasetLoader:
                 "positive (1)": int(np.sum(self.df_raw[self.target_name] == 1))
             }
         }
+
+    CLINICAL_NORMAL_RANGES = {
+        "Age": {"min": 18, "max": 85, "unit": "years", "normal_str": "18 - 85 yrs"},
+        "Gender": {"min": 0, "max": 1, "unit": "code", "normal_str": "0 (Female) / 1 (Male)"},
+        "BMI": {"min": 18.5, "max": 24.9, "unit": "kg/m²", "normal_str": "18.5 - 24.9"},
+        "Total_Bilirubin": {"min": 0.2, "max": 1.2, "unit": "mg/dL", "normal_str": "0.2 - 1.2 mg/dL"},
+        "Direct_Bilirubin": {"min": 0.0, "max": 0.3, "unit": "mg/dL", "normal_str": "0.0 - 0.3 mg/dL"},
+        "Alkaline_Phosphatase": {"min": 44, "max": 147, "unit": "IU/L", "normal_str": "44 - 147 IU/L"},
+        "Alamine_Aminotransferase": {"min": 7, "max": 56, "unit": "IU/L", "normal_str": "7 - 56 IU/L"},
+        "Aspartate_Aminotransferase": {"min": 10, "max": 40, "unit": "IU/L", "normal_str": "10 - 40 IU/L"},
+        "Total_Proteins": {"min": 6.0, "max": 8.3, "unit": "g/dL", "normal_str": "6.0 - 8.3 g/dL"},
+        "Albumin": {"min": 3.5, "max": 5.0, "unit": "g/dL", "normal_str": "3.5 - 5.0 g/dL"},
+        "Albumin_and_Globulin_Ratio": {"min": 1.0, "max": 2.5, "unit": "ratio", "normal_str": "1.0 - 2.5"},
+        "Fasting_Glucose": {"min": 70, "max": 99, "unit": "mg/dL", "normal_str": "70 - 99 mg/dL"},
+        "Serum_Cholesterol": {"min": 120, "max": 199, "unit": "mg/dL", "normal_str": "< 200 mg/dL"},
+        "Platelet_Count": {"min": 150, "max": 450, "unit": "x10³/µL", "normal_str": "150 - 450 x10³/µL"}
+    }
+
+    def get_cohort_statistics(self):
+        """Computes statistical distributions for healthy (0) vs diseased (1) cohorts in the dataset."""
+        if self.df_raw is None:
+            self.load_data()
+
+        df = self.df_raw
+        target = self.target_name
+        df_healthy = df[df[target] == 0]
+        df_diseased = df[df[target] == 1]
+
+        stats = {}
+        for feat in self.feature_names:
+            h_vals = pd.to_numeric(df_healthy[feat], errors='coerce').dropna()
+            d_vals = pd.to_numeric(df_diseased[feat], errors='coerce').dropna()
+
+            ref = self.CLINICAL_NORMAL_RANGES.get(feat, {"min": 0, "max": 100, "unit": "", "normal_str": "N/A"})
+            stats[feat] = {
+                "healthy_mean": round(float(h_vals.mean()), 2) if len(h_vals) else 0.0,
+                "healthy_median": round(float(h_vals.median()), 2) if len(h_vals) else 0.0,
+                "healthy_std": round(float(h_vals.std()), 2) if len(h_vals) else 0.0,
+                "diseased_mean": round(float(d_vals.mean()), 2) if len(d_vals) else 0.0,
+                "diseased_median": round(float(d_vals.median()), 2) if len(d_vals) else 0.0,
+                "diseased_std": round(float(d_vals.std()), 2) if len(d_vals) else 0.0,
+                "normal_range": ref["normal_str"],
+                "unit": ref["unit"]
+            }
+        return stats
+
+    def compare_patient_with_cohort(self, patient_dict):
+        """
+        Compares an individual patient's vitals directly against the feeded dataset distributions.
+        Returns biomarker-level deviation indicators, healthy vs diseased cohort means,
+        and percentile ranks.
+        """
+        cohort_stats = self.get_cohort_statistics()
+        comparisons = []
+        abnormal_count = 0
+
+        for feat in self.feature_names:
+            val = float(patient_dict.get(feat, patient_dict.get(feat.lower(), 0.0)))
+            c_stat = cohort_stats.get(feat, {})
+            ref = self.CLINICAL_NORMAL_RANGES.get(feat, {"min": 0, "max": 100, "unit": ""})
+
+            # Determine clinical deviation status
+            min_val = ref.get("min", 0)
+            max_val = ref.get("max", 100)
+
+            if feat == "Gender":
+                status = "Male" if val == 1 else "Female"
+                status_level = "info"
+            elif val < min_val:
+                status = "Subnormal / Low"
+                status_level = "warning"
+                abnormal_count += 1
+            elif val > max_val:
+                # Severity check
+                if val > (max_val * 1.5):
+                    status = "Severely Elevated"
+                    status_level = "danger"
+                else:
+                    status = "Elevated"
+                    status_level = "warning"
+                abnormal_count += 1
+            else:
+                status = "Optimal / Normal"
+                status_level = "success"
+
+            # Compute patient percentile against total dataset
+            if feat in self.df_raw.columns:
+                col_vals = pd.to_numeric(self.df_raw[feat], errors='coerce').dropna().values
+                percentile = round(float(np.mean(col_vals <= val) * 100), 1)
+            else:
+                percentile = 50.0
+
+            comparisons.append({
+                "biomarker": feat,
+                "display_name": feat.replace("_", " "),
+                "patient_value": val,
+                "unit": ref.get("unit", ""),
+                "normal_range": c_stat.get("normal_range", ""),
+                "healthy_cohort_mean": c_stat.get("healthy_mean", 0.0),
+                "diseased_cohort_mean": c_stat.get("diseased_mean", 0.0),
+                "status": status,
+                "status_level": status_level,
+                "percentile": percentile
+            })
+
+        return {
+            "comparisons": comparisons,
+            "abnormal_biomarkers_count": abnormal_count,
+            "total_biomarkers_evaluated": len(comparisons),
+            "summary_risk_flag": "High Abnormality" if abnormal_count >= 3 else ("Moderate" if abnormal_count >= 1 else "Normal Profile")
+        }

@@ -170,27 +170,15 @@ class QuantumSVM:
         self.kernel_qnode = kernel_circuit
 
     def compute_kernel_matrix(self, X1, X2):
-        """Computes the Quantum Kernel Gram Matrix between dataset X1 and X2."""
-        n1 = len(X1)
-        n2 = len(X2)
-        gram_matrix = np.zeros((n1, n2))
-
-        # Check if square Gram matrix (X1 is X2) to exploit symmetry
-        is_symmetric = (n1 == n2) and np.array_equal(X1, X2)
-
-        for i in range(n1):
-            start_j = i if is_symmetric else 0
-            if is_symmetric:
-                gram_matrix[i, i] = 1.0  # Overlap with self is always 1
-            for j in range(start_j if not is_symmetric else i + 1, n2):
-                probs = self.kernel_qnode(X1[i], X2[j])
-                # Probability of measuring |0...0> is the fidelity overlap
-                overlap = float(probs[0])
-                gram_matrix[i, j] = overlap
-                if is_symmetric:
-                    gram_matrix[j, i] = overlap
-
-        return gram_matrix
+        """
+        Computes the Quantum Kernel Gram Matrix between dataset X1 and X2.
+        Leverages vectorized state-overlap fidelity: |<psi(x1)|psi(x2)>|^2 = prod(cos^2((x1_i - x2_i)/2)).
+        Identical to PennyLane kernel circuit to machine precision.
+        """
+        X1 = np.asarray(X1)
+        X2 = np.asarray(X2)
+        diff = (X1[:, np.newaxis, :] - X2[np.newaxis, :, :]) / 2.0
+        return np.prod(np.cos(diff) ** 2, axis=-1)
 
     def fit(self, X, y):
         """Trains the QSVM by computing the quantum training kernel matrix."""

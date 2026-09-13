@@ -4,6 +4,7 @@ let radarChartInstance = null;
 let rocChartInstance = null;
 let sensSpecChartInstance = null;
 let importanceChartInstance = null;
+let cohortComparisonChartInstance = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     initTabs();
@@ -11,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     loadBenchmarkData();
     initPredictionActions();
     initReBenchmark();
+    initModalityTabs();
+    initImageUploadAndOCR();
+    initTextParsing();
 });
 
 // 1. Tab Switching
@@ -461,7 +465,253 @@ function renderExplainability(features) {
     });
 }
 
-// 4. Clinical Risk Predictor Actions
+// 4. Input Modality Tabs Switching
+function initModalityTabs() {
+    const modeBtns = document.querySelectorAll(".modality-btn");
+    const modePanels = document.querySelectorAll(".modality-panel");
+
+    modeBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const mode = btn.getAttribute("data-mode");
+            modeBtns.forEach(b => b.classList.remove("active"));
+            modePanels.forEach(p => p.classList.remove("active"));
+
+            btn.classList.add("active");
+            const targetPanel = document.getElementById(`panel-mode-${mode}`);
+            if (targetPanel) targetPanel.classList.add("active");
+        });
+    });
+}
+
+// 5. Image Upload & OCR Handling
+function initImageUploadAndOCR() {
+    const dropzone = document.getElementById("dropzone-box");
+    const fileInput = document.getElementById("lab-image-input");
+    const btnBrowse = document.getElementById("btn-browse-image");
+    const previewCard = document.getElementById("image-preview-card");
+    const previewImg = document.getElementById("image-preview-el");
+    const previewFilename = document.getElementById("preview-filename");
+    const btnClear = document.getElementById("btn-clear-image");
+    const progressContainer = document.getElementById("ocr-progress-container");
+    const progressFill = document.getElementById("ocr-progress-fill");
+    const progressPercent = document.getElementById("ocr-percentage-text");
+    const statusText = document.getElementById("ocr-status-text");
+    const feedbackBanner = document.getElementById("image-ocr-feedback");
+
+    if (!dropzone || !fileInput) return;
+
+    btnBrowse.addEventListener("click", (e) => {
+        e.stopPropagation();
+        fileInput.click();
+    });
+
+    dropzone.addEventListener("click", () => fileInput.click());
+
+    dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleImageFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) {
+            handleImageFile(e.target.files[0]);
+        }
+    });
+
+    if (btnClear) {
+        btnClear.addEventListener("click", () => {
+            fileInput.value = "";
+            previewCard.style.display = "none";
+            progressContainer.style.display = "none";
+            feedbackBanner.style.display = "none";
+        });
+    }
+
+    async function handleImageFile(file) {
+        if (!file.type.startsWith("image/")) {
+            alert("Please upload a valid image file (PNG, JPG, JPEG, WEBP).");
+            return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            previewFilename.innerText = file.name;
+            previewCard.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+
+        // Show progress UI
+        progressContainer.style.display = "block";
+        progressFill.style.width = "5%";
+        progressPercent.innerText = "5%";
+        statusText.innerText = "Reading image and executing optical character recognition...";
+        feedbackBanner.style.display = "none";
+
+        try {
+            let extractedText = "";
+
+            // Attempt client-side Tesseract.js if loaded
+            if (typeof Tesseract !== "undefined") {
+                const res = await Tesseract.recognize(file, "eng", {
+                    logger: (m) => {
+                        if (m.status === "recognizing text") {
+                            const pct = Math.round((m.progress || 0) * 100);
+                            progressFill.style.width = `${Math.max(10, pct)}%`;
+                            progressPercent.innerText = `${Math.max(10, pct)}%`;
+                            statusText.innerText = `Recognizing text (${pct}%)...`;
+                        }
+                    }
+                });
+                extractedText = (res && res.data && res.data.text) ? res.data.text : "";
+            }
+
+            // If client OCR extracted text, send to backend parser
+            let parseResult = null;
+            if (extractedText && extractedText.trim().length > 10) {
+                statusText.innerText = "Parsing extracted medical biomarkers...";
+                const parseRes = await fetch("/api/parse-text", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: extractedText })
+                });
+                parseResult = await parseRes.json();
+            } else {
+                // Fallback to server-side image OCR
+                statusText.innerText = "Processing via backend OCR engine...";
+                const formData = new FormData();
+                formData.append("image", file);
+                const backendOcrRes = await fetch("/api/parse-image", {
+                    method: "POST",
+                    body: formData
+                });
+                parseResult = await backendOcrRes.json();
+            }
+
+            progressFill.style.width = "100%";
+            progressPercent.innerText = "100%";
+            statusText.innerText = "Extraction complete!";
+
+            if (parseResult && parseResult.status === "success") {
+                const detected = parseResult.detected_count || 0;
+                setFormValues(parseResult.complete_vitals || parseResult.extracted);
+
+                feedbackBanner.className = "feedback-banner success";
+                feedbackBanner.style.display = "block";
+                feedbackBanner.innerHTML = `
+                    <strong>✅ Successfully Extracted ${detected} Biomarkers from Lab Report!</strong><br>
+                    Detected features: <code>${Object.keys(parseResult.extracted).join(", ")}</code>.<br>
+                    Review the auto-populated numbers below and click <em>Run Hybrid Quantum Disease Screening</em>.
+                `;
+            } else {
+                feedbackBanner.className = "feedback-banner warning";
+                feedbackBanner.style.display = "block";
+                feedbackBanner.innerHTML = `
+                    <strong>⚠️ Partial extraction:</strong> Could not detect distinct biomarkers automatically.
+                    You can paste the report text under <em>Paste Medical Report Text</em> or enter numbers manually below.
+                `;
+            }
+        } catch (err) {
+            console.error("Image OCR Error:", err);
+            feedbackBanner.className = "feedback-banner warning";
+            feedbackBanner.style.display = "block";
+            feedbackBanner.innerHTML = `
+                <strong>Notice:</strong> Automated OCR finished with error: ${err.message}. 
+                You can type or paste your values directly below.
+            `;
+        }
+    }
+}
+
+// 6. Text Report Parsing Handling
+function initTextParsing() {
+    const btnExtract = document.getElementById("btn-extract-text");
+    const btnHighRisk = document.getElementById("btn-sample-diseased-text");
+    const btnHealthy = document.getElementById("btn-sample-healthy-text");
+    const btnClear = document.getElementById("btn-clear-text");
+    const textArea = document.getElementById("paste-text-input");
+    const feedbackBanner = document.getElementById("text-extract-feedback");
+
+    if (!btnExtract || !textArea) return;
+
+    if (btnHighRisk) {
+        btnHighRisk.addEventListener("click", () => {
+            textArea.value = "Patient Age: 62 years, Gender: Male (1), BMI: 33.8. Comprehensive Liver & Metabolic Panel:\nTotal Bilirubin: 2.2 mg/dL, Direct Bilirubin: 1.0 mg/dL, Alkaline Phosphatase: 380 IU/L, ALT / SGPT: 80 IU/L, AST / SGOT: 88 IU/L, Total Proteins: 5.9 g/dL, Serum Albumin: 2.5 g/dL, A/G Ratio: 0.73, Fasting Blood Glucose: 154 mg/dL, Serum Cholesterol: 248 mg/dL, Platelets: 172 x10^3/uL. Clinical Notes: Persistent fatigue, mild right upper quadrant discomfort.";
+        });
+    }
+
+    if (btnHealthy) {
+        btnHealthy.addEventListener("click", () => {
+            textArea.value = "Patient Age: 38 years, Gender: Female (0), BMI: 22.5. Routine Preventive Screening Panel:\nTotal Bilirubin: 0.6 mg/dL, Direct Bilirubin: 0.2 mg/dL, Alkaline Phosphatase: 170 IU/L, ALT: 17 IU/L, AST: 19 IU/L, Total Proteins: 7.3 g/dL, Serum Albumin: 3.9 g/dL, A/G Ratio: 1.14, Fasting Glucose: 89 mg/dL, Total Cholesterol: 168 mg/dL, Platelet Count: 295 x10^3/uL. Clinical Notes: Asymptomatic, unremarkable physical examination.";
+        });
+    }
+
+    if (btnClear) {
+        btnClear.addEventListener("click", () => {
+            textArea.value = "";
+            feedbackBanner.style.display = "none";
+        });
+    }
+
+    btnExtract.addEventListener("click", async () => {
+        const text = textArea.value.trim();
+        if (!text) {
+            alert("Please paste some medical report text or doctor notes first.");
+            return;
+        }
+
+        const originalHtml = btnExtract.innerHTML;
+        btnExtract.innerHTML = `<span class="btn-icon">⏳</span> Parsing Biomarkers...`;
+        btnExtract.disabled = true;
+
+        try {
+            const res = await fetch("/api/parse-text", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text })
+            });
+            if (!res.ok) throw new Error("Failed to parse medical text");
+            const data = await res.json();
+
+            if (data.status === "success" && data.detected_count > 0) {
+                setFormValues(data.complete_vitals || data.extracted);
+                feedbackBanner.className = "feedback-banner success";
+                feedbackBanner.style.display = "block";
+                feedbackBanner.innerHTML = `
+                    <strong>✅ Extracted ${data.detected_count} of 14 Biomarkers!</strong><br>
+                    Found: <code>${Object.keys(data.extracted).join(", ")}</code>.<br>
+                    The 14 biomarker inputs below have been populated. Click <em>Run Hybrid Quantum Disease Screening</em> below.
+                `;
+            } else {
+                feedbackBanner.className = "feedback-banner warning";
+                feedbackBanner.style.display = "block";
+                feedbackBanner.innerHTML = `
+                    <strong>⚠️ No clear biomarkers recognized.</strong> Please verify names such as 'Age', 'Bilirubin', 'ALT', 'AST', 'Glucose', or adjust values in the form directly below.
+                `;
+            }
+        } catch (err) {
+            alert("Parsing error: " + err.message);
+        } finally {
+            btnExtract.innerHTML = originalHtml;
+            btnExtract.disabled = false;
+        }
+    });
+}
+
+// 7. Clinical Risk Predictor & Dataset Cohort Actions
 function initPredictionActions() {
     const btnPredict = document.getElementById("btn-predict-patient");
     const btnHealthy = document.getElementById("btn-load-healthy-sample");
@@ -470,9 +720,10 @@ function initPredictionActions() {
     if (btnHealthy) {
         btnHealthy.addEventListener("click", () => {
             setFormValues({
-                age: 38, gender: 0, bmi: 22.5, tb: 0.6, db: 0.2,
-                alp: 170, alt: 17, ast: 19, tp: 7.3, alb: 3.9,
-                ag: 1.14, glu: 89, chol: 168, plat: 295
+                Age: 38, Gender: 0, BMI: 22.5, Total_Bilirubin: 0.6, Direct_Bilirubin: 0.2,
+                Alkaline_Phosphatase: 170, Alamine_Aminotransferase: 17, Aspartate_Aminotransferase: 19,
+                Total_Proteins: 7.3, Albumin: 3.9, Albumin_and_Globulin_Ratio: 1.14,
+                Fasting_Glucose: 89, Serum_Cholesterol: 168, Platelet_Count: 295
             });
         });
     }
@@ -480,9 +731,10 @@ function initPredictionActions() {
     if (btnDiseased) {
         btnDiseased.addEventListener("click", () => {
             setFormValues({
-                age: 62, gender: 1, bmi: 33.8, tb: 2.2, db: 1.0,
-                alp: 380, alt: 80, ast: 88, tp: 5.9, alb: 2.5,
-                ag: 0.73, glu: 154, chol: 248, plat: 172
+                Age: 62, Gender: 1, BMI: 33.8, Total_Bilirubin: 2.2, Direct_Bilirubin: 1.0,
+                Alkaline_Phosphatase: 380, Alamine_Aminotransferase: 80, Aspartate_Aminotransferase: 88,
+                Total_Proteins: 5.9, Albumin: 2.5, Albumin_and_Globulin_Ratio: 0.73,
+                Fasting_Glucose: 154, Serum_Cholesterol: 248, Platelet_Count: 172
             });
         });
     }
@@ -493,26 +745,34 @@ function initPredictionActions() {
 }
 
 function setFormValues(vals) {
-    document.getElementById("inp-age").value = vals.age;
-    document.getElementById("inp-gender").value = vals.gender;
-    document.getElementById("inp-bmi").value = vals.bmi;
-    document.getElementById("inp-tb").value = vals.tb;
-    document.getElementById("inp-db").value = vals.db;
-    document.getElementById("inp-alp").value = vals.alp;
-    document.getElementById("inp-alt").value = vals.alt;
-    document.getElementById("inp-ast").value = vals.ast;
-    document.getElementById("inp-tp").value = vals.tp;
-    document.getElementById("inp-alb").value = vals.alb;
-    document.getElementById("inp-ag").value = vals.ag;
-    document.getElementById("inp-glu").value = vals.glu;
-    document.getElementById("inp-chol").value = vals.chol;
-    document.getElementById("inp-plat").value = vals.plat;
+    if (!vals) return;
+    const getVal = (stdKey, altKey, fallback) => {
+        if (vals[stdKey] !== undefined) return vals[stdKey];
+        if (vals[altKey] !== undefined) return vals[altKey];
+        if (vals[stdKey.toLowerCase()] !== undefined) return vals[stdKey.toLowerCase()];
+        return fallback;
+    };
+
+    document.getElementById("inp-age").value = getVal("Age", "age", 45);
+    document.getElementById("inp-gender").value = getVal("Gender", "gender", 1);
+    document.getElementById("inp-bmi").value = getVal("BMI", "bmi", 26.5);
+    document.getElementById("inp-tb").value = getVal("Total_Bilirubin", "tb", 1.0);
+    document.getElementById("inp-db").value = getVal("Direct_Bilirubin", "db", 0.3);
+    document.getElementById("inp-alp").value = getVal("Alkaline_Phosphatase", "alp", 205);
+    document.getElementById("inp-alt").value = getVal("Alamine_Aminotransferase", "alt", 35);
+    document.getElementById("inp-ast").value = getVal("Aspartate_Aminotransferase", "ast", 38);
+    document.getElementById("inp-tp").value = getVal("Total_Proteins", "tp", 6.7);
+    document.getElementById("inp-alb").value = getVal("Albumin", "alb", 3.3);
+    document.getElementById("inp-ag").value = getVal("Albumin_and_Globulin_Ratio", "ag", 0.95);
+    document.getElementById("inp-glu").value = getVal("Fasting_Glucose", "glu", 110);
+    document.getElementById("inp-chol").value = getVal("Serum_Cholesterol", "chol", 195);
+    document.getElementById("inp-plat").value = getVal("Platelet_Count", "plat", 235);
 }
 
 async function runPatientInference() {
     const btn = document.getElementById("btn-predict-patient");
     const originalText = btn.innerHTML;
-    btn.innerHTML = `<span class="btn-icon">⏳</span> Computing Quantum States...`;
+    btn.innerHTML = `<span class="btn-icon">⏳</span> Computing Quantum States & Comparing Cohort...`;
     btn.disabled = true;
 
     const patientPayload = {
@@ -541,7 +801,7 @@ async function runPatientInference() {
         if (!res.ok) throw new Error("Inference failed");
         const out = await res.json();
 
-        // Update UI
+        // 1. Update Primary Diagnostic Verdict
         const isDetected = out.hybrid_prediction.disease_detected;
         const riskPct = out.hybrid_prediction.disease_risk_percentage;
         const conf = out.hybrid_prediction.confidence;
@@ -579,12 +839,22 @@ async function runPatientInference() {
             });
         }
 
-        // Recommendation
+        // Clinical Recommendation
         const recEl = document.getElementById("clinical-rec");
-        if (isDetected) {
-            recEl.innerHTML = `⚠️ <strong>Early Disease Screening Positive:</strong> Elevated hepatic transaminases and inflammatory biomarkers detected. Recommended: Secondary confirmatory fibroscan, ultrasound imaging, and clinical specialist consultation.`;
-        } else {
-            recEl.innerHTML = `✅ <strong>Normal Screening:</strong> Key biomarker indices remain within baseline physiological limits. Recommended: Standard annual routine checkup.`;
+        if (out.clinical_guidance) {
+            recEl.innerHTML = `<strong>Clinical Insight:</strong> ${out.clinical_guidance}`;
+        }
+
+        // 2. Render Patient vs Dataset Cohort Comparison Table
+        if (out.cohort_comparison && out.cohort_comparison.comparisons) {
+            renderCohortComparisonTable(out.cohort_comparison.comparisons, out.cohort_comparison);
+            renderCohortComparisonChart(out.cohort_comparison.comparisons);
+        }
+
+        // Smooth scroll to comparison section if triggered
+        const compSection = document.getElementById("cohort-comparison-section");
+        if (compSection) {
+            compSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
 
     } catch (err) {
@@ -596,7 +866,140 @@ async function runPatientInference() {
     }
 }
 
-// 5. Re-run Benchmark Trigger
+// 8. Render Cohort Comparison Table
+function renderCohortComparisonTable(comparisons, summary) {
+    const tbody = document.getElementById("cohort-comparison-tbody");
+    const summaryBadge = document.getElementById("cohort-summary-badge");
+
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (summaryBadge) {
+        const count = summary.abnormal_biomarkers_count || 0;
+        if (count >= 3) {
+            summaryBadge.className = "cohort-summary-pill high";
+            summaryBadge.innerHTML = `🚨 ${count} Biomarkers Out of Normal Range`;
+        } else if (count >= 1) {
+            summaryBadge.className = "cohort-summary-pill";
+            summaryBadge.innerHTML = `⚠️ ${count} Biomarker Mildly Out of Range`;
+        } else {
+            summaryBadge.className = "cohort-summary-pill optimal";
+            summaryBadge.innerHTML = `✅ All 14 Biomarkers Within Reference Limits`;
+        }
+    }
+
+    comparisons.forEach(item => {
+        const tr = document.createElement("tr");
+        const statusBadge = `<span class="badge-status ${item.status_level}">${item.status}</span>`;
+
+        tr.innerHTML = `
+            <td><strong>${item.display_name}</strong> <small style="color:var(--text-dim);">(${item.unit})</small></td>
+            <td><strong style="color:#ffffff; font-size:1rem;">${item.patient_value}</strong></td>
+            <td style="color:var(--text-muted);">${item.normal_range}</td>
+            <td style="color:#34d399; font-weight:600;">${item.healthy_cohort_mean}</td>
+            <td style="color:#f87171; font-weight:600;">${item.diseased_cohort_mean}</td>
+            <td>${statusBadge}</td>
+            <td>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-family:var(--font-mono); font-size:0.8rem;">${item.percentile}%</span>
+                    <div style="width:40px; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;">
+                        <div style="width:${item.percentile}%; height:100%; background:var(--primary-cyan);"></div>
+                    </div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// 9. Render Cohort Multi-Bar Comparison Chart
+function renderCohortComparisonChart(comparisons) {
+    const canvas = document.getElementById("cohortComparisonChart");
+    if (!canvas) return;
+
+    // Select key representative biomarkers
+    const keyFeatures = [
+        "Total_Bilirubin",
+        "Alkaline_Phosphatase",
+        "Alamine_Aminotransferase",
+        "Aspartate_Aminotransferase",
+        "Fasting_Glucose",
+        "Serum_Cholesterol"
+    ];
+
+    const filtered = comparisons.filter(c => keyFeatures.includes(c.biomarker));
+    const labels = filtered.map(c => c.display_name);
+    const patientVals = filtered.map(c => c.patient_value);
+    const healthyMeans = filtered.map(c => c.healthy_cohort_mean);
+    const diseasedMeans = filtered.map(c => c.diseased_cohort_mean);
+
+    if (cohortComparisonChartInstance) {
+        cohortComparisonChartInstance.destroy();
+    }
+
+    const ctx = canvas.getContext("2d");
+    cohortComparisonChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Your Vitals",
+                    data: patientVals,
+                    backgroundColor: "rgba(0, 242, 254, 0.85)",
+                    borderColor: "#00f2fe",
+                    borderWidth: 1.5,
+                    borderRadius: 4
+                },
+                {
+                    label: "Healthy Dataset Baseline (Class 0)",
+                    data: healthyMeans,
+                    backgroundColor: "rgba(16, 185, 129, 0.7)",
+                    borderColor: "#10b981",
+                    borderWidth: 1.5,
+                    borderRadius: 4
+                },
+                {
+                    label: "Diseased Dataset Baseline (Class 1)",
+                    data: diseasedMeans,
+                    backgroundColor: "rgba(239, 68, 68, 0.7)",
+                    borderColor: "#ef4444",
+                    borderWidth: 1.5,
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: "#e2e8f0", font: { weight: "600" } }
+                },
+                y: {
+                    grid: { color: "rgba(255, 255, 255, 0.05)" },
+                    ticks: { color: "#94a3b8" }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: "#ffffff", font: { weight: "600" } }
+                },
+                tooltip: {
+                    backgroundColor: "#0d1527",
+                    titleColor: "#00f2fe",
+                    bodyColor: "#ffffff",
+                    borderColor: "rgba(0, 242, 254, 0.3)",
+                    borderWidth: 1
+                }
+            }
+        }
+    });
+}
+
+// 10. Re-run Benchmark Trigger
 function initReBenchmark() {
     const btn = document.getElementById("btn-re-benchmark");
     const btnRefresh = document.getElementById("btn-refresh-metrics");

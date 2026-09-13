@@ -21,3 +21,16 @@ data/processed/*.parquet
 # OS artifacts
 .DS_Store
 Thumbs.db
+
+# Scratch & local testing scripts
+check_hostapi.py
+find_real_mics.py
+fix_mic.bat
+jarvis/
+scan_mics.py
+share_public_url.bat
+test_auto_mic.py
+test_dev12.py
+test_mic_native.py
+test_record_helper.py
+test_vosk_dev12.py

@@ -6,7 +6,7 @@
   <title>QuantumMed Parkinson's | ThunderStars SIH 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
@@ -27,20 +27,25 @@
       <button data-scroll="benchmarks">Validation</button>
       <button data-scroll="quantum">Quantum Core</button>
     </nav>
-    <div class="engine-chip" id="engineChip"><i></i><span>Dataset check…</span></div>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light and dark mode">
+        <span class="theme-icon" id="themeIcon">☾</span><span id="themeLabel">Dark</span>
+      </button>
+      <div class="engine-chip" id="engineChip"><i></i><span>Dataset check…</span></div>
+    </div>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-badges">
-        <span>VOICE BIOMARKERS</span><span>CLASSICAL + QML</span><span>PARTICIPANT-AWARE VALIDATION</span>
+        <span class="active-module-badge">LIVE DEMO • PARKINSON'S DIGITAL VOICE BIOMARKERS</span><span>CLASSICAL + QML</span><span>PARTICIPANT-AWARE VALIDATION</span>
       </div>
-      <div class="eyebrow">HYBRID QUANTUM–CLASSICAL CLINICAL AI</div>
-      <h1>Parkinsonian Voice-Pattern<br><span>Risk Assessment</span></h1>
+      <div class="eyebrow">QUANTUMMED • RESEARCH SCREENING PLATFORM</div>
+      <h1>Hybrid Quantum ML for<br><span>Neurodegenerative Screening</span></h1>
       <p>
-        A research screening and decision-support prototype that compares acoustic voice biomarkers with
-        Parkinson's and control cohorts using classical ML, a variational quantum circuit and a quantum fidelity kernel.
-        It produces a model-indicated pattern index — not a diagnosis.
+        QuantumMed is a modular hybrid quantum-classical platform for multimodal neurological risk screening.
+        This live demonstration follows the Parkinson’s digital-voice pathway end to end: 22 acoustic biomarkers,
+        classical preprocessing, quantum learning, model consensus and an explainable assessment report.
       </p>
       <div class="hero-actions">
         <button class="primary" id="startBtn">Run live assessment</button>
@@ -59,8 +64,8 @@
       <div class="section-head compact">
         <div>
           <div class="eyebrow">SYSTEM AT A GLANCE</div>
-          <h2>What we take, what we compute, what we return</h2>
-          <p>The current SIH demo begins with an extracted acoustic feature vector so every inference is reproducible.</p>
+          <h2>One clear path from digital biomarker to decision support</h2>
+          <p>The current SIH module begins with an extracted acoustic feature vector so every inference can be reproduced and audited.</p>
         </div>
       </div>
       <div class="overview-grid">
@@ -108,7 +113,7 @@
       <div class="section-head">
         <div>
           <div class="eyebrow">LIVE WORKING DEMO</div>
-          <h2>Parkinson's Voice Pattern Assessment</h2>
+          <h2>Parkinson's Digital Biomarker Assessment</h2>
           <p>Load a held-out participant recording or enter the extracted acoustic measurements manually.</p>
         </div>
         <div class="sample-actions">
@@ -137,7 +142,7 @@
           <div class="card-title-row">
             <div>
               <h3>Acoustic feature input</h3>
-              <p class="muted no-margin">Only voice-derived numerical biomarkers are used in the current classifier.</p>
+              <p class="muted no-margin">Numerical digital biomarkers are processed through the live voice assessment pathway.</p>
             </div>
             <span class="mini-chip" id="sampleSource">Manual entry</span>
           </div>
@@ -161,7 +166,8 @@
             <div class="print-report-header">
               <div class="print-brand">QUANTUM<span>MED</span></div>
               <div>ThunderStars • Smart India Hackathon 2026</div>
-              <h1>Parkinson's Voice-Pattern Risk Assessment</h1>
+              <h1>Parkinson's Digital Biomarker Screening Assessment</h1>
+              <p class="print-module-subtitle">Voice-based Hybrid QML Module</p>
               <div class="print-meta-grid">
                 <div><span>Assessment ID</span><strong id="reportAssessmentId">—</strong></div>
                 <div><span>Generated</span><strong id="reportGeneratedAt">—</strong></div>
@@ -275,12 +281,29 @@
       </div>
     </section>
 
+    <section class="panel platform-scope-panel" id="platform-scope">
+      <div class="section-head compact">
+        <div>
+          <div class="eyebrow">PLATFORM SCOPE</div>
+          <h2>Modular biomedical signal architecture</h2>
+          <p>QuantumMed is structured around modality-specific signal pathways feeding a common hybrid assessment layer.
+          The live demo below follows the voice pathway, while the architecture remains extensible to complementary biomedical signals.</p>
+        </div>
+      </div>
+      <div class="module-grid">
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">◉</div><h3>Voice biomarkers</h3><p>22 sustained-phonation features drive the live Parkinsonian-pattern assessment.</p><span>Working in this SIH prototype</span></article>
+        <article class="module-card"><div class="module-status roadmap">ROADMAP</div><div class="module-icon">↟</div><h3>Gait signals</h3><p>Sensor-derived movement features can be fused as a separate model branch in future work.</p><span>Dataset staged, not integrated</span></article>
+        <article class="module-card"><div class="module-status roadmap">ROADMAP</div><div class="module-icon">≈</div><h3>EEG signals</h3><p>Neurophysiological features could add a complementary signal after modality-specific validation.</p><span>Dataset staged, not integrated</span></article>
+        <article class="module-card"><div class="module-status roadmap">ROADMAP</div><div class="module-icon">✎</div><h3>Handwriting / imaging</h3><p>Image-derived motor biomarkers are a planned extension of the modular platform architecture.</p><span>Future integration</span></article>
+      </div>
+    </section>
+
     <section class="panel deployment-panel" id="deployment">
       <div class="section-head compact">
         <div>
           <div class="eyebrow">HOW IT WOULD BE USED</div>
           <h2>From voice capture to clinical review</h2>
-          <p>The SIH prototype currently implements the QML inference and reporting core.</p>
+          <p>A supervised workflow connects signal capture, feature extraction, hybrid QML assessment and qualified review.</p>
         </div>
       </div>
       <div class="deployment-flow">
@@ -298,9 +321,22 @@
   </footer>
 
   <div class="overlay hidden" id="loadingOverlay">
-    <div class="loader"></div>
-    <h3 id="loadingTitle">Training hybrid models…</h3>
-    <p id="loadingText">Classical baselines → quantum VQC → quantum kernel → evaluation</p>
+    <div class="loading-card">
+      <div class="loading-brand"><span class="loading-mark">Q</span><div><strong>QuantumMed Engine</strong><small>Local research initialization</small></div></div>
+      <div class="loader-row"><div class="loader"></div><div><h3 id="loadingTitle">Training hybrid models…</h3><p id="loadingText">Preparing the participant-separated pipeline</p></div></div>
+      <div class="init-only hidden" id="initOnly">
+        <div class="init-meta"><span>Initialization sequence</span><strong id="initElapsed">00:00</strong></div>
+        <div class="init-progress"><i id="initProgress"></i></div>
+        <div class="init-steps" id="initSteps">
+          <div data-stage="0"><b>01</b><span>Load dataset & create participant-separated holdout</span></div>
+          <div data-stage="1"><b>02</b><span>Fit classical baseline models</span></div>
+          <div data-stage="2"><b>03</b><span>Optimize 4-qubit variational circuit</span></div>
+          <div data-stage="3"><b>04</b><span>Build fidelity-kernel QSVM</span></div>
+          <div data-stage="4"><b>05</b><span>Evaluate holdout metrics & safety gates</span></div>
+        </div>
+        <small class="init-note">The backend trains synchronously; this panel visualizes the pipeline order while initialization runs. Typical local runtime is about 1–2 minutes.</small>
+      </div>
+    </div>
   </div>
 
   <script src="/static/app.js"></script>

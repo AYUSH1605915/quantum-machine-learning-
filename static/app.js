@@ -1,1287 +1,428 @@
-// QuantumMed Client-Side Logic & Visualizations
+let datasetInfo = null;
+let lastResult = null;
+let currentInputs = {};
+let currentSource = "Manual entry";
+let initTicker = null;
+let initTimer = null;
+let initStartedAt = null;
 
-let radarChartInstance = null;
-let rocChartInstance = null;
-let sensSpecChartInstance = null;
-let importanceChartInstance = null;
-let cohortComparisonChartInstance = null;
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("quantummed-theme", theme);
+  const dark = theme === "dark";
+  const icon = document.getElementById("themeIcon");
+  const label = document.getElementById("themeLabel");
+  if (icon) icon.textContent = dark ? "☀" : "☾";
+  if (label) label.textContent = dark ? "Light" : "Dark";
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-    initTabs();
-    initTopNavAndHero();
-    initQuickSearch();
-    loadDatasetInfo();
-    loadBenchmarkData();
-    initPredictionActions();
-    initReBenchmark();
-    initModalityTabs();
-    initImageUploadAndOCR();
-    initTextParsing();
+function initTheme() {
+  const saved = localStorage.getItem("quantummed-theme");
+  applyTheme(saved === "dark" ? "dark" : "light");
+  document.getElementById("themeToggle")?.addEventListener("click", () => {
+    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  });
+}
+
+function formatElapsed(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  return `${String(Math.floor(total/60)).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
+}
+
+function updateInitStage(stage) {
+  document.querySelectorAll("#initSteps [data-stage]").forEach((el, i) => {
+    el.classList.toggle("done", i < stage);
+    el.classList.toggle("active", i === stage);
+  });
+  const progress = document.getElementById("initProgress");
+  if (progress) progress.style.width = `${Math.min(92, 12 + stage * 19)}%`;
+}
+
+function startInitExperience() {
+  const box = document.getElementById("initOnly");
+  box?.classList.remove("hidden");
+  initStartedAt = Date.now();
+  updateInitStage(0);
+  let stage = 0;
+  initTimer = setInterval(() => {
+    const el = document.getElementById("initElapsed");
+    if (el) el.textContent = formatElapsed(Date.now() - initStartedAt);
+  }, 500);
+  initTicker = setInterval(() => {
+    stage = Math.min(4, stage + 1);
+    updateInitStage(stage);
+  }, 15000);
+}
+
+function stopInitExperience(success=true) {
+  clearInterval(initTicker); clearInterval(initTimer);
+  initTicker = initTimer = null;
+  if (success) {
+    document.querySelectorAll("#initSteps [data-stage]").forEach(el => {el.classList.add("done"); el.classList.remove("active")});
+    const progress = document.getElementById("initProgress"); if (progress) progress.style.width = "100%";
+    const title = document.getElementById("loadingTitle"); if (title) title.textContent = "QML engine ready";
+    const text = document.getElementById("loadingText"); if (text) text.textContent = "Validation metrics and quantum circuit are now available";
+  }
+}
+
+const prettyMap = {
+  "MDVP:Fo(Hz)":"Mean fundamental frequency (Hz)",
+  "MDVP:Fhi(Hz)":"Maximum fundamental frequency (Hz)",
+  "MDVP:Flo(Hz)":"Minimum fundamental frequency (Hz)",
+  "MDVP:Jitter(%)":"Jitter (%)",
+  "MDVP:Jitter(Abs)":"Jitter (absolute)",
+  "MDVP:RAP":"Relative average perturbation (RAP)",
+  "MDVP:PPQ":"Pitch perturbation quotient (PPQ)",
+  "Jitter:DDP":"Jitter DDP",
+  "MDVP:Shimmer":"Shimmer",
+  "MDVP:Shimmer(dB)":"Shimmer (dB)",
+  "Shimmer:APQ3":"Shimmer APQ3",
+  "Shimmer:APQ5":"Shimmer APQ5",
+  "MDVP:APQ":"Amplitude perturbation quotient (APQ)",
+  "Shimmer:DDA":"Shimmer DDA",
+  "NHR":"Noise-to-harmonics ratio",
+  "HNR":"Harmonics-to-noise ratio",
+  "RPDE":"Recurrence period density entropy (RPDE)",
+  "DFA":"Detrended fluctuation analysis (DFA)",
+  "spread1":"Spread 1",
+  "spread2":"Spread 2",
+  "D2":"Correlation dimension (D2)",
+  "PPE":"Pitch period entropy (PPE)"
+};
+
+const featureGroups = [
+  { title:"Pitch / frequency", note:"Fundamental-frequency characteristics", features:["MDVP:Fo(Hz)","MDVP:Fhi(Hz)","MDVP:Flo(Hz)"] },
+  { title:"Jitter", note:"Cycle-to-cycle frequency variation", features:["MDVP:Jitter(%)","MDVP:Jitter(Abs)","MDVP:RAP","MDVP:PPQ","Jitter:DDP"] },
+  { title:"Shimmer", note:"Cycle-to-cycle amplitude variation", features:["MDVP:Shimmer","MDVP:Shimmer(dB)","Shimmer:APQ3","Shimmer:APQ5","MDVP:APQ","Shimmer:DDA"] },
+  { title:"Noise & nonlinear dynamics", note:"Voice periodicity, complexity and entropy", features:["NHR","HNR","RPDE","DFA","spread1","spread2","D2","PPE"] }
+];
+
+const pretty = name => prettyMap[name] || name;
+const esc = value => String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+
+async function api(url, options={}) {
+  const res = await fetch(url, {headers:{"Content-Type":"application/json"}, ...options});
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+}
+
+function setLoading(on, title="Working…", text="Please wait", mode="generic") {
+  document.getElementById("loadingTitle").textContent = title;
+  document.getElementById("loadingText").textContent = text;
+  const initOnly = document.getElementById("initOnly");
+  if (mode !== "training") initOnly?.classList.add("hidden");
+  document.getElementById("loadingOverlay").classList.toggle("hidden", !on);
+}
+
+async function loadStatus() {
+  const s = await api("/api/status");
+  const chip = document.getElementById("engineChip");
+  chip.classList.remove("ready", "error");
+  if (s.status === "ready") {
+    chip.classList.add("ready");
+    chip.querySelector("span").textContent = "QML engine ready";
+  } else if (s.status === "dataset_ready") {
+    chip.querySelector("span").textContent = "Dataset ready • models idle";
+  } else {
+    chip.classList.add("error");
+    chip.querySelector("span").textContent = "Dataset missing";
+  }
+}
+
+async function loadDataset() {
+  datasetInfo = await api("/api/dataset");
+  document.getElementById("samplesStat").textContent = datasetInfo.total_samples;
+  document.getElementById("subjectsStat").textContent = datasetInfo.unique_participants ?? "—";
+  document.getElementById("featuresStat").textContent = datasetInfo.total_features;
+  document.getElementById("datasetName").textContent = datasetInfo.dataset_name;
+  document.getElementById("targetDefinition").textContent = datasetInfo.target_definition || "status: control=0 / Parkinson's cohort=1";
+  document.getElementById("splitStrategy").textContent = datasetInfo.split_strategy;
+  document.getElementById("selectedFeatures").textContent = (datasetInfo.selected_features || []).map(pretty).join(", ") || "Calculated during training";
+  document.getElementById("testSamplesStat").textContent = datasetInfo.test_samples ?? "—";
+  document.getElementById("testSubjectsStat").textContent = datasetInfo.test_participants ?? "—";
+  renderFeatureForm();
+  updateInputCoverage();
+}
+
+function renderFeatureForm() {
+  const form = document.getElementById("featureForm");
+  form.innerHTML = "";
+  const available = new Set(datasetInfo.feature_names || []);
+  const used = new Set();
+
+  featureGroups.forEach(group => {
+    const members = group.features.filter(f => available.has(f));
+    if (!members.length) return;
+    const section = document.createElement("section");
+    section.className = "feature-group";
+    section.innerHTML = `<div class="feature-group-head"><h4>${esc(group.title)}</h4><span>${esc(group.note)}</span></div><div class="feature-grid"></div>`;
+    const grid = section.querySelector(".feature-grid");
+    members.forEach(name => {
+      used.add(name);
+      const wrap = document.createElement("div");
+      wrap.className = "field";
+      wrap.innerHTML = `<label>${esc(pretty(name))}</label><input type="number" step="any" data-feature="${esc(name)}" placeholder="blank = impute">`;
+      grid.appendChild(wrap);
+    });
+    form.appendChild(section);
+  });
+
+  const extras = (datasetInfo.feature_names || []).filter(f => !used.has(f));
+  if (extras.length) {
+    const section = document.createElement("section");
+    section.className = "feature-group";
+    section.innerHTML = `<div class="feature-group-head"><h4>Additional features</h4><span>Other numeric predictors</span></div><div class="feature-grid"></div>`;
+    const grid = section.querySelector(".feature-grid");
+    extras.forEach(name => {
+      const wrap = document.createElement("div");
+      wrap.className = "field";
+      wrap.innerHTML = `<label>${esc(pretty(name))}</label><input type="number" step="any" data-feature="${esc(name)}" placeholder="blank = impute">`;
+      grid.appendChild(wrap);
+    });
+    form.appendChild(section);
+  }
+
+  document.querySelectorAll("[data-feature]").forEach(input => input.addEventListener("input", () => {
+    currentSource = "Manual entry";
+    document.getElementById("sampleSource").textContent = currentSource;
+    updateInputCoverage();
+  }));
+}
+
+function updateInputCoverage() {
+  const inputs = [...document.querySelectorAll("[data-feature]")];
+  const filled = inputs.filter(i => i.value !== "").length;
+  const total = datasetInfo?.total_features || inputs.length || 0;
+  document.getElementById("inputCoverage").textContent = `${filled} / ${total}`;
+  document.getElementById("coverageBar").style.width = total ? `${100 * filled / total}%` : "0%";
+}
+
+function collectInputs() {
+  const data = {};
+  document.querySelectorAll("[data-feature]").forEach(input => {
+    if (input.value !== "") data[input.dataset.feature] = Number(input.value);
+  });
+  currentInputs = data;
+  return data;
+}
+
+function fillInputs(features) {
+  currentInputs = features;
+  document.querySelectorAll("[data-feature]").forEach(input => {
+    const v = features[input.dataset.feature];
+    input.value = (v === undefined || v === null) ? "" : v;
+  });
+  updateInputCoverage();
+}
+
+async function loadSample(kind) {
+  const data = await api(`/api/sample/${kind}`);
+  fillInputs(data.features);
+  currentSource = `${data.known_dataset_label_text} • ${data.source}`;
+  document.getElementById("sampleSource").textContent = currentSource;
+  document.getElementById("screening").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+async function trainModels() {
+  setLoading(true, "Initializing hybrid QML engine", "Starting participant-separated training and validation", "training");
+  startInitExperience();
+  let ok = false;
+  try {
+    await api("/api/train", {method:"POST", body:JSON.stringify({epochs:8,n_qubits:4})});
+    await loadStatus();
+    await loadDataset();
+    await loadBenchmarks();
+    ok = true;
+    stopInitExperience(true);
+    await new Promise(r => setTimeout(r, 1100));
+  } catch (e) {
+    stopInitExperience(false);
+    alert(`Training failed: ${e.message}`);
+  } finally {
+    document.getElementById("initOnly")?.classList.add("hidden");
+    setLoading(false);
+  }
+}
+
+async function ensureReady() {
+  const s = await api("/api/status");
+  if (s.status !== "ready") await trainModels();
+}
+
+async function runAssessment() {
+  await ensureReady();
+  setLoading(true, "Running hybrid inference…", "Random Forest + variational quantum circuit + quantum fidelity kernel");
+  try {
+    const result = await api("/api/predict", {method:"POST", body:JSON.stringify(collectInputs())});
+    lastResult = result;
+    renderResult(result);
+  } catch (e) {
+    alert(`Assessment failed: ${e.message}`);
+  } finally { setLoading(false); }
+}
+
+function formatDate(iso) {
+  try { return new Date(iso).toLocaleString(); } catch { return iso || "—"; }
+}
+
+function renderCohortEvidence(r) {
+  const encoded = Object.keys(r.quantum_encoded_features || {});
+  const rows = r.cohort_comparison?.comparisons || [];
+  const chosen = rows.filter(x => encoded.includes(x.feature));
+  const displayRows = (chosen.length ? chosen : rows.slice(0,4)).slice(0,4);
+  const host = document.getElementById("cohortEvidence");
+  if (!displayRows.length) {
+    host.innerHTML = `<div class="empty-inline">No cohort comparison available for entered features.</div>`;
+    return;
+  }
+  host.innerHTML = `
+    <div class="cohort-head"><span>Feature</span><span>Patient</span><span>Control mean</span><span>PD mean</span><span>Alignment</span></div>
+    ${displayRows.map(x => `<div class="cohort-row">
+      <span>${esc(pretty(x.feature))}</span>
+      <strong>${Number(x.patient_value).toFixed(4)}</strong>
+      <span>${Number(x.control_mean).toFixed(4)}</span>
+      <span>${Number(x.parkinsons_mean).toFixed(4)}</span>
+      <em class="align-${esc(x.alignment_level)}">${esc(x.alignment)}</em>
+    </div>`).join("")}`;
+}
+
+function renderSeverityGate(r) {
+  const severityBlock = document.getElementById("severityBlock");
+  const gateBlock = document.getElementById("severityGateBlock");
+  severityBlock.classList.add("hidden");
+  gateBlock.classList.add("hidden");
+
+  if (r.symptom_burden?.available) {
+    severityBlock.classList.remove("hidden");
+    document.getElementById("severityScores").innerHTML = `
+      <div class="score-tile"><span>Estimated motor_UPDRS</span><strong>${esc(r.symptom_burden.estimated_motor_updrs)}</strong></div>
+      <div class="score-tile"><span>Estimated total_UPDRS</span><strong>${esc(r.symptom_burden.estimated_total_updrs)}</strong></div>
+      <div class="score-tile"><span>Motor cohort percentile</span><strong>${esc(r.symptom_burden.motor_cohort_percentile)}%</strong></div>`;
+    document.getElementById("severityNote").textContent = r.symptom_burden.note;
+    return;
+  }
+
+  if (r.symptom_burden?.withheld) {
+    const gate = r.symptom_burden.validation_gate || {};
+    const m = gate.metrics || {};
+    gateBlock.classList.remove("hidden");
+    document.getElementById("severityGateTitle").textContent = "Auxiliary UPDRS output withheld by validation gate";
+    document.getElementById("severityGateText").textContent = r.symptom_burden.reason;
+    document.getElementById("severityGateMetrics").innerHTML = `
+      <span>motor R² <strong>${m.motor_r2 ?? "—"}</strong></span>
+      <span>total R² <strong>${m.total_r2 ?? "—"}</strong></span>
+      <span>motor MAE <strong>${m.motor_mae ?? "—"}</strong></span>
+      <span>total MAE <strong>${m.total_mae ?? "—"}</strong></span>`;
+  }
+}
+
+function renderResult(r) {
+  document.getElementById("emptyState").classList.add("hidden");
+  document.getElementById("resultContent").classList.remove("hidden");
+  document.getElementById("resultCard").classList.remove("empty");
+
+  const score = r.assessment.hybrid_risk_index;
+  const riskRing = document.getElementById("riskRing");
+  riskRing.className = `risk-ring risk-${r.assessment.risk_band_key}`;
+  document.getElementById("riskScore").textContent = score.toFixed(1);
+  document.getElementById("riskBand").textContent = r.assessment.risk_band;
+  document.getElementById("interpretation").textContent = r.assessment.interpretation;
+  document.getElementById("agreement").textContent = r.assessment.model_agreement;
+  document.getElementById("nextStep").textContent = r.assessment.next_step;
+  document.getElementById("disclaimer").textContent = r.assessment.disclaimer;
+  riskRing.style.setProperty("--score", `${Math.max(0,Math.min(100,score))*3.6}deg`);
+
+  document.getElementById("modelScores").innerHTML = Object.entries(r.model_scores)
+    .map(([k,v]) => `<div class="score-tile"><span>${esc(k)}</span><strong>${Number(v).toFixed(1)}</strong><small>model index</small></div>`).join("");
+
+  document.getElementById("quantumFeatures").innerHTML = Object.entries(r.quantum_encoded_features)
+    .map(([k,v]) => `<span class="tag">${esc(pretty(k))}<b>${esc(v)}</b></span>`).join("");
+
+  const global = r.top_global_features || [];
+  const maxImp = Math.max(...global.map(x => x.normalized_importance), 0.001);
+  document.getElementById("featureImportance").innerHTML = global.map(x => {
+    const pct = Math.max(2, (x.normalized_importance / maxImp) * 100);
+    return `<div class="importance-row"><span>${esc(pretty(x.feature))}</span><div class="bar"><i style="width:${pct}%"></i></div><strong>${(x.normalized_importance*100).toFixed(1)}%</strong></div>`;
+  }).join("");
+
+  renderCohortEvidence(r);
+  renderSeverityGate(r);
+
+  document.getElementById("reportAssessmentId").textContent = r.meta?.assessment_id || "—";
+  document.getElementById("reportGeneratedAt").textContent = formatDate(r.meta?.generated_at);
+  document.getElementById("reportInputSource").textContent = currentSource;
+  document.getElementById("reportCoverage").textContent = `${r.input_quality?.provided_features ?? "—"}/${r.input_quality?.total_features ?? "—"} (${r.input_quality?.completeness_percent ?? "—"}%)`;
+
+  document.getElementById("resultCard").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+async function loadBenchmarks() {
+  const b = await api("/api/benchmark");
+  const ds = b.dataset_summary;
+  document.getElementById("splitNote").textContent = `${ds.split_strategy}. Test participants are kept separate from training participants.`;
+  document.getElementById("selectedFeatures").textContent = (ds.selected_features || []).map(pretty).join(", ");
+  document.getElementById("circuitAscii").textContent = b.circuit_ascii || "Initialize the engine to render the trained PennyLane circuit.";
+  document.getElementById("testSamplesStat").textContent = ds.test_samples ?? "—";
+  document.getElementById("testSubjectsStat").textContent = ds.test_participants ?? "—";
+
+  const body = document.getElementById("benchmarkBody");
+  if (!b.trained) {
+    body.innerHTML = `<tr><td colspan="6">Initialize the QML engine to calculate metrics.</td></tr>`;
+    document.getElementById("severityGateStat").textContent = "Pending";
+    return;
+  }
+
+  body.innerHTML = b.models_evaluation.map(m => `<tr>
+    <td>${esc(m.model_name)}</td><td>${(m.accuracy*100).toFixed(1)}%</td><td>${(m.sensitivity*100).toFixed(1)}%</td>
+    <td>${(m.specificity*100).toFixed(1)}%</td><td>${(m.f1_score*100).toFixed(1)}%</td><td>${Number(m.roc_auc).toFixed(3)}</td>
+  </tr>`).join("");
+
+  const best = [...b.models_evaluation].sort((a,b) => b.accuracy - a.accuracy)[0];
+  document.getElementById("bestAccuracyStat").textContent = `${(best.accuracy*100).toFixed(1)}%`;
+  document.getElementById("bestAccuracyModel").textContent = best.model_name;
+
+  const gate = b.auxiliary_updrs_gate || {};
+  document.getElementById("severityGateStat").textContent = gate.passed ? "Passed" : "Withheld";
+  document.getElementById("severityGateSmall").textContent = gate.passed ? "eligible for experimental display" : "failed participant-level R² gate";
+
+  const highlight = document.getElementById("validationHighlight");
+  highlight.classList.remove("hidden");
+  highlight.innerHTML = `<strong>Held-out validation:</strong> ${esc(best.model_name)} reached <b>${(best.accuracy*100).toFixed(1)}% accuracy</b> on ${ds.test_samples} held-out recordings using participant-separated evaluation. <span>Small research cohort — not external clinical validation.</span>`;
+}
+
+function downloadJSON() {
+  if (!lastResult) return;
+  const payload = {generated_at:new Date().toISOString(), input_source:currentSource, input:currentInputs, result:lastResult};
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${lastResult.meta?.assessment_id || "quantummed_parkinsons_assessment"}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function printReport() {
+  if (!lastResult) return;
+  setTimeout(() => window.print(), 50);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  initTheme();
+  document.querySelectorAll("[data-scroll]").forEach(b => b.addEventListener("click", () => document.getElementById(b.dataset.scroll).scrollIntoView({behavior:"smooth"})));
+  document.getElementById("startBtn").addEventListener("click", () => document.getElementById("screening").scrollIntoView({behavior:"smooth"}));
+  document.getElementById("trainBtn").addEventListener("click", trainModels);
+  document.getElementById("controlSampleBtn").addEventListener("click", () => loadSample("control"));
+  document.getElementById("pdSampleBtn").addEventListener("click", () => loadSample("pd"));
+  document.getElementById("runBtn").addEventListener("click", runAssessment);
+  document.getElementById("printBtn").addEventListener("click", printReport);
+  document.getElementById("jsonBtn").addEventListener("click", downloadJSON);
+  try {
+    await loadStatus();
+    await loadDataset();
+    await loadBenchmarks();
+  } catch(e) {
+    console.error(e);
+    alert(e.message);
+  }
 });
-
-// Centralized Tab Switching Function
-function switchTab(targetId) {
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    const tabContents = document.querySelectorAll(".tab-content");
-    const navLinks = document.querySelectorAll(".nav-menu-link");
-
-    tabButtons.forEach(b => {
-        if (b.getAttribute("data-tab") === targetId) b.classList.add("active");
-        else b.classList.remove("active");
-    });
-    tabContents.forEach(c => {
-        if (c.id === targetId) c.classList.add("active");
-        else c.classList.remove("active");
-    });
-    navLinks.forEach(link => {
-        if (link.getAttribute("data-nav-tab") === targetId) link.classList.add("active");
-        else link.classList.remove("active");
-    });
-}
-
-// 1. Tab Switching
-function initTabs() {
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    tabButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const targetId = btn.getAttribute("data-tab");
-            switchTab(targetId);
-        });
-    });
-}
-
-// Top Sticky Navbar & Hero CTA Handlers
-function initTopNavAndHero() {
-    const navLinks = document.querySelectorAll(".nav-menu-link");
-    const subLinks = document.querySelectorAll(".nav-sub-link, .footer-nav-link");
-    const topNavbar = document.getElementById("top-navbar-wrapper");
-    const brandHome = document.getElementById("nav-brand-home");
-
-    // Navbar Scroll Background Transition
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 25) {
-            topNavbar.classList.add("scrolled");
-        } else {
-            topNavbar.classList.remove("scrolled");
-        }
-    });
-
-    // Nav Top Links
-    navLinks.forEach(link => {
-        link.addEventListener("click", (e) => {
-            const targetTab = link.getAttribute("data-nav-tab") || link.getAttribute("data-tab");
-            const scrollToId = link.getAttribute("data-scroll");
-            if (targetTab) switchTab(targetTab);
-            if (scrollToId) {
-                const el = document.getElementById(scrollToId);
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-            }
-        });
-    });
-
-    // Sub-links in Dropdowns & Footer
-    subLinks.forEach(link => {
-        link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const targetTab = link.getAttribute("data-tab");
-            const scrollToId = link.getAttribute("data-scroll");
-            const targetMode = link.getAttribute("data-mode");
-
-            if (targetTab) switchTab(targetTab);
-            if (targetMode) {
-                const modeBtn = document.getElementById(`btn-mode-${targetMode}`);
-                if (modeBtn) modeBtn.click();
-            }
-            if (scrollToId) {
-                const el = document.getElementById(scrollToId);
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-            }
-        });
-    });
-
-    if (brandHome) {
-        brandHome.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-    }
-
-    // Hero Action Buttons
-    const btnHeroScreener = document.getElementById("btn-hero-screener");
-    const btnHeroExplore = document.getElementById("btn-hero-explore");
-    const btnNavStart = document.getElementById("btn-nav-start-analysis");
-    const btnPreviewDemo = document.getElementById("btn-preview-try-demo");
-    const btnPreviewLaunch = document.getElementById("btn-preview-launch");
-    const btnFinalStart = document.getElementById("btn-final-start");
-    const btnFinalExplore = document.getElementById("btn-final-explore");
-    const btnViewDetailedBench = document.getElementById("btn-view-detailed-benchmarks");
-
-    const launchScreener = () => {
-        switchTab("tab-clinical");
-        const el = document.getElementById("screener-section");
-        if (el) el.scrollIntoView({ behavior: "smooth" });
-    };
-
-    if (btnHeroScreener) btnHeroScreener.addEventListener("click", launchScreener);
-    if (btnNavStart) btnNavStart.addEventListener("click", launchScreener);
-    if (btnPreviewLaunch) btnPreviewLaunch.addEventListener("click", launchScreener);
-    if (btnFinalStart) btnFinalStart.addEventListener("click", launchScreener);
-
-    if (btnHeroExplore) {
-        btnHeroExplore.addEventListener("click", () => {
-            const el = document.getElementById("capabilities-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-
-    if (btnFinalExplore) {
-        btnFinalExplore.addEventListener("click", () => {
-            const el = document.getElementById("capabilities-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-
-    if (btnPreviewDemo) {
-        btnPreviewDemo.addEventListener("click", () => {
-            switchTab("tab-clinical");
-            const btnHealthy = document.getElementById("btn-load-healthy-sample");
-            if (btnHealthy) btnHealthy.click();
-            const el = document.getElementById("screener-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-
-    if (btnViewDetailedBench) {
-        btnViewDetailedBench.addEventListener("click", () => {
-            switchTab("tab-benchmarks");
-            const el = document.getElementById("interactive-workspace");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-
-    // Screening Tool Card Jumps
-    const cardQuickScan = document.getElementById("card-tool-quickscan");
-    const cardManual = document.getElementById("card-tool-manual");
-    const cardReport = document.getElementById("card-tool-report");
-    const cardHistory = document.getElementById("card-tool-history");
-
-    if (cardQuickScan) {
-        cardQuickScan.addEventListener("click", () => {
-            switchTab("tab-clinical");
-            const b = document.getElementById("btn-mode-image");
-            if (b) b.click();
-            const el = document.getElementById("screener-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-    if (cardManual) {
-        cardManual.addEventListener("click", () => {
-            switchTab("tab-clinical");
-            const b = document.getElementById("btn-mode-form");
-            if (b) b.click();
-            const el = document.getElementById("screener-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-    if (cardReport) {
-        cardReport.addEventListener("click", () => {
-            switchTab("tab-clinical");
-            const b = document.getElementById("btn-mode-text");
-            if (b) b.click();
-            const el = document.getElementById("screener-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-    if (cardHistory) {
-        cardHistory.addEventListener("click", () => {
-            switchTab("tab-clinical");
-            const el = document.getElementById("cohort-comparison-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-        });
-    }
-}
-
-// Quick Search Modal Palette
-function initQuickSearch() {
-    const trigger = document.getElementById("nav-search-trigger");
-    const backdrop = document.getElementById("search-modal-backdrop");
-    const closeBtn = document.getElementById("btn-close-search");
-    const searchInput = document.getElementById("quick-search-input");
-    const resultsList = document.getElementById("search-results-list");
-
-    if (!backdrop || !searchInput) return;
-
-    const openSearch = () => {
-        backdrop.classList.add("open");
-        searchInput.value = "";
-        filterResults("");
-        setTimeout(() => searchInput.focus(), 50);
-    };
-
-    const closeSearch = () => {
-        backdrop.classList.remove("open");
-    };
-
-    if (trigger) trigger.addEventListener("click", openSearch);
-    if (closeBtn) closeBtn.addEventListener("click", closeSearch);
-
-    backdrop.addEventListener("click", (e) => {
-        if (e.target === backdrop) closeSearch();
-    });
-
-    // Keyboard Shortcuts (Ctrl+K or Cmd+K to open, ESC to close)
-    window.addEventListener("keydown", (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-            e.preventDefault();
-            if (backdrop.classList.contains("open")) closeSearch();
-            else openSearch();
-        } else if (e.key === "Escape" && backdrop.classList.contains("open")) {
-            closeSearch();
-        }
-    });
-
-    // Filter results on typing
-    const filterResults = (query) => {
-        const q = query.toLowerCase().trim();
-        const items = resultsList.querySelectorAll(".search-result-item");
-        items.forEach(item => {
-            const text = item.innerText.toLowerCase();
-            if (!q || text.includes(q)) {
-                item.style.display = "flex";
-            } else {
-                item.style.display = "none";
-            }
-        });
-    };
-
-    searchInput.addEventListener("input", (e) => {
-        filterResults(e.target.value);
-    });
-
-    // Handle Item Selection
-    resultsList.addEventListener("click", (e) => {
-        const item = e.target.closest(".search-result-item");
-        if (!item) return;
-
-        const action = item.getAttribute("data-action");
-        const target = item.getAttribute("data-target");
-
-        closeSearch();
-
-        if (action === "tab") {
-            switchTab(target);
-        } else if (action === "scroll") {
-            switchTab("tab-clinical");
-            const targetEl = document.getElementById(target);
-            if (targetEl) {
-                targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
-                targetEl.focus();
-                targetEl.style.boxShadow = "0 0 20px #38bdf8";
-                setTimeout(() => { targetEl.style.boxShadow = ""; }, 1800);
-            }
-        }
-    });
-}
-
-// 2. Load Dataset Info
-async function loadDatasetInfo() {
-    try {
-        const res = await fetch("/api/dataset");
-        if (!res.ok) throw new Error("Failed to load dataset metadata");
-        const data = await res.json();
-
-        // Update Stats
-        const rowCount = data.rows || 300;
-        const elRowCount = document.getElementById("dataset-row-count") || document.getElementById("dataset-count-badge");
-        if (elRowCount) elRowCount.innerText = `${rowCount} Records`;
-
-        const elFeatCount = document.getElementById("dataset-feature-count") || document.getElementById("feature-count-badge");
-        if (elFeatCount && data.columns) elFeatCount.innerText = `${data.columns.length - 1} Biomarkers`;
-
-        const elActiveFile = document.getElementById("active-file-name");
-        if (elActiveFile) elActiveFile.innerText = data.filename;
-
-        const posCount = (data.class_balance && data.class_balance[1]) || 55;
-        const negCount = (data.class_balance && data.class_balance[0]) || 45;
-        const elPos = document.getElementById("class-pos-count");
-        if (elPos) elPos.innerText = `${posCount} (${((posCount / rowCount) * 100).toFixed(1)}%)`;
-
-        const elNeg = document.getElementById("class-neg-count");
-        if (elNeg) elNeg.innerText = `${negCount} (${((negCount / rowCount) * 100).toFixed(1)}%)`;
-
-        const elQubitFeat = document.getElementById("quantum-selected-features") || document.getElementById("qubit-features-badge");
-        if (elQubitFeat && data.selected_quantum_features && data.selected_quantum_features.length > 0) {
-            elQubitFeat.innerText = `${data.selected_quantum_features.length} Qubits Selected`;
-        }
-
-        // Populate Table
-        const tbody = document.getElementById("dataset-tbody");
-        if (data.preview && data.preview.length > 0) {
-            tbody.innerHTML = "";
-            data.preview.forEach((row, idx) => {
-                const tr = document.createElement("tr");
-                const diagVal = row.Diagnosis;
-                const diagBadge = diagVal == 1 
-                    ? `<span class="badge badge-warning">1 (Early Disease)</span>` 
-                    : `<span class="badge badge-success">0 (Healthy)</span>`;
-
-                tr.innerHTML = `
-                    <td><strong>#${idx + 1}</strong></td>
-                    <td>${row.Age || '--'}</td>
-                    <td>${row.BMI || '--'}</td>
-                    <td>${row.Total_Bilirubin || '--'}</td>
-                    <td>${row.Direct_Bilirubin || '--'}</td>
-                    <td>${row.Alkaline_Phosphatase || '--'}</td>
-                    <td>${row.Alamine_Aminotransferase || '--'}</td>
-                    <td>${row.Aspartate_Aminotransferase || '--'}</td>
-                    <td>${row.Total_Proteins || '--'}</td>
-                    <td>${row.Albumin || '--'}</td>
-                    <td>${row.Albumin_and_Globulin_Ratio || '--'}</td>
-                    <td>${row.Fasting_Glucose || '--'}</td>
-                    <td>${row.Serum_Cholesterol || '--'}</td>
-                    <td>${diagBadge}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-    } catch (err) {
-        console.error("Dataset load error:", err);
-    }
-}
-
-// 3. Load Benchmark Data & Visualizations
-async function loadBenchmarkData() {
-    try {
-        const res = await fetch("/api/benchmark");
-        if (!res.ok) throw new Error("Failed to load benchmark evaluation");
-        const data = await res.json();
-
-        const models = data.models_evaluation || [];
-        renderBenchmarkTable(models);
-        renderRadarChart(models);
-        renderRocChart(models);
-        renderSensSpecChart(models);
-        renderConfusionMatrices(models);
-        renderCircuit(data.circuit_schema, data.circuit_ascii);
-        renderExplainability(data.feature_importance);
-    } catch (err) {
-        console.error("Benchmark load error:", err);
-    }
-}
-
-function renderBenchmarkTable(models) {
-    const tbody = document.getElementById("benchmark-tbody");
-    tbody.innerHTML = "";
-
-    models.forEach(m => {
-        const tr = document.createElement("tr");
-        const isQuantum = m.model_name.includes("Quantum");
-        const paradigmBadge = isQuantum 
-            ? `<span class="badge badge-info">Quantum-Enhanced</span>`
-            : `<span class="badge" style="background: rgba(255,255,255,0.06); color:#cbd5e1;">Classical</span>`;
-
-        tr.innerHTML = `
-            <td>${paradigmBadge}</td>
-            <td><strong>${m.model_name}</strong></td>
-            <td><span class="code-badge">${(m.accuracy * 100).toFixed(1)}%</span></td>
-            <td><strong class="text-success">${(m.sensitivity * 100).toFixed(1)}%</strong></td>
-            <td>${(m.specificity * 100).toFixed(1)}%</td>
-            <td>${(m.precision * 100).toFixed(1)}%</td>
-            <td>${(m.f1_score * 100).toFixed(1)}%</td>
-            <td><span class="code-badge">${m.roc_auc.toFixed(3)}</span></td>
-            <td>${m.training_time_sec}s</td>
-            <td>${m.inference_latency_ms}ms</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-// Radar Comparison Chart
-function renderRadarChart(models) {
-    const ctx = document.getElementById("radarChart");
-    if (!ctx) return;
-
-    if (radarChartInstance) radarChartInstance.destroy();
-
-    const colors = [
-        { border: "#00f2fe", bg: "rgba(0, 242, 254, 0.2)" },
-        { border: "#a855f7", bg: "rgba(168, 85, 247, 0.2)" },
-        { border: "#10b981", bg: "rgba(16, 185, 129, 0.2)" },
-        { border: "#fbbf24", bg: "rgba(251, 191, 36, 0.2)" },
-        { border: "#f43f5e", bg: "rgba(244, 63, 94, 0.2)" },
-        { border: "#4facfe", bg: "rgba(79, 172, 254, 0.2)" }
-    ];
-
-    const datasets = models.map((m, idx) => {
-        const c = colors[idx % colors.length];
-        return {
-            label: m.model_name,
-            data: [m.accuracy, m.sensitivity, m.specificity, m.precision, m.f1_score, m.roc_auc],
-            borderColor: c.border,
-            backgroundColor: c.bg,
-            borderWidth: 2,
-            pointBackgroundColor: c.border
-        };
-    });
-
-    radarChartInstance = new Chart(ctx, {
-        type: "radar",
-        data: {
-            labels: ["Accuracy", "Sensitivity (Recall)", "Specificity", "Precision", "F1-Score", "ROC-AUC"],
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                r: {
-                    angleLines: { color: "rgba(255, 255, 255, 0.1)" },
-                    grid: { color: "rgba(255, 255, 255, 0.08)" },
-                    pointLabels: { color: "#94a3b8", font: { size: 11, family: "'Plus Jakarta Sans'" } },
-                    ticks: { display: false, min: 0, max: 1 }
-                }
-            },
-            plugins: {
-                legend: { position: "bottom", labels: { color: "#cbd5e1", boxWidth: 12 } }
-            }
-        }
-    });
-}
-
-// ROC Curves Chart
-function renderRocChart(models) {
-    const ctx = document.getElementById("rocChart");
-    if (!ctx) return;
-
-    if (rocChartInstance) rocChartInstance.destroy();
-
-    const colors = ["#00f2fe", "#a855f7", "#10b981", "#fbbf24", "#f43f5e", "#4facfe"];
-    const datasets = [];
-
-    models.forEach((m, idx) => {
-        if (m.roc_curve && m.roc_curve.fpr && m.roc_curve.tpr) {
-            const pts = m.roc_curve.fpr.map((fpr, i) => ({ x: fpr, y: m.roc_curve.tpr[i] }));
-            datasets.push({
-                label: `${m.model_name} (AUC: ${m.roc_auc.toFixed(2)})`,
-                data: pts,
-                borderColor: colors[idx % colors.length],
-                borderWidth: 2.5,
-                fill: false,
-                tension: 0.2,
-                pointRadius: 0
-            });
-        }
-    });
-
-    // Reference diagonal
-    datasets.push({
-        label: "Random Chance (0.50)",
-        data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
-        borderColor: "rgba(255, 255, 255, 0.25)",
-        borderDash: [5, 5],
-        borderWidth: 1.5,
-        fill: false,
-        pointRadius: 0
-    });
-
-    rocChartInstance = new Chart(ctx, {
-        type: "line",
-        data: { datasets: datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    type: "linear",
-                    min: 0,
-                    max: 1,
-                    title: { display: true, text: "False Positive Rate (1 - Specificity)", color: "#94a3b8" },
-                    grid: { color: "rgba(255, 255, 255, 0.05)" },
-                    ticks: { color: "#94a3b8" }
-                },
-                y: {
-                    type: "linear",
-                    min: 0,
-                    max: 1,
-                    title: { display: true, text: "True Positive Rate (Sensitivity / Recall)", color: "#94a3b8" },
-                    grid: { color: "rgba(255, 255, 255, 0.05)" },
-                    ticks: { color: "#94a3b8" }
-                }
-            },
-            plugins: {
-                legend: { position: "bottom", labels: { color: "#cbd5e1", boxWidth: 12 } }
-            }
-        }
-    });
-}
-
-// Sensitivity vs Specificity Chart
-function renderSensSpecChart(models) {
-    const ctx = document.getElementById("sensSpecBarChart");
-    if (!ctx) return;
-
-    if (sensSpecChartInstance) sensSpecChartInstance.destroy();
-
-    const labels = models.map(m => m.model_name);
-    const sensitivities = models.map(m => m.sensitivity);
-    const specificities = models.map(m => m.specificity);
-
-    sensSpecChartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "Sensitivity (Disease Recall)",
-                    data: sensitivities,
-                    backgroundColor: "rgba(16, 185, 129, 0.7)",
-                    borderColor: "#10b981",
-                    borderWidth: 1,
-                    borderRadius: 6
-                },
-                {
-                    label: "Specificity (Healthy Detection)",
-                    data: specificities,
-                    backgroundColor: "rgba(79, 172, 254, 0.7)",
-                    borderColor: "#4facfe",
-                    borderWidth: 1,
-                    borderRadius: 6
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: "#94a3b8", font: { size: 10 } }
-                },
-                y: {
-                    min: 0,
-                    max: 1.05,
-                    grid: { color: "rgba(255, 255, 255, 0.05)" },
-                    ticks: { color: "#94a3b8" }
-                }
-            },
-            plugins: {
-                legend: { position: "bottom", labels: { color: "#cbd5e1", boxWidth: 12 } }
-            }
-        }
-    });
-}
-
-// Confusion Matrix Heatmaps
-function renderConfusionMatrices(models) {
-    const container = document.getElementById("cm-container");
-    if (!container) return;
-
-    container.innerHTML = "";
-    
-    // Choose Quantum VQC and Classical Random Forest (or SVM)
-    const targetModels = models.filter(m => m.model_name.includes("VQC") || m.model_name.includes("Random Forest") || m.model_name.includes("Classical SVM"));
-    const displayList = targetModels.slice(0, 2);
-
-    displayList.forEach(m => {
-        const cm = m.confusion_matrix || { tp: 14, fp: 1, tn: 10, fn: 0 };
-        const cmDiv = document.createElement("div");
-        cmDiv.className = "cm-box";
-        cmDiv.innerHTML = `
-            <div class="cm-title">${m.model_name}</div>
-            <div class="cm-grid">
-                <div class="cm-cell cm-cell-tn">
-                    <span class="cm-val">${cm.tn}</span>
-                    <span class="cm-lbl">True Negative</span>
-                </div>
-                <div class="cm-cell cm-cell-fp">
-                    <span class="cm-val">${cm.fp}</span>
-                    <span class="cm-lbl">False Positive</span>
-                </div>
-                <div class="cm-cell cm-cell-fn">
-                    <span class="cm-val">${cm.fn}</span>
-                    <span class="cm-lbl">False Negative</span>
-                </div>
-                <div class="cm-cell cm-cell-tp">
-                    <span class="cm-val">${cm.tp}</span>
-                    <span class="cm-lbl">True Positive</span>
-                </div>
-            </div>
-            <div style="font-size: 0.72rem; color: #94a3b8;">Accuracy: ${(m.accuracy * 100).toFixed(1)}%</div>
-        `;
-        container.appendChild(cmDiv);
-    });
-}
-
-// Circuit Visualization
-function renderCircuit(schema, asciiTrace) {
-    const board = document.getElementById("circuit-board");
-    const asciiEl = document.getElementById("circuit-ascii-output");
-
-    if (asciiEl && asciiTrace) {
-        asciiEl.innerText = asciiTrace;
-    }
-
-    if (!board) return;
-    board.innerHTML = "";
-
-    const nQubits = (schema && schema.n_qubits) || 4;
-
-    for (let q = 0; q < nQubits; q++) {
-        const row = document.createElement("div");
-        row.className = "qubit-wire-row";
-
-        row.innerHTML = `
-            <div class="qubit-label">|q[${q}]⟩</div>
-            <div class="wire-line"></div>
-            <div class="gates-sequence">
-                <div class="gate-box" title="Hadamard Superposition">H</div>
-                <div class="gate-box" title="Angle Feature Embedding">Ry(x<sub>${q}</sub>)</div>
-                <div class="gate-box gate-var" title="Parameterized Layer 1">Ry(θ<sub>${q}</sub>)</div>
-                <div class="gate-box gate-var" title="Parameterized Layer 1">Rz(ω<sub>${q}</sub>)</div>
-                <div class="gate-cnot-ctrl" title="CNOT Control"></div>
-                <div class="gate-box gate-var" title="Parameterized Layer 2">Ry(θ'<sub>${q}</sub>)</div>
-                <div class="gate-box gate-var" title="Parameterized Layer 2">Rz(ω'<sub>${q}</sub>)</div>
-                ${q === 0 ? '<div class="gate-box gate-meas" title="Pauli-Z Expectation Measurement">⟨Z₀⟩</div>' : ''}
-            </div>
-        `;
-        board.appendChild(row);
-    }
-}
-
-// Explainability Features
-function renderExplainability(features) {
-    if (!features || features.length === 0) return;
-
-    // Table
-    const tbody = document.getElementById("explain-tbody");
-    if (tbody) {
-        tbody.innerHTML = "";
-        features.forEach(f => {
-            const tr = document.createElement("tr");
-            const qBadge = f.is_quantum_encoded
-                ? `<span class="badge badge-info">Quantum State Qubit Wire</span>`
-                : `<span class="badge" style="background: rgba(255,255,255,0.05); color:#64748b;">Classical Scaled</span>`;
-            
-            let role = "Metabolic regulation";
-            if (f.feature.includes("ALT") || f.feature.includes("AST")) role = "Hepatic cellular integrity indicator";
-            else if (f.feature.includes("Bilirubin")) role = "Biliary excretion & oxidative clearance";
-            else if (f.feature.includes("Glucose")) role = "Fasting glycemic biomarker";
-            else if (f.feature.includes("Albumin")) role = "Hepatic protein synthesis";
-            else if (f.feature.includes("BMI")) role = "Adiposity & metabolic syndrome risk";
-
-            tr.innerHTML = `
-                <td><strong>${f.feature}</strong></td>
-                <td><span class="code-badge">${f.f_score}</span></td>
-                <td>${(f.normalized_importance * 100).toFixed(1)}%</td>
-                <td>${qBadge}</td>
-                <td style="color: #cbd5e1;">${role}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // Bar Chart
-    const ctx = document.getElementById("importanceChart");
-    if (!ctx) return;
-
-    if (importanceChartInstance) importanceChartInstance.destroy();
-
-    const topFeatures = features.slice(0, 8);
-    importanceChartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: topFeatures.map(f => f.feature),
-            datasets: [{
-                label: "Normalized Diagnostic Importance",
-                data: topFeatures.map(f => f.normalized_importance),
-                backgroundColor: topFeatures.map(f => f.is_quantum_encoded ? "rgba(0, 242, 254, 0.75)" : "rgba(168, 85, 247, 0.5)"),
-                borderColor: topFeatures.map(f => f.is_quantum_encoded ? "#00f2fe" : "#a855f7"),
-                borderWidth: 1.5,
-                borderRadius: 8
-            }]
-        },
-        options: {
-            indexAxis: "y",
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    grid: { color: "rgba(255, 255, 255, 0.05)" },
-                    ticks: { color: "#94a3b8" }
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: { color: "#ffffff", font: { weight: "bold" } }
-                }
-            },
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
-}
-
-// 4. Input Modality Tabs Switching
-function initModalityTabs() {
-    const modeBtns = document.querySelectorAll(".modality-btn");
-    const modePanels = document.querySelectorAll(".modality-panel");
-
-    modeBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const mode = btn.getAttribute("data-mode");
-            modeBtns.forEach(b => b.classList.remove("active"));
-            modePanels.forEach(p => p.classList.remove("active"));
-
-            btn.classList.add("active");
-            const targetPanel = document.getElementById(`panel-mode-${mode}`);
-            if (targetPanel) targetPanel.classList.add("active");
-        });
-    });
-}
-
-// 5. Image Upload & OCR Handling
-function initImageUploadAndOCR() {
-    const dropzone = document.getElementById("dropzone-box");
-    const fileInput = document.getElementById("lab-image-input");
-    const btnBrowse = document.getElementById("btn-browse-image");
-    const previewCard = document.getElementById("image-preview-card");
-    const previewImg = document.getElementById("image-preview-el");
-    const previewFilename = document.getElementById("preview-filename");
-    const btnClear = document.getElementById("btn-clear-image");
-    const progressContainer = document.getElementById("ocr-progress-container");
-    const progressFill = document.getElementById("ocr-progress-fill");
-    const progressPercent = document.getElementById("ocr-percentage-text");
-    const statusText = document.getElementById("ocr-status-text");
-    const feedbackBanner = document.getElementById("image-ocr-feedback");
-
-    if (!dropzone || !fileInput) return;
-
-    btnBrowse.addEventListener("click", (e) => {
-        e.stopPropagation();
-        fileInput.click();
-    });
-
-    dropzone.addEventListener("click", () => fileInput.click());
-
-    dropzone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropzone.classList.add("dragover");
-    });
-
-    dropzone.addEventListener("dragleave", () => {
-        dropzone.classList.remove("dragover");
-    });
-
-    dropzone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        dropzone.classList.remove("dragover");
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleImageFile(e.dataTransfer.files[0]);
-        }
-    });
-
-    fileInput.addEventListener("change", (e) => {
-        if (e.target.files && e.target.files[0]) {
-            handleImageFile(e.target.files[0]);
-        }
-    });
-
-    if (btnClear) {
-        btnClear.addEventListener("click", () => {
-            fileInput.value = "";
-            previewCard.style.display = "none";
-            progressContainer.style.display = "none";
-            feedbackBanner.style.display = "none";
-        });
-    }
-
-    async function handleImageFile(file) {
-        if (!file.type.startsWith("image/")) {
-            alert("Please upload a valid image file (PNG, JPG, JPEG, WEBP).");
-            return;
-        }
-
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewImg.src = e.target.result;
-            previewFilename.innerText = file.name;
-            previewCard.style.display = "block";
-        };
-        reader.readAsDataURL(file);
-
-        // Show progress UI
-        progressContainer.style.display = "block";
-        progressFill.style.width = "5%";
-        progressPercent.innerText = "5%";
-        statusText.innerText = "Reading image and executing optical character recognition...";
-        feedbackBanner.style.display = "none";
-
-        try {
-            let extractedText = "";
-
-            // Attempt client-side Tesseract.js if loaded
-            if (typeof Tesseract !== "undefined") {
-                const res = await Tesseract.recognize(file, "eng", {
-                    logger: (m) => {
-                        if (m.status === "recognizing text") {
-                            const pct = Math.round((m.progress || 0) * 100);
-                            progressFill.style.width = `${Math.max(10, pct)}%`;
-                            progressPercent.innerText = `${Math.max(10, pct)}%`;
-                            statusText.innerText = `Recognizing text (${pct}%)...`;
-                        }
-                    }
-                });
-                extractedText = (res && res.data && res.data.text) ? res.data.text : "";
-            }
-
-            // If client OCR extracted text, send to backend parser
-            let parseResult = null;
-            if (extractedText && extractedText.trim().length > 10) {
-                statusText.innerText = "Parsing extracted medical biomarkers...";
-                const parseRes = await fetch("/api/parse-text", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: extractedText })
-                });
-                parseResult = await parseRes.json();
-            } else {
-                // Fallback to server-side image OCR
-                statusText.innerText = "Processing via backend OCR engine...";
-                const formData = new FormData();
-                formData.append("image", file);
-                const backendOcrRes = await fetch("/api/parse-image", {
-                    method: "POST",
-                    body: formData
-                });
-                parseResult = await backendOcrRes.json();
-            }
-
-            progressFill.style.width = "100%";
-            progressPercent.innerText = "100%";
-            statusText.innerText = "Extraction complete!";
-
-            if (parseResult && parseResult.status === "success") {
-                const detected = parseResult.detected_count || 0;
-                setFormValues(parseResult.complete_vitals || parseResult.extracted);
-
-                feedbackBanner.className = "feedback-banner success";
-                feedbackBanner.style.display = "block";
-                feedbackBanner.innerHTML = `
-                    <strong>✅ Successfully Extracted ${detected} Biomarkers from Lab Report!</strong><br>
-                    Detected features: <code>${Object.keys(parseResult.extracted).join(", ")}</code>.<br>
-                    Review the auto-populated numbers below and click <em>Run Hybrid Quantum Disease Screening</em>.
-                `;
-            } else {
-                feedbackBanner.className = "feedback-banner warning";
-                feedbackBanner.style.display = "block";
-                feedbackBanner.innerHTML = `
-                    <strong>⚠️ Partial extraction:</strong> Could not detect distinct biomarkers automatically.
-                    You can paste the report text under <em>Paste Medical Report Text</em> or enter numbers manually below.
-                `;
-            }
-        } catch (err) {
-            console.error("Image OCR Error:", err);
-            feedbackBanner.className = "feedback-banner warning";
-            feedbackBanner.style.display = "block";
-            feedbackBanner.innerHTML = `
-                <strong>Notice:</strong> Automated OCR finished with error: ${err.message}. 
-                You can type or paste your values directly below.
-            `;
-        }
-    }
-}
-
-// 6. Text Report Parsing Handling
-function initTextParsing() {
-    const btnExtract = document.getElementById("btn-extract-text");
-    const btnHighRisk = document.getElementById("btn-sample-diseased-text");
-    const btnHealthy = document.getElementById("btn-sample-healthy-text");
-    const btnClear = document.getElementById("btn-clear-text");
-    const textArea = document.getElementById("paste-text-input");
-    const feedbackBanner = document.getElementById("text-extract-feedback");
-
-    if (!btnExtract || !textArea) return;
-
-    if (btnHighRisk) {
-        btnHighRisk.addEventListener("click", () => {
-            textArea.value = "Patient Age: 62 years, Gender: Male (1), BMI: 33.8. Comprehensive Liver & Metabolic Panel:\nTotal Bilirubin: 2.2 mg/dL, Direct Bilirubin: 1.0 mg/dL, Alkaline Phosphatase: 380 IU/L, ALT / SGPT: 80 IU/L, AST / SGOT: 88 IU/L, Total Proteins: 5.9 g/dL, Serum Albumin: 2.5 g/dL, A/G Ratio: 0.73, Fasting Blood Glucose: 154 mg/dL, Serum Cholesterol: 248 mg/dL, Platelets: 172 x10^3/uL. Clinical Notes: Persistent fatigue, mild right upper quadrant discomfort.";
-        });
-    }
-
-    if (btnHealthy) {
-        btnHealthy.addEventListener("click", () => {
-            textArea.value = "Patient Age: 38 years, Gender: Female (0), BMI: 22.5. Routine Preventive Screening Panel:\nTotal Bilirubin: 0.6 mg/dL, Direct Bilirubin: 0.2 mg/dL, Alkaline Phosphatase: 170 IU/L, ALT: 17 IU/L, AST: 19 IU/L, Total Proteins: 7.3 g/dL, Serum Albumin: 3.9 g/dL, A/G Ratio: 1.14, Fasting Glucose: 89 mg/dL, Total Cholesterol: 168 mg/dL, Platelet Count: 295 x10^3/uL. Clinical Notes: Asymptomatic, unremarkable physical examination.";
-        });
-    }
-
-    if (btnClear) {
-        btnClear.addEventListener("click", () => {
-            textArea.value = "";
-            feedbackBanner.style.display = "none";
-        });
-    }
-
-    btnExtract.addEventListener("click", async () => {
-        const text = textArea.value.trim();
-        if (!text) {
-            alert("Please paste some medical report text or doctor notes first.");
-            return;
-        }
-
-        const originalHtml = btnExtract.innerHTML;
-        btnExtract.innerHTML = `<span class="btn-icon">⏳</span> Parsing Biomarkers...`;
-        btnExtract.disabled = true;
-
-        try {
-            const res = await fetch("/api/parse-text", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text })
-            });
-            if (!res.ok) throw new Error("Failed to parse medical text");
-            const data = await res.json();
-
-            if (data.status === "success" && data.detected_count > 0) {
-                setFormValues(data.complete_vitals || data.extracted);
-                feedbackBanner.className = "feedback-banner success";
-                feedbackBanner.style.display = "block";
-                feedbackBanner.innerHTML = `
-                    <strong>✅ Extracted ${data.detected_count} of 14 Biomarkers!</strong><br>
-                    Found: <code>${Object.keys(data.extracted).join(", ")}</code>.<br>
-                    The 14 biomarker inputs below have been populated. Click <em>Run Hybrid Quantum Disease Screening</em> below.
-                `;
-            } else {
-                feedbackBanner.className = "feedback-banner warning";
-                feedbackBanner.style.display = "block";
-                feedbackBanner.innerHTML = `
-                    <strong>⚠️ No clear biomarkers recognized.</strong> Please verify names such as 'Age', 'Bilirubin', 'ALT', 'AST', 'Glucose', or adjust values in the form directly below.
-                `;
-            }
-        } catch (err) {
-            alert("Parsing error: " + err.message);
-        } finally {
-            btnExtract.innerHTML = originalHtml;
-            btnExtract.disabled = false;
-        }
-    });
-}
-
-// 7. Clinical Risk Predictor & Dataset Cohort Actions
-function initPredictionActions() {
-    const btnPredict = document.getElementById("btn-predict-patient");
-    const btnHealthy = document.getElementById("btn-load-healthy-sample");
-    const btnDiseased = document.getElementById("btn-load-diseased-sample");
-
-    if (btnHealthy) {
-        btnHealthy.addEventListener("click", () => {
-            setFormValues({
-                Age: 38, Gender: 0, BMI: 22.5, Total_Bilirubin: 0.6, Direct_Bilirubin: 0.2,
-                Alkaline_Phosphatase: 170, Alamine_Aminotransferase: 17, Aspartate_Aminotransferase: 19,
-                Total_Proteins: 7.3, Albumin: 3.9, Albumin_and_Globulin_Ratio: 1.14,
-                Fasting_Glucose: 89, Serum_Cholesterol: 168, Platelet_Count: 295
-            });
-        });
-    }
-
-    if (btnDiseased) {
-        btnDiseased.addEventListener("click", () => {
-            setFormValues({
-                Age: 62, Gender: 1, BMI: 33.8, Total_Bilirubin: 2.2, Direct_Bilirubin: 1.0,
-                Alkaline_Phosphatase: 380, Alamine_Aminotransferase: 80, Aspartate_Aminotransferase: 88,
-                Total_Proteins: 5.9, Albumin: 2.5, Albumin_and_Globulin_Ratio: 0.73,
-                Fasting_Glucose: 154, Serum_Cholesterol: 248, Platelet_Count: 172
-            });
-        });
-    }
-
-    if (btnPredict) {
-        btnPredict.addEventListener("click", runPatientInference);
-    }
-}
-
-function setFormValues(vals) {
-    if (!vals) return;
-    const getVal = (stdKey, altKey, fallback) => {
-        if (vals[stdKey] !== undefined) return vals[stdKey];
-        if (vals[altKey] !== undefined) return vals[altKey];
-        if (vals[stdKey.toLowerCase()] !== undefined) return vals[stdKey.toLowerCase()];
-        return fallback;
-    };
-
-    document.getElementById("inp-age").value = getVal("Age", "age", 45);
-    document.getElementById("inp-gender").value = getVal("Gender", "gender", 1);
-    document.getElementById("inp-bmi").value = getVal("BMI", "bmi", 26.5);
-    document.getElementById("inp-tb").value = getVal("Total_Bilirubin", "tb", 1.0);
-    document.getElementById("inp-db").value = getVal("Direct_Bilirubin", "db", 0.3);
-    document.getElementById("inp-alp").value = getVal("Alkaline_Phosphatase", "alp", 205);
-    document.getElementById("inp-alt").value = getVal("Alamine_Aminotransferase", "alt", 35);
-    document.getElementById("inp-ast").value = getVal("Aspartate_Aminotransferase", "ast", 38);
-    document.getElementById("inp-tp").value = getVal("Total_Proteins", "tp", 6.7);
-    document.getElementById("inp-alb").value = getVal("Albumin", "alb", 3.3);
-    document.getElementById("inp-ag").value = getVal("Albumin_and_Globulin_Ratio", "ag", 0.95);
-    document.getElementById("inp-glu").value = getVal("Fasting_Glucose", "glu", 110);
-    document.getElementById("inp-chol").value = getVal("Serum_Cholesterol", "chol", 195);
-    document.getElementById("inp-plat").value = getVal("Platelet_Count", "plat", 235);
-}
-
-async function runPatientInference() {
-    const btn = document.getElementById("btn-predict-patient");
-    const originalText = btn.innerHTML;
-    btn.innerHTML = `<span class="btn-icon">⏳</span> Computing Quantum States & Comparing Cohort...`;
-    btn.disabled = true;
-
-    const patientPayload = {
-        "Age": parseFloat(document.getElementById("inp-age").value),
-        "Gender": parseInt(document.getElementById("inp-gender").value),
-        "BMI": parseFloat(document.getElementById("inp-bmi").value),
-        "Total_Bilirubin": parseFloat(document.getElementById("inp-tb").value),
-        "Direct_Bilirubin": parseFloat(document.getElementById("inp-db").value),
-        "Alkaline_Phosphatase": parseFloat(document.getElementById("inp-alp").value),
-        "Alamine_Aminotransferase": parseFloat(document.getElementById("inp-alt").value),
-        "Aspartate_Aminotransferase": parseFloat(document.getElementById("inp-ast").value),
-        "Total_Proteins": parseFloat(document.getElementById("inp-tp").value),
-        "Albumin": parseFloat(document.getElementById("inp-alb").value),
-        "Albumin_and_Globulin_Ratio": parseFloat(document.getElementById("inp-ag").value),
-        "Fasting_Glucose": parseFloat(document.getElementById("inp-glu").value),
-        "Serum_Cholesterol": parseFloat(document.getElementById("inp-chol").value),
-        "Platelet_Count": parseFloat(document.getElementById("inp-plat").value)
-    };
-
-    try {
-        const res = await fetch("/api/predict", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(patientPayload)
-        });
-        if (!res.ok) throw new Error("Inference failed");
-        const out = await res.json();
-
-        // 1. Update Primary Diagnostic Verdict
-        const isDetected = out.hybrid_prediction.disease_detected;
-        const riskPct = out.hybrid_prediction.disease_risk_percentage;
-        const conf = out.hybrid_prediction.confidence;
-
-        const badge = document.getElementById("diag-badge");
-        const badgeText = document.getElementById("diag-text");
-        const circle = document.getElementById("risk-score-circle");
-        const percentEl = document.getElementById("risk-percent");
-
-        badge.className = "diagnosis-status-badge " + (isDetected ? "detected" : "healthy");
-        badgeText.innerText = out.hybrid_prediction.status_label;
-
-        percentEl.innerText = `${riskPct}%`;
-        if (isDetected) {
-            circle.style.borderColor = "var(--danger-red)";
-            circle.style.boxShadow = "0 0 30px rgba(244, 63, 94, 0.4)";
-        } else {
-            circle.style.borderColor = "var(--success-green)";
-            circle.style.boxShadow = "0 0 30px rgba(16, 185, 129, 0.4)";
-        }
-
-        document.getElementById("vqc-prob-label").innerText = `${out.vqc_model.probability_disease}% Disease Risk`;
-        document.getElementById("rf-prob-label").innerText = `${out.classical_rf_model.probability_disease}% Disease Risk`;
-        document.getElementById("hybrid-conf-label").innerText = `${conf}% Confidence`;
-
-        // Quantum angle chips
-        const anglesRow = document.getElementById("quantum-angles-row");
-        anglesRow.innerHTML = "";
-        if (out.quantum_encoded_features) {
-            Object.entries(out.quantum_encoded_features).forEach(([feat, rad]) => {
-                const chip = document.createElement("span");
-                chip.className = "angle-chip";
-                chip.innerText = `${feat}: ${rad} rad`;
-                anglesRow.appendChild(chip);
-            });
-        }
-
-        // Clinical Recommendation
-        const recEl = document.getElementById("clinical-rec");
-        if (out.clinical_guidance) {
-            recEl.innerHTML = `<strong>Clinical Insight:</strong> ${out.clinical_guidance}`;
-        }
-
-        // 2. Render Patient vs Dataset Cohort Comparison Table
-        if (out.cohort_comparison && out.cohort_comparison.comparisons) {
-            renderCohortComparisonTable(out.cohort_comparison.comparisons, out.cohort_comparison);
-            renderCohortComparisonChart(out.cohort_comparison.comparisons);
-        }
-
-        // Smooth scroll to comparison section if triggered
-        const compSection = document.getElementById("cohort-comparison-section");
-        if (compSection) {
-            compSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        }
-
-    } catch (err) {
-        console.error("Inference error:", err);
-        alert("Inference computation error: " + err.message);
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-}
-
-// 8. Render Cohort Comparison Table
-function renderCohortComparisonTable(comparisons, summary) {
-    const tbody = document.getElementById("cohort-comparison-tbody");
-    const summaryBadge = document.getElementById("cohort-summary-badge");
-
-    if (!tbody) return;
-    tbody.innerHTML = "";
-
-    if (summaryBadge) {
-        const count = summary.abnormal_biomarkers_count || 0;
-        if (count >= 3) {
-            summaryBadge.className = "cohort-summary-pill high";
-            summaryBadge.innerHTML = `🚨 ${count} Biomarkers Out of Normal Range`;
-        } else if (count >= 1) {
-            summaryBadge.className = "cohort-summary-pill";
-            summaryBadge.innerHTML = `⚠️ ${count} Biomarker Mildly Out of Range`;
-        } else {
-            summaryBadge.className = "cohort-summary-pill optimal";
-            summaryBadge.innerHTML = `✅ All 14 Biomarkers Within Reference Limits`;
-        }
-    }
-
-    comparisons.forEach(item => {
-        const tr = document.createElement("tr");
-        const statusBadge = `<span class="badge-status ${item.status_level}">${item.status}</span>`;
-
-        tr.innerHTML = `
-            <td><strong>${item.display_name}</strong> <small style="color:var(--text-dim);">(${item.unit})</small></td>
-            <td><strong style="color:#ffffff; font-size:1rem;">${item.patient_value}</strong></td>
-            <td style="color:var(--text-muted);">${item.normal_range}</td>
-            <td style="color:#34d399; font-weight:600;">${item.healthy_cohort_mean}</td>
-            <td style="color:#f87171; font-weight:600;">${item.diseased_cohort_mean}</td>
-            <td>${statusBadge}</td>
-            <td>
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-family:var(--font-mono); font-size:0.8rem;">${item.percentile}%</span>
-                    <div style="width:40px; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;">
-                        <div style="width:${item.percentile}%; height:100%; background:var(--primary-cyan);"></div>
-                    </div>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-// 9. Render Cohort Multi-Bar Comparison Chart
-function renderCohortComparisonChart(comparisons) {
-    const canvas = document.getElementById("cohortComparisonChart");
-    if (!canvas) return;
-
-    // Select key representative biomarkers
-    const keyFeatures = [
-        "Total_Bilirubin",
-        "Alkaline_Phosphatase",
-        "Alamine_Aminotransferase",
-        "Aspartate_Aminotransferase",
-        "Fasting_Glucose",
-        "Serum_Cholesterol"
-    ];
-
-    const filtered = comparisons.filter(c => keyFeatures.includes(c.biomarker));
-    const labels = filtered.map(c => c.display_name);
-    const patientVals = filtered.map(c => c.patient_value);
-    const healthyMeans = filtered.map(c => c.healthy_cohort_mean);
-    const diseasedMeans = filtered.map(c => c.diseased_cohort_mean);
-
-    if (cohortComparisonChartInstance) {
-        cohortComparisonChartInstance.destroy();
-    }
-
-    const ctx = canvas.getContext("2d");
-    cohortComparisonChartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "Your Vitals",
-                    data: patientVals,
-                    backgroundColor: "rgba(0, 242, 254, 0.85)",
-                    borderColor: "#00f2fe",
-                    borderWidth: 1.5,
-                    borderRadius: 4
-                },
-                {
-                    label: "Healthy Dataset Baseline (Class 0)",
-                    data: healthyMeans,
-                    backgroundColor: "rgba(16, 185, 129, 0.7)",
-                    borderColor: "#10b981",
-                    borderWidth: 1.5,
-                    borderRadius: 4
-                },
-                {
-                    label: "Diseased Dataset Baseline (Class 1)",
-                    data: diseasedMeans,
-                    backgroundColor: "rgba(239, 68, 68, 0.7)",
-                    borderColor: "#ef4444",
-                    borderWidth: 1.5,
-                    borderRadius: 4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: "index", intersect: false },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: "#e2e8f0", font: { weight: "600" } }
-                },
-                y: {
-                    grid: { color: "rgba(255, 255, 255, 0.05)" },
-                    ticks: { color: "#94a3b8" }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: { color: "#ffffff", font: { weight: "600" } }
-                },
-                tooltip: {
-                    backgroundColor: "#0d1527",
-                    titleColor: "#00f2fe",
-                    bodyColor: "#ffffff",
-                    borderColor: "rgba(0, 242, 254, 0.3)",
-                    borderWidth: 1
-                }
-            }
-        }
-    });
-}
-
-// 10. Re-run Benchmark Trigger
-function initReBenchmark() {
-    const btn = document.getElementById("btn-re-benchmark");
-    const btnRefresh = document.getElementById("btn-refresh-metrics");
-
-    const runReTrain = async () => {
-        if (!confirm("Run end-to-end training of both Quantum (VQC + QSVM) and Classical models on inputdata.txt? This may take ~15-25 seconds.")) return;
-        
-        btn.innerHTML = `<span class="btn-icon">⏳</span> Training Quantum Circuits...`;
-        btn.disabled = true;
-
-        try {
-            const res = await fetch("/api/train", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ epochs: 15, n_qubits: 4 })
-            });
-            if (!res.ok) throw new Error("Training failed");
-            await loadBenchmarkData();
-            alert("Hybrid Quantum Machine Learning models successfully trained and evaluated!");
-        } catch (err) {
-            alert("Training error: " + err.message);
-        } finally {
-            btn.innerHTML = `<span class="btn-icon">⚡</span> Run Hybrid Benchmark`;
-            btn.disabled = false;
-        }
-    };
-
-    if (btn) btn.addEventListener("click", runReTrain);
-    if (btnRefresh) btnRefresh.addEventListener("click", loadBenchmarkData);
-}

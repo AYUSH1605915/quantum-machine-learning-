@@ -34,3 +34,8 @@ test_dev12.py
 test_mic_native.py
 test_record_helper.py
 test_vosk_dev12.py
+
+.venv/
+__pycache__/
+*.pyc
+ParkinsonsData.zip

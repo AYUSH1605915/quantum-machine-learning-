@@ -2,6 +2,68 @@ let datasetInfo = null;
 let lastResult = null;
 let currentInputs = {};
 let currentSource = "Manual entry";
+let initTicker = null;
+let initTimer = null;
+let initStartedAt = null;
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("quantummed-theme", theme);
+  const dark = theme === "dark";
+  const icon = document.getElementById("themeIcon");
+  const label = document.getElementById("themeLabel");
+  if (icon) icon.textContent = dark ? "☀" : "☾";
+  if (label) label.textContent = dark ? "Light" : "Dark";
+}
+
+function initTheme() {
+  const saved = localStorage.getItem("quantummed-theme");
+  applyTheme(saved === "dark" ? "dark" : "light");
+  document.getElementById("themeToggle")?.addEventListener("click", () => {
+    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  });
+}
+
+function formatElapsed(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  return `${String(Math.floor(total/60)).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
+}
+
+function updateInitStage(stage) {
+  document.querySelectorAll("#initSteps [data-stage]").forEach((el, i) => {
+    el.classList.toggle("done", i < stage);
+    el.classList.toggle("active", i === stage);
+  });
+  const progress = document.getElementById("initProgress");
+  if (progress) progress.style.width = `${Math.min(92, 12 + stage * 19)}%`;
+}
+
+function startInitExperience() {
+  const box = document.getElementById("initOnly");
+  box?.classList.remove("hidden");
+  initStartedAt = Date.now();
+  updateInitStage(0);
+  let stage = 0;
+  initTimer = setInterval(() => {
+    const el = document.getElementById("initElapsed");
+    if (el) el.textContent = formatElapsed(Date.now() - initStartedAt);
+  }, 500);
+  initTicker = setInterval(() => {
+    stage = Math.min(4, stage + 1);
+    updateInitStage(stage);
+  }, 15000);
+}
+
+function stopInitExperience(success=true) {
+  clearInterval(initTicker); clearInterval(initTimer);
+  initTicker = initTimer = null;
+  if (success) {
+    document.querySelectorAll("#initSteps [data-stage]").forEach(el => {el.classList.add("done"); el.classList.remove("active")});
+    const progress = document.getElementById("initProgress"); if (progress) progress.style.width = "100%";
+    const title = document.getElementById("loadingTitle"); if (title) title.textContent = "QML engine ready";
+    const text = document.getElementById("loadingText"); if (text) text.textContent = "Validation metrics and quantum circuit are now available";
+  }
+}
 
 const prettyMap = {
   "MDVP:Fo(Hz)":"Mean fundamental frequency (Hz)",
@@ -45,9 +107,11 @@ async function api(url, options={}) {
   return data;
 }
 
-function setLoading(on, title="Working…", text="Please wait") {
+function setLoading(on, title="Working…", text="Please wait", mode="generic") {
   document.getElementById("loadingTitle").textContent = title;
   document.getElementById("loadingText").textContent = text;
+  const initOnly = document.getElementById("initOnly");
+  if (mode !== "training") initOnly?.classList.add("hidden");
   document.getElementById("loadingOverlay").classList.toggle("hidden", !on);
 }
 
@@ -161,15 +225,24 @@ async function loadSample(kind) {
 }
 
 async function trainModels() {
-  setLoading(true, "Training hybrid QML engine…", "Participant-separated split → classical baselines → VQC → quantum kernel → validation gates");
+  setLoading(true, "Initializing hybrid QML engine", "Starting participant-separated training and validation", "training");
+  startInitExperience();
+  let ok = false;
   try {
     await api("/api/train", {method:"POST", body:JSON.stringify({epochs:8,n_qubits:4})});
     await loadStatus();
     await loadDataset();
     await loadBenchmarks();
+    ok = true;
+    stopInitExperience(true);
+    await new Promise(r => setTimeout(r, 1100));
   } catch (e) {
+    stopInitExperience(false);
     alert(`Training failed: ${e.message}`);
-  } finally { setLoading(false); }
+  } finally {
+    document.getElementById("initOnly")?.classList.add("hidden");
+    setLoading(false);
+  }
 }
 
 async function ensureReady() {
@@ -335,6 +408,7 @@ function printReport() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  initTheme();
   document.querySelectorAll("[data-scroll]").forEach(b => b.addEventListener("click", () => document.getElementById(b.dataset.scroll).scrollIntoView({behavior:"smooth"})));
   document.getElementById("startBtn").addEventListener("click", () => document.getElementById("screening").scrollIntoView({behavior:"smooth"}));
   document.getElementById("trainBtn").addEventListener("click", trainModels);

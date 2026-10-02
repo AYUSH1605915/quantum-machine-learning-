@@ -402,6 +402,7 @@ def api_multimodal_status():
     })
 
 
+@app.route("/api/assessment/sample/<kind>")
 @app.route("/api/multimodal/sample/<kind>")
 def api_multimodal_sample(kind):
     label = 1 if kind.lower() in {"pd", "parkinsons", "positive", "high"} else 0
@@ -421,6 +422,7 @@ def api_multimodal_sample(kind):
     })
 
 
+@app.route("/api/assessment/predict", methods=["POST"])
 @app.route("/api/multimodal/predict", methods=["POST"])
 def api_multimodal_predict():
     payload = request.get_json(silent=True) or {}
@@ -444,7 +446,6 @@ def api_multimodal_predict():
         details["voice"] = {
             "score_percent": round(vr["score"] * 100.0, 1),
             "model_name": "RF + VQC + Fidelity-Kernel QSVM",
-            "components": {k: round(v * 100.0, 1) for k, v in vr["components"].items()},
             "roc_auc": aucs["voice"],
         }
 
@@ -470,7 +471,9 @@ def api_multimodal_predict():
             "assessment_id": assessment_id,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "modalities_used": list(scores.keys()),
+            "modalities_available": ["voice", "gait", "handwriting", "eeg"],
             "fusion_type": fused["method"],
+            "input_scope": "User-supplied or loaded feature vectors",
         },
         "assessment": {
             "multimodal_pattern_index": fused["index_percent"],
@@ -490,9 +493,13 @@ def api_multimodal_predict():
         "branch_details": details,
         "fusion_weights": fused["normalized_weights"],
         "fusion_note": fused["note"],
+        "bundle_scope": (
+            "Integrated assessment generated from the feature vectors currently loaded in the input workspace."
+        ),
     })
 
 
+@app.route("/api/assessment/demo/<kind>", methods=["POST"])
 @app.route("/api/multimodal/demo/<kind>", methods=["POST"])
 def api_multimodal_demo(kind):
     label = 1 if kind.lower() in {"pd", "parkinsons", "positive", "high"} else 0
@@ -527,7 +534,6 @@ def api_multimodal_demo(kind):
         details["voice"] = {
             "score_percent": round(vr["score"] * 100.0, 1),
             "model_name": "RF + VQC + Fidelity-Kernel QSVM",
-            "components": {k: round(v * 100.0, 1) for k, v in vr["components"].items()},
             "roc_auc": voice_auc,
             "sample_meta": {"source": "held-out voice cohort example"},
         }
@@ -569,8 +575,8 @@ def api_multimodal_demo(kind):
             "modality_agreement": fused["agreement"],
             "dispersion": fused["dispersion"],
             "interpretation": (
-                "The pattern index combines the selected independently validated signal branches. "
-                "Review branch agreement and contribution alongside the overall index."
+                "QuantumMed synthesizes the selected signal branches into one final Pattern Index. "
+                "Individual signal scores and contributions are supporting evidence for that single result."
             ),
             "disclaimer": (
                 "Research prototype only. The demonstration uses independent research cohorts and "

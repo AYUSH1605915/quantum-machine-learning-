@@ -1,6 +1,8 @@
-let datasetInfo = null;
+﻿let datasetInfo = null;
 let lastResult = null;
 let lastMultimodalResult = null;
+const assessmentInputs = {voice:null, gait:null, handwriting:null, eeg:null};
+let assessmentInputSource = "user";
 let currentInputs = {};
 let currentSource = "Manual entry";
 let initTicker = null;
@@ -13,7 +15,7 @@ function applyTheme(theme) {
   const dark = theme === "dark";
   const icon = document.getElementById("themeIcon");
   const label = document.getElementById("themeLabel");
-  if (icon) icon.textContent = dark ? "☀" : "☾";
+  if (icon) icon.textContent = dark ? "\u2600" : "\u263E";
   if (label) label.textContent = dark ? "Light" : "Dark";
 }
 
@@ -108,7 +110,7 @@ async function api(url, options={}) {
   return data;
 }
 
-function setLoading(on, title="Working…", text="Please wait", mode="generic") {
+function setLoading(on, title="Working\u2026", text="Please wait", mode="generic") {
   document.getElementById("loadingTitle").textContent = title;
   document.getElementById("loadingText").textContent = text;
   const initOnly = document.getElementById("initOnly");
@@ -124,7 +126,7 @@ async function loadStatus() {
     chip.classList.add("ready");
     chip.querySelector("span").textContent = "QML engine ready";
   } else if (s.status === "dataset_ready") {
-    chip.querySelector("span").textContent = "Dataset ready • models idle";
+    chip.querySelector("span").textContent = "Dataset ready \u2022 models idle";
   } else {
     chip.classList.add("error");
     chip.querySelector("span").textContent = "Dataset missing";
@@ -134,20 +136,21 @@ async function loadStatus() {
 async function loadDataset() {
   datasetInfo = await api("/api/dataset");
   document.getElementById("samplesStat").textContent = datasetInfo.total_samples;
-  document.getElementById("subjectsStat").textContent = datasetInfo.unique_participants ?? "—";
+  document.getElementById("subjectsStat").textContent = datasetInfo.unique_participants ?? "\u2014";
   document.getElementById("featuresStat").textContent = datasetInfo.total_features;
   document.getElementById("datasetName").textContent = datasetInfo.dataset_name;
   document.getElementById("targetDefinition").textContent = datasetInfo.target_definition || "status: control=0 / Parkinson's cohort=1";
   document.getElementById("splitStrategy").textContent = datasetInfo.split_strategy;
   document.getElementById("selectedFeatures").textContent = (datasetInfo.selected_features || []).map(pretty).join(", ") || "Calculated during training";
-  document.getElementById("testSamplesStat").textContent = datasetInfo.test_samples ?? "—";
-  document.getElementById("testSubjectsStat").textContent = datasetInfo.test_participants ?? "—";
+  document.getElementById("testSamplesStat").textContent = datasetInfo.test_samples ?? "\u2014";
+  document.getElementById("testSubjectsStat").textContent = datasetInfo.test_participants ?? "\u2014";
   renderFeatureForm();
   updateInputCoverage();
 }
 
 function renderFeatureForm() {
   const form = document.getElementById("featureForm");
+  if (!form) return;
   form.innerHTML = "";
   const available = new Set(datasetInfo.feature_names || []);
   const used = new Set();
@@ -192,11 +195,14 @@ function renderFeatureForm() {
 }
 
 function updateInputCoverage() {
+  const coverage = document.getElementById("inputCoverage");
+  const bar = document.getElementById("coverageBar");
+  if (!coverage || !bar) return;
   const inputs = [...document.querySelectorAll("[data-feature]")];
   const filled = inputs.filter(i => i.value !== "").length;
   const total = datasetInfo?.total_features || inputs.length || 0;
-  document.getElementById("inputCoverage").textContent = `${filled} / ${total}`;
-  document.getElementById("coverageBar").style.width = total ? `${100 * filled / total}%` : "0%";
+  coverage.textContent = `${filled} / ${total}`;
+  bar.style.width = total ? `${100 * filled / total}%` : "0%";
 }
 
 function collectInputs() {
@@ -220,7 +226,7 @@ function fillInputs(features) {
 async function loadSample(kind) {
   const data = await api(`/api/sample/${kind}`);
   fillInputs(data.features);
-  currentSource = `${data.known_dataset_label_text} • ${data.source}`;
+  currentSource = `${data.known_dataset_label_text} \u2022 ${data.source}`;
   document.getElementById("sampleSource").textContent = currentSource;
   document.getElementById("screening").scrollIntoView({behavior:"smooth", block:"start"});
 }
@@ -253,7 +259,7 @@ async function ensureReady() {
 
 async function runAssessment() {
   await ensureReady();
-  setLoading(true, "Running hybrid inference…", "Random Forest + variational quantum circuit + quantum fidelity kernel");
+  setLoading(true, "Running hybrid inference\u2026", "Random Forest + variational quantum circuit + quantum fidelity kernel");
   try {
     const result = await api("/api/predict", {method:"POST", body:JSON.stringify(collectInputs())});
     lastResult = result;
@@ -264,7 +270,7 @@ async function runAssessment() {
 }
 
 function formatDate(iso) {
-  try { return new Date(iso).toLocaleString(); } catch { return iso || "—"; }
+  try { return new Date(iso).toLocaleString(); } catch { return iso || "\u2014"; }
 }
 
 function renderCohortEvidence(r) {
@@ -311,10 +317,10 @@ function renderSeverityGate(r) {
     document.getElementById("severityGateTitle").textContent = "Auxiliary UPDRS output withheld by validation gate";
     document.getElementById("severityGateText").textContent = r.symptom_burden.reason;
     document.getElementById("severityGateMetrics").innerHTML = `
-      <span>motor R² <strong>${m.motor_r2 ?? "—"}</strong></span>
-      <span>total R² <strong>${m.total_r2 ?? "—"}</strong></span>
-      <span>motor MAE <strong>${m.motor_mae ?? "—"}</strong></span>
-      <span>total MAE <strong>${m.total_mae ?? "—"}</strong></span>`;
+      <span>motor R\u00B2 <strong>${m.motor_r2 ?? "\u2014"}</strong></span>
+      <span>total R\u00B2 <strong>${m.total_r2 ?? "\u2014"}</strong></span>
+      <span>motor MAE <strong>${m.motor_mae ?? "\u2014"}</strong></span>
+      <span>total MAE <strong>${m.total_mae ?? "\u2014"}</strong></span>`;
   }
 }
 
@@ -350,10 +356,10 @@ function renderResult(r) {
   renderCohortEvidence(r);
   renderSeverityGate(r);
 
-  document.getElementById("reportAssessmentId").textContent = r.meta?.assessment_id || "—";
+  document.getElementById("reportAssessmentId").textContent = r.meta?.assessment_id || "\u2014";
   document.getElementById("reportGeneratedAt").textContent = formatDate(r.meta?.generated_at);
   document.getElementById("reportInputSource").textContent = currentSource;
-  document.getElementById("reportCoverage").textContent = `${r.input_quality?.provided_features ?? "—"}/${r.input_quality?.total_features ?? "—"} (${r.input_quality?.completeness_percent ?? "—"}%)`;
+  document.getElementById("reportCoverage").textContent = `${r.input_quality?.provided_features ?? "\u2014"}/${r.input_quality?.total_features ?? "\u2014"} (${r.input_quality?.completeness_percent ?? "\u2014"}%)`;
 
   document.getElementById("resultCard").scrollIntoView({behavior:"smooth", block:"nearest"});
 }
@@ -363,9 +369,9 @@ async function loadBenchmarks() {
   const ds = b.dataset_summary;
   document.getElementById("splitNote").textContent = `${ds.split_strategy}. Test participants are kept separate from training participants.`;
   document.getElementById("selectedFeatures").textContent = (ds.selected_features || []).map(pretty).join(", ");
-  document.getElementById("circuitAscii").textContent = b.circuit_ascii || "Initialize the engine to render the trained PennyLane circuit.";
-  document.getElementById("testSamplesStat").textContent = ds.test_samples ?? "—";
-  document.getElementById("testSubjectsStat").textContent = ds.test_participants ?? "—";
+  const circuitAscii = document.getElementById("circuitAscii"); if (circuitAscii) circuitAscii.textContent = b.circuit_ascii || "Initialize the engine to render the trained PennyLane circuit.";
+  document.getElementById("testSamplesStat").textContent = ds.test_samples ?? "\u2014";
+  document.getElementById("testSubjectsStat").textContent = ds.test_participants ?? "\u2014";
 
   const body = document.getElementById("benchmarkBody");
   if (!b.trained) {
@@ -385,11 +391,11 @@ async function loadBenchmarks() {
 
   const gate = b.auxiliary_updrs_gate || {};
   document.getElementById("severityGateStat").textContent = gate.passed ? "Passed" : "Withheld";
-  document.getElementById("severityGateSmall").textContent = gate.passed ? "eligible for experimental display" : "failed participant-level R² gate";
+  document.getElementById("severityGateSmall").textContent = gate.passed ? "eligible for experimental display" : "failed participant-level R\u00B2 gate";
 
   const highlight = document.getElementById("validationHighlight");
   highlight.classList.remove("hidden");
-  highlight.innerHTML = `<strong>Held-out validation:</strong> ${esc(best.model_name)} reached <b>${(best.accuracy*100).toFixed(1)}% accuracy</b> on ${ds.test_samples} held-out recordings using participant-separated evaluation. <span>Small research cohort — not external clinical validation.</span>`;
+  highlight.innerHTML = `<strong>Held-out validation:</strong> ${esc(best.model_name)} reached <b>${(best.accuracy*100).toFixed(1)}% accuracy</b> on ${ds.test_samples} held-out recordings using participant-separated evaluation. <span>Small research cohort \u2014 not external clinical validation.</span>`;
 }
 
 
@@ -397,33 +403,228 @@ function getSelectedModalities() {
   return [...document.querySelectorAll('input[name="mmModality"]:checked')].map(el => el.value);
 }
 
-async function runMultimodalDemo(kind) {
-  const modalities = getSelectedModalities();
-  if (!modalities.length) {
-    alert("Select at least one modality.");
+function parseFeatureObject(text) {
+  const cleaned = String(text || "").trim();
+  if (!cleaned) return null;
+  const obj = JSON.parse(cleaned);
+  if (!obj || Array.isArray(obj) || typeof obj !== "object") {
+    throw new Error("Input must be a JSON object of feature-name/value pairs.");
+  }
+  const numeric = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === "" || value == null) continue;
+    const n = Number(value);
+    if (Number.isFinite(n)) numeric[key] = n;
+  }
+  if (!Object.keys(numeric).length) throw new Error("No numeric feature values were found.");
+  return numeric;
+}
+
+function parseCsvLine(line) {
+  const out = [];
+  let current = "", quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (quoted && line[i + 1] === '"') { current += '"'; i++; }
+      else quoted = !quoted;
+    } else if (ch === "," && !quoted) {
+      out.push(current.trim()); current = "";
+    } else current += ch;
+  }
+  out.push(current.trim());
+  return out;
+}
+
+function parseFeatureCsv(text) {
+  const lines = String(text || "").split(/\r?\n/).filter(x => x.trim());
+  if (lines.length < 2) throw new Error("CSV must contain a header row and at least one data row.");
+  const headers = parseCsvLine(lines[0]);
+  const values = parseCsvLine(lines[1]);
+  const obj = {};
+  headers.forEach((h, i) => {
+    const n = Number(values[i]);
+    if (h && Number.isFinite(n)) obj[h] = n;
+  });
+  if (!Object.keys(obj).length) throw new Error("No numeric feature values were found in the first CSV data row.");
+  return obj;
+}
+
+function setAssessmentInput(modality, features, source="user") {
+  assessmentInputs[modality] = features && typeof features === "object" ? features : null;
+  const editor = document.getElementById(`input-${modality}`);
+  if (editor) editor.value = assessmentInputs[modality] ? JSON.stringify(assessmentInputs[modality], null, 2) : "";
+  refreshInputCard(modality, source);
+  updateAssessmentReadiness();
+}
+
+function refreshInputCard(modality, source="user") {
+  const obj = assessmentInputs[modality];
+  const count = obj ? Object.keys(obj).length : 0;
+  const state = document.getElementById(`state-${modality}`);
+  const countEl = document.getElementById(`count-${modality}`);
+  if (countEl) countEl.textContent = `${count} feature${count === 1 ? "" : "s"} loaded`;
+  if (state) {
+    state.textContent = count ? (source === "demo" ? "Example loaded" : "Input ready") : "No input";
+    state.classList.toggle("empty", !count);
+    state.classList.toggle("ready", !!count);
+  }
+}
+
+function syncEditorToInput(modality, quiet=false) {
+  const editor = document.getElementById(`input-${modality}`);
+  if (!editor) return null;
+  const text = editor.value.trim();
+  if (!text) {
+    assessmentInputs[modality] = null;
+    refreshInputCard(modality);
+    updateAssessmentReadiness();
+    return null;
+  }
+  try {
+    const obj = parseFeatureObject(text);
+    assessmentInputs[modality] = obj;
+    refreshInputCard(modality);
+    updateAssessmentReadiness();
+    return obj;
+  } catch (e) {
+    if (!quiet) throw e;
+    return null;
+  }
+}
+
+async function handleFeatureFile(modality, file) {
+  if (!file) return;
+  const text = await file.text();
+  let obj;
+  if (file.name.toLowerCase().endsWith(".json")) obj = parseFeatureObject(text);
+  else obj = parseFeatureCsv(text);
+  assessmentInputSource = "user";
+  setAssessmentInput(modality, obj, "user");
+}
+
+async function loadAssessmentExample(kind) {
+  const selected = getSelectedModalities();
+  if (!selected.length) {
+    alert("Select at least one signal first.");
     return;
   }
-
-  if (modalities.includes("voice")) {
-    await ensureReady();
-  }
-
-  const labels = {voice:"voice", gait:"gait", handwriting:"handwriting", eeg:"EEG"};
-  const readable = modalities.map(m => labels[m] || m).join(", ");
-  setLoading(true, "Running multimodal fusion…", `Evaluating selected branches: ${readable}`);
-
+  setLoading(true, "Loading visible example inputs\u2026", "Populating the same patient-input containers used by the integrated assessment");
   try {
-    const result = await api(`/api/multimodal/demo/${kind}`, {
-      method:"POST",
-      body:JSON.stringify({modalities})
-    });
-    lastMultimodalResult = result;
-    renderMultimodalResult(result);
+    const r = await api(`/api/assessment/sample/${kind}`);
+    const mapping = {
+      voice: r.voice?.features,
+      gait: r.gait?.features,
+      handwriting: r.handwriting?.features,
+      eeg: r.eeg?.features,
+    };
+    for (const modality of ["voice","gait","handwriting","eeg"]) {
+      if (selected.includes(modality)) setAssessmentInput(modality, mapping[modality] || null, "demo");
+      else setAssessmentInput(modality, null);
+    }
+    assessmentInputSource = kind === "control" ? "demo-control" : "demo-pd";
+    document.getElementById("mmEmpty")?.classList.remove("hidden");
+    document.getElementById("mmResult")?.classList.add("hidden");
   } catch (e) {
-    alert(`Multimodal assessment failed: ${e.message}`);
+    alert(`Could not load example inputs: ${e.message}`);
   } finally {
     setLoading(false);
   }
+}
+
+function clearAssessmentInputs() {
+  for (const modality of ["voice","gait","handwriting","eeg"]) {
+    assessmentInputs[modality] = null;
+    const editor = document.getElementById(`input-${modality}`);
+    if (editor) editor.value = "";
+    refreshInputCard(modality);
+  }
+  assessmentInputSource = "user";
+  lastMultimodalResult = null;
+  document.getElementById("mmResult")?.classList.add("hidden");
+  document.getElementById("mmEmpty")?.classList.remove("hidden");
+  updateAssessmentReadiness();
+}
+
+function updateAssessmentReadiness() {
+  const selected = getSelectedModalities();
+  const ready = selected.filter(m => assessmentInputs[m] && Object.keys(assessmentInputs[m]).length);
+  const missing = selected.filter(m => !assessmentInputs[m] || !Object.keys(assessmentInputs[m]).length);
+  const title = document.getElementById("inputReadyTitle");
+  const text = document.getElementById("inputReadyText");
+  const run = document.getElementById("mmRunBtn");
+
+  if (!selected.length) {
+    if (title) title.textContent = "No signals selected";
+    if (text) text.textContent = "Select at least one modality.";
+    if (run) run.disabled = true;
+    return;
+  }
+  if (missing.length) {
+    if (title) title.textContent = `${ready.length} of ${selected.length} selected signals have input`;
+    if (text) text.textContent = `Still needed: ${missing.map(x => ({voice:"Voice",gait:"Gait",handwriting:"Handwriting",eeg:"EEG"}[x])).join(", ")}`;
+    if (run) run.disabled = true;
+  } else {
+    if (title) title.textContent = `${ready.length} signal${ready.length === 1 ? "" : "s"} ready for assessment`;
+    if (text) text.textContent = "QuantumMed will return one integrated result using these loaded measurements.";
+    if (run) run.disabled = false;
+  }
+}
+
+async function runIntegratedAssessment() {
+  const selected = getSelectedModalities();
+  if (!selected.length) {
+    alert("Select at least one signal.");
+    return;
+  }
+
+  try {
+    for (const modality of selected) syncEditorToInput(modality);
+  } catch (e) {
+    alert(`Please fix the feature JSON before running: ${e.message}`);
+    return;
+  }
+
+  const missing = selected.filter(m => !assessmentInputs[m] || !Object.keys(assessmentInputs[m]).length);
+  if (missing.length) {
+    alert(`Input is missing for: ${missing.join(", ")}`);
+    updateAssessmentReadiness();
+    return;
+  }
+
+  if (selected.includes("voice")) await ensureReady();
+
+  const payload = {};
+  for (const modality of selected) payload[modality] = assessmentInputs[modality];
+
+  setLoading(true, "Running integrated assessment\u2026", "Evaluating loaded signal values and generating one final Pattern Index");
+  try {
+    const result = await api("/api/assessment/predict", {
+      method:"POST",
+      body:JSON.stringify(payload)
+    });
+    result.meta = result.meta || {};
+    result.meta.input_source = assessmentInputSource;
+    result.bundle_scope = assessmentInputSource.startsWith("demo-")
+      ? "Demonstration generated from visible, label-matched research-cohort feature vectors loaded into the input workspace; modalities are not measurements from the same person."
+      : "Integrated assessment generated from the user-provided feature vectors loaded in the patient input workspace.";
+    lastMultimodalResult = result;
+    renderMultimodalResult(result);
+  } catch (e) {
+    alert(`Integrated assessment failed: ${e.message}`);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function showInputFormatHelp(modality) {
+  const help = {
+    voice: "Voice accepts a JSON object or one-row CSV containing the 22 acoustic biomarker names used by the voice dataset. Load an example to see exact field names and values.",
+    gait: "Gait accepts the derived feature vector expected by the trained 65-feature branch. Use JSON or a one-row CSV whose headers match the trained feature names. Load an example to inspect the exact schema.",
+    handwriting: "Handwriting accepts the aggregated spiral + meander motor feature vector expected by the trained 36-feature branch. Use JSON or a one-row CSV. Load an example to inspect the exact schema.",
+    eeg: "EEG accepts the derived resting-state spectral feature vector expected by the trained branch. Use JSON or a one-row CSV. Load an example to inspect the exact schema."
+  };
+  alert(help[modality] || "Provide the trained feature vector as JSON or a one-row CSV.");
 }
 
 function renderMultimodalResult(r) {
@@ -432,7 +633,7 @@ function renderMultimodalResult(r) {
   document.getElementById("mmScore").textContent = Number(r.assessment.multimodal_pattern_index).toFixed(1);
   document.getElementById("mmBand").textContent = r.assessment.risk_band;
   document.getElementById("mmAgreement").textContent = r.assessment.modality_agreement;
-  document.getElementById("mmScope").textContent = `${r.known_label_text} demonstration • ${r.bundle_scope}`;
+  document.getElementById("mmScope").textContent = `${r.known_label_text} demonstration \u2022 ${r.bundle_scope}`;
   document.getElementById("mmFusionNote").textContent = r.fusion_note || "";
   document.getElementById("mmInterpretation").textContent = r.assessment.interpretation || "";
   document.getElementById("mmDisclaimer").textContent = r.assessment.disclaimer || "";
@@ -443,7 +644,7 @@ function renderMultimodalResult(r) {
   document.getElementById("mmSelectedNames").textContent = used.map(x => ({
     voice:"Voice", gait:"Gait", handwriting:"Handwriting", eeg:"EEG"
   }[x] || x)).join(" + ");
-  document.getElementById("mmAssessmentId").textContent = r.meta?.assessment_id || "—";
+  document.getElementById("mmAssessmentId").textContent = r.meta?.assessment_id || "\u2014";
 
   const labels = {voice:"Voice", gait:"Gait", handwriting:"Handwriting", eeg:"EEG"};
   const order = ["voice","gait","handwriting","eeg"];
@@ -452,10 +653,10 @@ function renderMultimodalResult(r) {
     .map(name => {
       const d = r.branch_details[name];
       const weight = Number((r.fusion_weights || {})[name] || 0) * 100;
-      const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);
+      const auc = d.roc_auc == null ? "\u2014" : Number(d.roc_auc).toFixed(3);
       return `<tr>
         <td><strong>${esc(labels[name] || name)}</strong></td>
-        <td>${esc(d.model_name || "—")}</td>
+        <td>${esc(d.model_name || "\u2014")}</td>
         <td>${Number(d.score_percent).toFixed(1)}/100</td>
         <td>${auc}</td>
         <td>${weight.toFixed(1)}%</td>
@@ -463,7 +664,7 @@ function renderMultimodalResult(r) {
     }).join("");
 
   document.getElementById("mmBranchBody").innerHTML = rows;
-  document.getElementById("multimodal").scrollIntoView({behavior:"smooth", block:"start"});
+  setTimeout(() => document.getElementById("mmResult")?.scrollIntoView({behavior:"smooth", block:"start"}), 100);
 }
 
 function downloadMultimodalJSON() {
@@ -488,31 +689,19 @@ function printUnifiedReport() {
     .map(name => {
       const d = detail[name];
       const w = Number((r.fusion_weights || {})[name] || 0) * 100;
-      const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);
+      const auc = d.roc_auc == null ? "\u2014" : Number(d.roc_auc).toFixed(3);
       return `<tr>
         <td><strong>${esc(labels[name] || name)}</strong></td>
-        <td>${esc(d.model_name || "—")}</td>
+        <td>${esc(d.model_name || "\u2014")}</td>
         <td>${Number(d.score_percent).toFixed(1)}/100</td>
         <td>${auc}</td>
         <td>${w.toFixed(1)}%</td>
       </tr>`;
     }).join("");
 
-  const voice = detail.voice;
-  const voiceComponents = voice?.components || null;
-  const voiceBlock = voiceComponents ? `
-    <section class="section voice-detail">
-      <div class="section-headline"><span>VOICE QML DETAIL</span><small>Shown because Voice is included in this assessment</small></div>
-      <div class="voice-cards">
-        <div class="mini-card"><span>Quantum SVM</span><strong>${Number(voiceComponents.qsvm ?? voiceComponents.QSVM ?? 0).toFixed(1)}</strong><small>model index</small></div>
-        <div class="mini-card"><span>Quantum VQC</span><strong>${Number(voiceComponents.vqc ?? voiceComponents.VQC ?? 0).toFixed(1)}</strong><small>model index</small></div>
-        <div class="mini-card"><span>Random Forest</span><strong>${Number(voiceComponents.rf ?? voiceComponents.RF ?? 0).toFixed(1)}</strong><small>model index</small></div>
-      </div>
-    </section>` : "";
-
   const modeText = used.length === 1
-    ? `Single-signal assessment • ${esc(labels[used[0]] || used[0] || "Signal")}`
-    : `${used.length}-signal fused assessment • ${esc(used.map(x => labels[x] || x).join(" + "))}`;
+    ? `Single-signal assessment \u2022 ${esc(labels[used[0]] || used[0] || "Signal")}`
+    : `${used.length}-signal fused assessment \u2022 ${esc(used.map(x => labels[x] || x).join(" + "))}`;
 
   const report = window.open("", "_blank");
   if (!report) {
@@ -538,9 +727,9 @@ function printUnifiedReport() {
     .interpret{border-left:4px solid #16828b;background:#f6f9fa;border-radius:8px;padding:10px 12px;color:#334a59}.scope{margin-top:10px;color:#657682;font-size:8px}.warn{margin-top:14px;border:1px solid #ead9a7;background:#fff9ea;border-radius:8px;padding:10px 12px;color:#715c22;font-size:8px}.footer{margin-top:22px;padding-top:9px;border-top:1px solid #dfe6ea;color:#7a8790;font-size:7px;display:flex;justify-content:space-between}
     @media print{body{background:#fff}.page{max-width:none}}
   </style></head><body><div class="page">
-    <div class="brand"><div><div class="brand-name">QUANTUM<span>MED</span></div><div style="font-size:8px;color:#77858f">ThunderStars • Smart India Hackathon 2026</div></div><div class="brand-meta">Research screening prototype<br>${esc(formatDate(r.meta?.generated_at))}</div></div>
-    <h1>Integrated Parkinson's Screening Assessment</h1>
-    <p class="subtitle">One report generated from the selected biomedical signals.</p>
+    <div class="brand"><div><div class="brand-name">QUANTUM<span>MED</span></div><div style="font-size:8px;color:#77858f">ThunderStars \u2022 Smart India Hackathon 2026</div></div><div class="brand-meta">Research screening prototype<br>${esc(formatDate(r.meta?.generated_at))}</div></div>
+    <h1>QuantumMed Integrated Parkinson's Screening Assessment</h1>
+    <p class="subtitle">One final result synthesized from the available biomedical signals.</p>
 
     <div class="summary">
       <div class="summary-card"><span>Unified Pattern Index</span><strong>${Number(r.assessment.multimodal_pattern_index).toFixed(1)} / 100</strong></div>
@@ -549,18 +738,18 @@ function printUnifiedReport() {
     </div>
 
     <div class="meta-grid">
-      <div><span>Assessment ID</span><strong>${esc(r.meta?.assessment_id || "—")}</strong></div>
+      <div><span>Assessment ID</span><strong>${esc(r.meta?.assessment_id || "\u2014")}</strong></div>
       <div><span>Assessment mode</span><strong>${modeText}</strong></div>
       <div><span>Signals evaluated</span><strong>${esc(used.map(x => labels[x] || x).join(", "))}</strong></div>
+      <div><span>Input source</span><strong>${esc(r.meta?.input_source?.startsWith("demo-") ? "Loaded cohort example" : "Patient input workspace")}</strong></div>
       <div><span>Fusion method</span><strong>${used.length > 1 ? "Validation-weighted late fusion" : "Single-branch inference"}</strong></div>
     </div>
 
     <section class="section">
-      <div class="section-headline"><span>SIGNAL EVIDENCE</span><small>Individual branch scores remain visible inside the unified result</small></div>
-      <table><thead><tr><th>Signal</th><th>Model</th><th>Branch index</th><th>Validation ROC-AUC</th><th>Contribution</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="section-headline"><span>SUPPORTING SIGNAL EVIDENCE</span><small>These scores explain the final integrated result; they are not separate reports.</small></div>
+      <table><thead><tr><th>Signal</th><th>Internal model</th><th>Signal index</th><th>Validation ROC-AUC</th><th>Contribution</th></tr></thead><tbody>${rows}</tbody></table>
     </section>
 
-    ${voiceBlock}
 
     <section class="section">
       <div class="section-headline"><span>INTERPRETATION</span></div>
@@ -569,7 +758,7 @@ function printUnifiedReport() {
     </section>
 
     <div class="warn"><strong>Research-use limitation:</strong> ${esc(r.assessment.disclaimer || "")}</div>
-    <div class="footer"><span>QuantumMed • ThunderStars</span><span>${esc(r.meta?.assessment_id || "")}</span></div>
+    <div class="footer"><span>QuantumMed \u2022 ThunderStars</span><span>${esc(r.meta?.assessment_id || "")}</span></div>
     <script>window.onload=()=>setTimeout(()=>window.print(),250);<\/script>
   </div></body></html>`);
   report.document.close();
@@ -580,13 +769,23 @@ function printUnifiedReport() {
 document.addEventListener("DOMContentLoaded", async () => {
   initTheme();
   document.querySelectorAll("[data-scroll]").forEach(b => b.addEventListener("click", () => document.getElementById(b.dataset.scroll).scrollIntoView({behavior:"smooth"})));
-  document.getElementById("startBtn").addEventListener("click", () => document.getElementById("screening").scrollIntoView({behavior:"smooth"}));
+  document.getElementById("startBtn").addEventListener("click", () => document.getElementById("multimodal").scrollIntoView({behavior:"smooth"}));
   document.getElementById("trainBtn").addEventListener("click", trainModels);
-  document.getElementById("controlSampleBtn").addEventListener("click", () => loadSample("control"));
-  document.getElementById("pdSampleBtn").addEventListener("click", () => loadSample("pd"));
-  document.getElementById("runBtn").addEventListener("click", runAssessment);
-  document.getElementById("mmControlBtn")?.addEventListener("click", () => runMultimodalDemo("control"));
-  document.getElementById("mmPdBtn")?.addEventListener("click", () => runMultimodalDemo("pd"));
+  document.getElementById("mmControlBtn")?.addEventListener("click", () => loadAssessmentExample("control"));
+  document.getElementById("mmPdBtn")?.addEventListener("click", () => loadAssessmentExample("pd"));
+  document.getElementById("mmClearBtn")?.addEventListener("click", clearAssessmentInputs);
+  document.getElementById("mmRunBtn")?.addEventListener("click", runIntegratedAssessment);
+  document.querySelectorAll('input[name="mmModality"]').forEach(el => el.addEventListener("change", updateAssessmentReadiness));
+  for (const modality of ["voice","gait","handwriting","eeg"]) {
+    document.getElementById(`file-${modality}`)?.addEventListener("change", async e => {
+      try { await handleFeatureFile(modality, e.target.files?.[0]); }
+      catch(err) { alert(`${modality} input could not be loaded: ${err.message}`); }
+      finally { e.target.value = ""; }
+    });
+    document.getElementById(`input-${modality}`)?.addEventListener("input", () => syncEditorToInput(modality, true));
+  }
+  document.querySelectorAll("[data-format-help]").forEach(btn => btn.addEventListener("click", () => showInputFormatHelp(btn.dataset.formatHelp)));
+  updateAssessmentReadiness();
   document.getElementById("mmReportBtn")?.addEventListener("click", printUnifiedReport);
   document.getElementById("mmJsonBtn")?.addEventListener("click", downloadMultimodalJSON);
   try {
@@ -598,3 +797,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert(e.message);
   }
 });
+

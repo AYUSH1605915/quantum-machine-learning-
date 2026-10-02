@@ -39,15 +39,12 @@
   <main>
     <section class="hero">
       <div class="hero-badges">
-        <span class="active-module-badge">LIVE DEMO • 4 BIOMEDICAL SIGNAL BRANCHES</span><span>CLASSICAL + QML</span><span>VALIDATION-AWARE FUSION</span>
+        <span class="active-module-badge">WORKING PROTOTYPE</span><span>4 SIGNAL BRANCHES</span><span>HYBRID QML</span>
       </div>
       <div class="eyebrow">QUANTUMMED • RESEARCH SCREENING PLATFORM</div>
       <h1>Hybrid Quantum ML for<br><span>Neurodegenerative Screening</span></h1>
       <p>
-        QuantumMed is a modular research-screening platform combining voice, gait, handwriting and resting-state EEG.
-        The voice pathway contains the quantum core (Random Forest + VQC + fidelity-kernel QSVM), while gait,
-        handwriting and EEG use independently validated classical branch models. Their outputs are combined by
-        validation-weighted late fusion into an explainable Multimodal Pattern Index.
+        One explainable screening workflow for voice, gait, handwriting and EEG — with a quantum-enhanced voice pathway.
       </p>
       <div class="hero-actions">
         <button class="primary" id="startBtn">Run live assessment</button>
@@ -66,8 +63,8 @@
       <div class="section-head compact">
         <div>
           <div class="eyebrow">SYSTEM AT A GLANCE</div>
-          <h2>Four signal pathways, one auditable screening workflow</h2>
-          <p>Each modality is processed by its own validated branch. The platform keeps the voice/QML pathway inspectable while combining independent branch outputs only at decision level.</p>
+          <h2>Four signals. One assessment.</h2>
+          <p>Each branch is evaluated independently, then combined only at decision level.</p>
         </div>
       </div>
       <div class="overview-grid">
@@ -229,10 +226,7 @@
             </div>
 
             <div class="disclaimer" id="disclaimer"></div>
-            <div class="report-actions">
-              <button class="secondary" id="printBtn">Print / Save assessment report</button>
-              <button class="ghost" id="jsonBtn">Download result JSON</button>
-            </div>
+            <p class="micro-note unified-report-note">Voice evidence is automatically included in the unified assessment report whenever Voice is selected.</p>
           </div>
         </div>
       </div>
@@ -241,9 +235,9 @@
     <section class="panel multimodal-panel" id="multimodal">
       <div class="section-head compact">
         <div>
-          <div class="eyebrow">WORKING MULTIMODAL PROTOTYPE</div>
-          <h2>Four independently trained signal branches, one fusion layer</h2>
-          <p>Voice, gait, handwriting and resting-state EEG are evaluated by their own models and combined only at decision level. This avoids training a false joint model across unrelated research participants.</p>
+          <div class="eyebrow">UNIFIED ASSESSMENT</div>
+          <h2>One report. Any signal combination.</h2>
+          <p>Select the measurements available for the case. The same assessment format works for one signal or all four.</p>
         </div>
         <div class="mm-actions">
           <button class="ghost" id="mmControlBtn">Run control bundle</button>
@@ -253,8 +247,8 @@
 
       <div class="mm-selector" aria-label="Select available modalities">
         <div class="mm-selector-copy">
-          <strong>Select available signal branches</strong>
-          <span>Deselect any unavailable measurement. Fusion weights renormalize automatically across the selected modalities.</span>
+          <strong>Select available signals</strong>
+          <span>Unavailable measurements can simply be left out.</span>
         </div>
         <div class="mm-check-grid">
           <label class="mm-check"><input type="checkbox" name="mmModality" value="voice" checked><span><b>Voice</b><small>RF + VQC + QSVM</small></span></label>
@@ -262,11 +256,11 @@
           <label class="mm-check"><input type="checkbox" name="mmModality" value="handwriting" checked><span><b>Handwriting</b><small>Random Forest</small></span></label>
           <label class="mm-check"><input type="checkbox" name="mmModality" value="eeg" checked><span><b>EEG</b><small>Logistic Regression</small></span></label>
         </div>
-        <p class="mm-selector-note"><strong>Demo note:</strong> these buttons use label-matched examples from independent research cohorts. In a real paired assessment, only measurements collected for the same person should be fused.</p>
+        <p class="mm-selector-note"><strong>Demo:</strong> examples come from separate research cohorts, not one patient.</p>
       </div>
 
       <div class="mm-method-note">
-        <strong>Fusion method:</strong> validation-weighted late fusion. Branch weights are based on research ROC-AUC above chance and renormalized across whichever modalities are available.
+        <strong>Validation-weighted late fusion</strong> • weights automatically renormalize across selected signals.
       </div>
 
       <div class="mm-empty" id="mmEmpty">
@@ -277,7 +271,7 @@
         <div class="mm-summary">
           <div class="mm-index"><strong id="mmScore">—</strong><span>/100</span></div>
           <div>
-            <div class="eyebrow">MULTIMODAL PATTERN INDEX</div>
+            <div class="eyebrow">UNIFIED PATTERN INDEX</div>
             <h3 id="mmBand">—</h3>
             <p id="mmScope">—</p>
             <div class="mm-summary-chips">
@@ -306,8 +300,8 @@
         <p class="footnote" id="mmFusionNote"></p>
         <div class="mm-disclaimer"><strong>Research-use limitation:</strong> <span id="mmDisclaimer">—</span></div>
         <div class="mm-result-actions">
-          <button class="secondary" id="mmReportBtn">Print / Save multimodal report</button>
-          <button class="ghost" id="mmJsonBtn">Download multimodal JSON</button>
+          <button class="primary" id="mmReportBtn">Generate Unified Report</button>
+          <button class="ghost" id="mmJsonBtn">Download Assessment JSON</button>
         </div>
       </div>
     </section>

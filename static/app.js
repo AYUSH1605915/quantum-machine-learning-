@@ -476,19 +476,21 @@ function downloadMultimodalJSON() {
   URL.revokeObjectURL(a.href);
 }
 
-function printMultimodalReport() {
+function printUnifiedReport() {
   const r = lastMultimodalResult;
   if (!r) return;
 
   const labels = {voice:"Voice", gait:"Gait", handwriting:"Handwriting", eeg:"EEG"};
+  const used = r.meta?.modalities_used || [];
+  const detail = r.branch_details || {};
   const rows = ["voice","gait","handwriting","eeg"]
-    .filter(name => (r.branch_details || {})[name])
+    .filter(name => detail[name])
     .map(name => {
-      const d = r.branch_details[name];
+      const d = detail[name];
       const w = Number((r.fusion_weights || {})[name] || 0) * 100;
       const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);
       return `<tr>
-        <td>${esc(labels[name] || name)}</td>
+        <td><strong>${esc(labels[name] || name)}</strong></td>
         <td>${esc(d.model_name || "—")}</td>
         <td>${Number(d.score_percent).toFixed(1)}/100</td>
         <td>${auc}</td>
@@ -496,61 +498,84 @@ function printMultimodalReport() {
       </tr>`;
     }).join("");
 
-  const used = r.meta?.modalities_used || [];
+  const voice = detail.voice;
+  const voiceComponents = voice?.components || null;
+  const voiceBlock = voiceComponents ? `
+    <section class="section voice-detail">
+      <div class="section-headline"><span>VOICE QML DETAIL</span><small>Shown because Voice is included in this assessment</small></div>
+      <div class="voice-cards">
+        <div class="mini-card"><span>Quantum SVM</span><strong>${Number(voiceComponents.qsvm ?? voiceComponents.QSVM ?? 0).toFixed(1)}</strong><small>model index</small></div>
+        <div class="mini-card"><span>Quantum VQC</span><strong>${Number(voiceComponents.vqc ?? voiceComponents.VQC ?? 0).toFixed(1)}</strong><small>model index</small></div>
+        <div class="mini-card"><span>Random Forest</span><strong>${Number(voiceComponents.rf ?? voiceComponents.RF ?? 0).toFixed(1)}</strong><small>model index</small></div>
+      </div>
+    </section>` : "";
+
+  const modeText = used.length === 1
+    ? `Single-signal assessment • ${esc(labels[used[0]] || used[0] || "Signal")}`
+    : `${used.length}-signal fused assessment • ${esc(used.map(x => labels[x] || x).join(" + "))}`;
+
   const report = window.open("", "_blank");
   if (!report) {
-    alert("Allow pop-ups to print the multimodal report.");
+    alert("Allow pop-ups to generate the unified assessment report.");
     return;
   }
   report.opener = null;
   report.document.write(`<!doctype html>
-  <html><head><meta charset="utf-8"><title>${esc(r.meta?.assessment_id || "QuantumMed Multimodal Assessment")}</title>
+  <html><head><meta charset="utf-8"><title>${esc(r.meta?.assessment_id || "QuantumMed Unified Assessment")}</title>
   <style>
-    body{font-family:Arial,sans-serif;color:#172b3d;margin:36px;line-height:1.45}
-    h1{font-size:24px;margin:0 0 4px} h2{font-size:18px;margin-top:28px}
-    .sub{color:#62778b;margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
-    .card{border:1px solid #d7e1e8;border-radius:10px;padding:14px}.card span{display:block;color:#6b7f90;font-size:12px}.card strong{font-size:18px}
-    table{border-collapse:collapse;width:100%;margin-top:12px} th,td{border-bottom:1px solid #dbe3e9;padding:10px;text-align:left;font-size:12px}
-    th{background:#f3f6f8;color:#50677a}.note{background:#f6f9fa;border-left:4px solid #2d7f89;padding:12px 14px;margin:16px 0}
-    .warn{background:#fff8e8;border:1px solid #ead7a3;padding:12px 14px;margin-top:20px;font-size:12px}
-    .footer{margin-top:28px;color:#708292;font-size:11px}
-    @media print{body{margin:18mm}.no-print{display:none}}
-  </style></head><body>
-    <h1>QuantumMed Multimodal Research Assessment</h1>
-    <div class="sub">Assessment ID: ${esc(r.meta?.assessment_id || "—")} • Generated: ${esc(formatDate(r.meta?.generated_at))}</div>
-    <div class="grid">
-      <div class="card"><span>Multimodal Pattern Index</span><strong>${Number(r.assessment.multimodal_pattern_index).toFixed(1)} / 100</strong></div>
-      <div class="card"><span>Pattern</span><strong>${esc(r.assessment.risk_band)}</strong></div>
-      <div class="card"><span>Agreement</span><strong>${esc(r.assessment.modality_agreement)}</strong></div>
+    @page{size:A4;margin:14mm}
+    *{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#16293a}
+    body{font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.45}
+    .page{max-width:780px;margin:0 auto}.brand{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:2px solid #173c50;padding-bottom:12px}
+    .brand-name{font-size:20px;font-weight:800;letter-spacing:.08em}.brand-name span{color:#16828b}.brand-meta{text-align:right;color:#6c7b87;font-size:9px}
+    h1{font-size:23px;line-height:1.18;margin:18px 0 4px;color:#142a3b}.subtitle{color:#667988;margin:0 0 18px}
+    .summary{display:grid;grid-template-columns:1.15fr .85fr .85fr;gap:10px;margin:16px 0}.summary-card{border:1px solid #d7e1e7;border-radius:10px;padding:13px;background:#f8fafb}
+    .summary-card span,.meta-grid span{display:block;color:#71818d;font-size:8px;text-transform:uppercase;letter-spacing:.06em}.summary-card strong{display:block;margin-top:4px;font-size:19px;color:#173247}
+    .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;background:#f5f8f9;border:1px solid #d7e1e7;border-radius:9px;padding:10px 12px;margin-bottom:18px}.meta-grid div{display:flex;justify-content:space-between;gap:14px}.meta-grid strong{font-size:9px;text-align:right}
+    .section{margin-top:18px;break-inside:avoid}.section-headline{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #dce4e9;padding-bottom:6px;margin-bottom:8px}.section-headline span{font-size:9px;font-weight:800;letter-spacing:.09em;color:#31546a}.section-headline small{font-size:7px;color:#7c8992}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 7px;border-bottom:1px solid #e1e7eb;font-size:8px}th{background:#f2f6f8;color:#5e7180;text-transform:uppercase;letter-spacing:.04em}td{color:#243a4a}
+    .voice-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini-card{border:1px solid #d8e2e7;border-radius:9px;padding:10px;background:#f8fafb}.mini-card span{display:block;color:#687987;font-size:8px}.mini-card strong{display:block;font-size:18px;margin:2px 0;color:#173247}.mini-card small{color:#84919a;font-size:7px}
+    .interpret{border-left:4px solid #16828b;background:#f6f9fa;border-radius:8px;padding:10px 12px;color:#334a59}.scope{margin-top:10px;color:#657682;font-size:8px}.warn{margin-top:14px;border:1px solid #ead9a7;background:#fff9ea;border-radius:8px;padding:10px 12px;color:#715c22;font-size:8px}.footer{margin-top:22px;padding-top:9px;border-top:1px solid #dfe6ea;color:#7a8790;font-size:7px;display:flex;justify-content:space-between}
+    @media print{body{background:#fff}.page{max-width:none}}
+  </style></head><body><div class="page">
+    <div class="brand"><div><div class="brand-name">QUANTUM<span>MED</span></div><div style="font-size:8px;color:#77858f">ThunderStars • Smart India Hackathon 2026</div></div><div class="brand-meta">Research screening prototype<br>${esc(formatDate(r.meta?.generated_at))}</div></div>
+    <h1>Integrated Parkinson's Screening Assessment</h1>
+    <p class="subtitle">One report generated from the selected biomedical signals.</p>
+
+    <div class="summary">
+      <div class="summary-card"><span>Unified Pattern Index</span><strong>${Number(r.assessment.multimodal_pattern_index).toFixed(1)} / 100</strong></div>
+      <div class="summary-card"><span>Pattern</span><strong>${esc(r.assessment.risk_band)}</strong></div>
+      <div class="summary-card"><span>Agreement</span><strong>${esc(r.assessment.modality_agreement)}</strong></div>
     </div>
-    <div class="note"><strong>Modalities evaluated:</strong> ${esc(used.map(x => labels[x] || x).join(", "))}<br>
-    <strong>Fusion:</strong> ${esc(r.meta?.fusion_type || "validation-weighted late decision fusion")}</div>
-    <h2>Branch evidence</h2>
-    <table><thead><tr><th>Signal</th><th>Selected model</th><th>Branch index</th><th>Validation ROC-AUC</th><th>Fusion weight</th></tr></thead><tbody>${rows}</tbody></table>
-    <h2>Interpretation</h2><p>${esc(r.assessment.interpretation || "")}</p>
-    <h2>Demonstration scope</h2><p>${esc(r.bundle_scope || "")}</p>
-    <div class="warn"><strong>Important:</strong> ${esc(r.assessment.disclaimer || "")}</div>
-    <div class="footer">ThunderStars • SIH 2026 • Research screening prototype</div>
+
+    <div class="meta-grid">
+      <div><span>Assessment ID</span><strong>${esc(r.meta?.assessment_id || "—")}</strong></div>
+      <div><span>Assessment mode</span><strong>${modeText}</strong></div>
+      <div><span>Signals evaluated</span><strong>${esc(used.map(x => labels[x] || x).join(", "))}</strong></div>
+      <div><span>Fusion method</span><strong>${used.length > 1 ? "Validation-weighted late fusion" : "Single-branch inference"}</strong></div>
+    </div>
+
+    <section class="section">
+      <div class="section-headline"><span>SIGNAL EVIDENCE</span><small>Individual branch scores remain visible inside the unified result</small></div>
+      <table><thead><tr><th>Signal</th><th>Model</th><th>Branch index</th><th>Validation ROC-AUC</th><th>Contribution</th></tr></thead><tbody>${rows}</tbody></table>
+    </section>
+
+    ${voiceBlock}
+
+    <section class="section">
+      <div class="section-headline"><span>INTERPRETATION</span></div>
+      <div class="interpret">${esc(r.assessment.interpretation || "")}</div>
+      <div class="scope"><strong>Demonstration scope:</strong> ${esc(r.bundle_scope || "")}</div>
+    </section>
+
+    <div class="warn"><strong>Research-use limitation:</strong> ${esc(r.assessment.disclaimer || "")}</div>
+    <div class="footer"><span>QuantumMed • ThunderStars</span><span>${esc(r.meta?.assessment_id || "")}</span></div>
     <script>window.onload=()=>setTimeout(()=>window.print(),250);<\/script>
-  </body></html>`);
+  </div></body></html>`);
   report.document.close();
 }
 
-function downloadJSON() {
-  if (!lastResult) return;
-  const payload = {generated_at:new Date().toISOString(), input_source:currentSource, input:currentInputs, result:lastResult};
-  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `${lastResult.meta?.assessment_id || "quantummed_parkinsons_assessment"}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
 
-function printReport() {
-  if (!lastResult) return;
-  setTimeout(() => window.print(), 50);
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
   initTheme();
@@ -562,10 +587,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("runBtn").addEventListener("click", runAssessment);
   document.getElementById("mmControlBtn")?.addEventListener("click", () => runMultimodalDemo("control"));
   document.getElementById("mmPdBtn")?.addEventListener("click", () => runMultimodalDemo("pd"));
-  document.getElementById("mmReportBtn")?.addEventListener("click", printMultimodalReport);
+  document.getElementById("mmReportBtn")?.addEventListener("click", printUnifiedReport);
   document.getElementById("mmJsonBtn")?.addEventListener("click", downloadMultimodalJSON);
-  document.getElementById("printBtn").addEventListener("click", printReport);
-  document.getElementById("jsonBtn").addEventListener("click", downloadJSON);
   try {
     await loadStatus();
     await loadDataset();

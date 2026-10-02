@@ -752,3 +752,41 @@ html[data-theme="dark"] .mm-disclaimer{
   .mm-result-actions button{width:100%}
 }
 
+/* ============================================================
+   FINAL PRESENTATION CLEANUP
+   - translucent sticky navigation
+   - minimalist top-level copy
+   - main-page print safeguard
+   ============================================================ */
+html[data-theme="light"] .nav{
+  background:rgba(250,248,243,.72)!important;
+  border-bottom:1px solid rgba(104,116,126,.18)!important;
+  box-shadow:0 8px 28px rgba(35,46,56,.07)!important;
+  -webkit-backdrop-filter:saturate(145%) blur(20px);
+  backdrop-filter:saturate(145%) blur(20px);
+}
+html[data-theme="dark"] .nav{
+  background:rgba(8,17,29,.70)!important;
+  border-bottom:1px solid rgba(126,151,177,.16)!important;
+  box-shadow:0 10px 34px rgba(0,0,0,.20)!important;
+  -webkit-backdrop-filter:saturate(145%) blur(20px);
+  backdrop-filter:saturate(145%) blur(20px);
+}
+.hero>p{max-width:720px!important;font-size:15px!important;line-height:1.65!important}
+.mm-selector-copy span{max-width:620px}
+.mm-selector-note{max-width:800px}
+.mm-method-note{padding-top:14px!important;padding-bottom:14px!important}
+
+@media print{
+  /* Ctrl+P on the main application should never append the multimodal
+     selector, validation pages or platform cards to the Voice report. */
+  #multimodal,
+  #platform-scope,
+  .platform-scope-panel{
+    display:none!important;
+  }
+}
+/* Single-report architecture */
+.unified-report-note{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);color:var(--muted)}
+.mm-result-actions .primary{min-width:220px}
+

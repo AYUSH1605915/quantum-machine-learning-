@@ -1,0 +1,58 @@
+{
+  "dataset": "PD-EEG ds007526 resting-state EEG",
+  "participants_used": 144,
+  "healthy_controls": 28,
+  "parkinsons": 116,
+  "raw_feature_count": 343,
+  "selected_features_per_fold": 32,
+  "validation": "5-fold stratified participant-level cross-validation",
+  "positive_class": "PD",
+  "negative_class": "HC",
+  "clinical_and_demographic_inputs_used": false,
+  "spectral_bands_hz": {
+    "delta": [
+      1.0,
+      4.0
+    ],
+    "theta": [
+      4.0,
+      8.0
+    ],
+    "alpha": [
+      8.0,
+      13.0
+    ],
+    "beta": [
+      13.0,
+      30.0
+    ],
+    "gamma": [
+      30.0,
+      45.0
+    ]
+  },
+  "models": {
+    "Logistic Regression": {
+      "accuracy": 0.6736111111111112,
+      "sensitivity": 0.646551724137931,
+      "specificity": 0.7857142857142857,
+      "f1": 0.7614213197969543,
+      "roc_auc": 0.7207512315270936
+    },
+    "RBF SVM": {
+      "accuracy": 0.8055555555555556,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "f1": 0.8923076923076924,
+      "roc_auc": 0.6961206896551725
+    },
+    "Random Forest": {
+      "accuracy": 0.75,
+      "sensitivity": 0.9051724137931034,
+      "specificity": 0.10714285714285714,
+      "f1": 0.8536585365853658,
+      "roc_auc": 0.6770320197044334
+    }
+  },
+  "selected_model": "Logistic Regression"
+}

@@ -241,8 +241,8 @@
       <div class="section-head compact">
         <div>
           <div class="eyebrow">WORKING MULTIMODAL PROTOTYPE</div>
-          <h2>Three independently trained signal branches, one fusion layer</h2>
-          <p>Voice, gait and handwriting are evaluated by their own validated models and combined only at decision level. This avoids training a false joint model across unrelated research participants.</p>
+          <h2>Four independently trained signal branches, one fusion layer</h2>
+          <p>Voice, gait, handwriting and resting-state EEG are evaluated by their own models and combined only at decision level. This avoids training a false joint model across unrelated research participants.</p>
         </div>
         <div class="mm-actions">
           <button class="ghost" id="mmControlBtn">Run control bundle</button>
@@ -255,7 +255,7 @@
       </div>
 
       <div class="mm-empty" id="mmEmpty">
-        Initialize the voice QML engine, then run either demonstration bundle to evaluate all three working branches.
+        Initialize the voice QML engine, then run either demonstration bundle to evaluate all four working branches.
       </div>
 
       <div class="mm-result hidden" id="mmResult">
@@ -337,7 +337,7 @@
       <div class="module-grid">
         <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">◉</div><h3>Voice biomarkers</h3><p>22 sustained-phonation features drive the hybrid RF + VQC + QSVM pathway.</p><span>Working branch</span></article>
         <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">↟</div><h3>Gait signals</h3><p>65 force, timing, asymmetry and center-of-pressure features feed an RBF-SVM branch.</p><span>Working branch • participant-separated benchmark</span></article>
-        <article class="module-card"><div class="module-status roadmap">NEXT</div><div class="module-icon">≈</div><h3>EEG signals</h3><p>Rest/walk EEG is staged for modality-specific spectral feature extraction and validation.</p><span>Next integration</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">≈</div><h3>EEG signals</h3><p>Resting-state EEG spectral features feed a participant-level Logistic Regression branch.</p><span>Working branch • ROC-AUC 0.721</span></article>
         <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">✎</div><h3>Handwriting dynamics</h3><p>Spiral and meander motor features feed an exam-level Random Forest branch.</p><span>Working branch • cross-validated benchmark</span></article>
       </div>
     </section>

@@ -394,7 +394,7 @@ async function loadBenchmarks() {
 
 async function runMultimodalDemo(kind) {
   await ensureReady();
-  setLoading(true, "Running multimodal fusion…", "Evaluating voice, gait and handwriting branches");
+  setLoading(true, "Running multimodal fusion…", "Evaluating voice, gait, handwriting and EEG branches");
   try {
     const result = await api(`/api/multimodal/demo/${kind}`, {method:"POST", body:"{}"});
     renderMultimodalResult(result);
@@ -414,7 +414,7 @@ function renderMultimodalResult(r) {
   document.getElementById("mmScope").textContent = `${r.known_label_text} demonstration • ${r.bundle_scope}`;
   document.getElementById("mmFusionNote").textContent = r.fusion_note || "";
 
-  const labels = {voice:"Voice", gait:"Gait", handwriting:"Handwriting"};
+  const labels = {voice:"Voice", gait:"Gait", handwriting:"Handwriting", eeg:"EEG"};
   const rows = Object.entries(r.branch_details || {}).map(([name, d]) => {
     const weight = Number((r.fusion_weights || {})[name] || 0) * 100;
     const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);

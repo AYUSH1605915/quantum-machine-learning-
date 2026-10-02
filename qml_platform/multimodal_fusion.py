@@ -54,6 +54,12 @@ class MultimodalFusionEngine:
             self.results_dir / "handwriting_subject_features.csv",
             self.results_dir / "handwriting_benchmark_report.json",
         )
+        self._load_branch(
+            "eeg",
+            self.models_dir / "eeg_branch.joblib",
+            self.results_dir / "eeg_feature_table.csv",
+            self.results_dir / "eeg_benchmark_report.json",
+        )
         self._load_json("voice", self.results_dir / "parkinsons_benchmark_report.json")
         return self
 
@@ -113,7 +119,7 @@ class MultimodalFusionEngine:
 
     def branch_status(self) -> dict:
         out = {}
-        for name in ("gait", "handwriting"):
+        for name in ("gait", "handwriting", "eeg"):
             bundle = self._bundles.get(name)
             auc = self._best_auc(self._reports.get(name))
             out[name] = {
@@ -150,7 +156,7 @@ class MultimodalFusionEngine:
             for name in bundle.get("feature_names", [])
         }
         meta = {}
-        for key in ("file", "subject_id", "study", "_ID_EXAM"):
+        for key in ("file", "subject_id", "participant_id", "group", "study", "_ID_EXAM"):
             if key in row.index and not pd.isna(row[key]):
                 value = row[key]
                 meta[key] = int(value) if isinstance(value, (np.integer,)) else str(value)

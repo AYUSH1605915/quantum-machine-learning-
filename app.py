@@ -395,7 +395,7 @@ def api_multimodal_status():
         "branches": engine.branch_status(),
         "fusion_method": "validation-weighted late decision fusion",
         "cohort_note": (
-            "Voice, gait and handwriting benchmark datasets contain different research participants. "
+            "Voice, gait, handwriting and EEG benchmark datasets contain different research participants. "
             "The current multimodal prototype therefore fuses independently validated branch scores rather than "
             "training a joint classifier on mismatched subjects."
         ),
@@ -417,6 +417,7 @@ def api_multimodal_sample(kind):
         },
         "gait": engine.get_sample_features("gait", label),
         "handwriting": engine.get_sample_features("handwriting", label),
+        "eeg": engine.get_sample_features("eeg", label),
     })
 
 
@@ -444,7 +445,7 @@ def api_multimodal_predict():
             "roc_auc": aucs["voice"],
         }
 
-    for modality in ("gait", "handwriting"):
+    for modality in ("gait", "handwriting", "eeg"):
         features = payload.get(modality)
         if isinstance(features, dict) and features:
             result = engine.predict_branch(modality, features)
@@ -498,10 +499,12 @@ def api_multimodal_demo(kind):
     engine = get_multimodal_engine()
     gait = engine.get_sample_features("gait", label)
     handwriting = engine.get_sample_features("handwriting", label)
+    eeg = engine.get_sample_features("eeg", label)
     payload = {
         "voice": loader.get_demo_sample(label),
         "gait": gait["features"],
         "handwriting": handwriting["features"],
+        "eeg": eeg["features"],
     }
 
     # Reuse the same computation without an internal HTTP call.
@@ -518,7 +521,7 @@ def api_multimodal_demo(kind):
         "components": {k: round(v * 100.0, 1) for k, v in vr["components"].items()},
         "roc_auc": voice_auc,
     }
-    for modality, sample in (("gait", gait), ("handwriting", handwriting)):
+    for modality, sample in (("gait", gait), ("handwriting", handwriting), ("eeg", eeg)):
         result = engine.predict_branch(modality, sample["features"])
         scores[modality] = result["score"]
         aucs[modality] = result.get("roc_auc")

@@ -39,14 +39,15 @@
   <main>
     <section class="hero">
       <div class="hero-badges">
-        <span class="active-module-badge">LIVE DEMO • PARKINSON'S DIGITAL VOICE BIOMARKERS</span><span>CLASSICAL + QML</span><span>PARTICIPANT-AWARE VALIDATION</span>
+        <span class="active-module-badge">LIVE DEMO • 4 BIOMEDICAL SIGNAL BRANCHES</span><span>CLASSICAL + QML</span><span>VALIDATION-AWARE FUSION</span>
       </div>
       <div class="eyebrow">QUANTUMMED • RESEARCH SCREENING PLATFORM</div>
       <h1>Hybrid Quantum ML for<br><span>Neurodegenerative Screening</span></h1>
       <p>
-        QuantumMed is a modular hybrid quantum-classical platform for multimodal neurological risk screening.
-        This live demonstration follows the Parkinson’s digital-voice pathway end to end: 22 acoustic biomarkers,
-        classical preprocessing, quantum learning, model consensus and an explainable assessment report.
+        QuantumMed is a modular research-screening platform combining voice, gait, handwriting and resting-state EEG.
+        The voice pathway contains the quantum core (Random Forest + VQC + fidelity-kernel QSVM), while gait,
+        handwriting and EEG use independently validated classical branch models. Their outputs are combined by
+        validation-weighted late fusion into an explainable Multimodal Pattern Index.
       </p>
       <div class="hero-actions">
         <button class="primary" id="startBtn">Run live assessment</button>
@@ -54,9 +55,9 @@
       </div>
       <div class="hero-metrics">
         <div><strong id="samplesStat">—</strong><span>voice recordings</span></div>
-        <div><strong id="subjectsStat">—</strong><span>participants</span></div>
-        <div><strong id="featuresStat">—</strong><span>acoustic features</span></div>
-        <div><strong>4</strong><span>quantum wires</span></div>
+        <div><strong id="subjectsStat">—</strong><span>voice participants</span></div>
+        <div><strong id="featuresStat">—</strong><span>voice biomarkers</span></div>
+        <div><strong>4</strong><span>active signal branches</span></div>
       </div>
       <div class="validation-highlight hidden" id="validationHighlight"></div>
     </section>
@@ -65,34 +66,34 @@
       <div class="section-head compact">
         <div>
           <div class="eyebrow">SYSTEM AT A GLANCE</div>
-          <h2>One clear path from digital biomarker to decision support</h2>
-          <p>The current SIH module begins with an extracted acoustic feature vector so every inference can be reproduced and audited.</p>
+          <h2>Four signal pathways, one auditable screening workflow</h2>
+          <p>Each modality is processed by its own validated branch. The platform keeps the voice/QML pathway inspectable while combining independent branch outputs only at decision level.</p>
         </div>
       </div>
       <div class="overview-grid">
         <article class="info-card">
           <div class="info-icon">01</div>
-          <h3>Input</h3>
-          <p><strong>22 pre-extracted voice biomarkers</strong> from sustained phonation: pitch, jitter, shimmer, noise and nonlinear dynamics.</p>
-          <span class="card-note">The user never enters the diagnosis/status label.</span>
+          <h3>Biomedical inputs</h3>
+          <p><strong>Voice, gait, handwriting and resting-state EEG</strong> are handled as separate signal pathways with modality-specific derived features.</p>
+          <span class="card-note">Diagnosis/status labels are never entered as inference features.</span>
         </article>
         <article class="info-card">
           <div class="info-icon">02</div>
-          <h3>Hybrid engine</h3>
-          <p>Training-only imputation and scaling, Random Forest baseline, 4-feature quantum encoding, VQC and fidelity-kernel QSVM.</p>
-          <span class="card-note">Four selected dimensions map to four qubits.</span>
+          <h3>Branch models</h3>
+          <p>Voice uses RF + VQC + fidelity-kernel QSVM; gait uses RBF-SVM; handwriting uses Random Forest; EEG uses Logistic Regression.</p>
+          <span class="card-note">The quantum circuit is concentrated in the compact voice representation.</span>
         </article>
         <article class="info-card">
           <div class="info-icon">03</div>
-          <h3>Output</h3>
-          <p>Hybrid pattern index, model agreement, model-by-model scores, cohort comparison, feature drivers and a printable assessment report.</p>
-          <span class="card-note">The index is not a calibrated disease probability.</span>
+          <h3>Late fusion</h3>
+          <p>Available branch scores are weighted by research validation ROC-AUC above chance and renormalized before producing the Multimodal Pattern Index.</p>
+          <span class="card-note">The fused index is not a calibrated disease probability.</span>
         </article>
         <article class="info-card">
           <div class="info-icon">04</div>
-          <h3>Next action</h3>
-          <p>Use the result for <strong>research screening or triage support</strong>, then escalate concerning patterns for qualified neurological evaluation.</p>
-          <span class="card-note">Never used as a standalone diagnosis.</span>
+          <h3>Explainable output</h3>
+          <p>Review the overall pattern index together with modality agreement, branch scores, fusion weights and the detailed voice/QML evidence.</p>
+          <span class="card-note">Research decision support only — never a standalone diagnosis.</span>
         </article>
       </div>
 
@@ -104,8 +105,8 @@
         </div>
         <div class="audience-grid">
           <div><strong>Clinical & neurology research teams</strong><span>Prioritize participants for further assessment in screening studies.</span></div>
-          <div><strong>Telehealth / remote-screening pilots</strong><span>Collect voice-derived biomarkers remotely and route concerning cases for clinical review.</span></div>
-          <div><strong>QML research teams</strong><span>Compare quantum models with classical baselines on the same participant-separated holdout.</span></div>
+          <div><strong>Telehealth / remote-screening pilots</strong><span>Combine whichever supported digital-signal measurements are available and route concerning patterns for clinical review.</span></div>
+          <div><strong>ML / QML research teams</strong><span>Compare the voice quantum models with classical baselines and inspect how independently validated branches contribute to late fusion.</span></div>
         </div>
       </div>
     </section>
@@ -113,9 +114,9 @@
     <section class="panel" id="screening">
       <div class="section-head">
         <div>
-          <div class="eyebrow">LIVE WORKING DEMO</div>
-          <h2>Parkinson's Digital Biomarker Assessment</h2>
-          <p>Load a held-out participant recording or enter the extracted acoustic measurements manually.</p>
+          <div class="eyebrow">LIVE VOICE QML MODULE</div>
+          <h2>Parkinson's Voice Digital Biomarker Assessment</h2>
+          <p>This dedicated quantum pathway accepts a held-out voice recording's extracted biomarkers or manual acoustic measurements. The four-modality fusion demo is available in the next section.</p>
         </div>
         <div class="sample-actions">
           <button class="ghost" id="controlSampleBtn">Load control sample</button>
@@ -255,7 +256,7 @@
       </div>
 
       <div class="mm-empty" id="mmEmpty">
-        Initialize the voice QML engine, then run either demonstration bundle to evaluate all four working branches.
+        Initialize the QML engine, then run either cross-cohort demonstration bundle to evaluate all four working branches.
       </div>
 
       <div class="mm-result hidden" id="mmResult">
@@ -284,8 +285,8 @@
       <div class="section-head">
         <div>
           <div class="eyebrow">VALIDATION</div>
-          <h2>Quantum vs Classical Benchmark</h2>
-          <p id="splitNote">Participant-aware holdout validation is used when subject IDs are available.</p>
+          <h2>Voice Quantum vs Classical Benchmark</h2>
+          <p id="splitNote">This table evaluates the voice/QML pathway on its participant-separated holdout. Gait, handwriting and EEG validation metrics are shown in the multimodal branch table.</p>
         </div>
       </div>
       <div class="validation-cards">
@@ -307,14 +308,14 @@
 
     <section class="two-col" id="quantum">
       <div class="panel">
-        <div class="eyebrow">QUANTUM CORE</div>
+        <div class="eyebrow">VOICE QUANTUM CORE</div>
         <h2>4-Qubit Variational Circuit</h2>
         <p>Four selected voice features are scaled to [0, π], angle-encoded, passed through trainable RY/RZ layers and entangled with a CNOT ring.</p>
         <pre id="circuitAscii">Initialize the engine to render the trained PennyLane circuit.</pre>
       </div>
       <div class="panel">
-        <div class="eyebrow">DATA PROVENANCE</div>
-        <h2>Dataset & Validation</h2>
+        <div class="eyebrow">VOICE DATA PROVENANCE</div>
+        <h2>Voice Dataset & Validation</h2>
         <div class="provenance-list">
           <div><span>Active dataset</span><strong id="datasetName">—</strong></div>
           <div><span>Target</span><strong id="targetDefinition">status: control 0 / Parkinson's 1</strong></div>
@@ -330,15 +331,14 @@
         <div>
           <div class="eyebrow">PLATFORM SCOPE</div>
           <h2>Modular biomedical signal architecture</h2>
-          <p>QuantumMed is structured around modality-specific signal pathways feeding a common hybrid assessment layer.
-          The live demo below follows the voice pathway, while the architecture remains extensible to complementary biomedical signals.</p>
+          <p>All four signal branches are working in the current prototype. Voice contains the quantum submodule, while gait, handwriting and EEG use classical branch models; their independently validated outputs meet only at the late-fusion layer.</p>
         </div>
       </div>
       <div class="module-grid">
-        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">◉</div><h3>Voice biomarkers</h3><p>22 sustained-phonation features drive the hybrid RF + VQC + QSVM pathway.</p><span>Working branch</span></article>
-        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">↟</div><h3>Gait signals</h3><p>65 force, timing, asymmetry and center-of-pressure features feed an RBF-SVM branch.</p><span>Working branch • participant-separated benchmark</span></article>
-        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">≈</div><h3>EEG signals</h3><p>Resting-state EEG spectral features feed a participant-level Logistic Regression branch.</p><span>Working branch • ROC-AUC 0.721</span></article>
-        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">✎</div><h3>Handwriting dynamics</h3><p>Spiral and meander motor features feed an exam-level Random Forest branch.</p><span>Working branch • cross-validated benchmark</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">◉</div><h3>Voice biomarkers</h3><p>195 sustained-phonation recordings with 22 acoustic features drive the RF + VQC + fidelity-kernel QSVM pathway.</p><span>Participant-separated holdout • QSVM ROC-AUC 1.000</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">↟</div><h3>Gait signals</h3><p>165 participants are represented by 65 force, timing, asymmetry and center-of-pressure features for an RBF-SVM branch.</p><span>Participant-separated holdout • ROC-AUC 0.882</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">≈</div><h3>EEG signals</h3><p>144 resting-state EEG participants produce spectral band-power features for a Logistic Regression branch.</p><span>5-fold participant-level CV • ROC-AUC 0.721</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">✎</div><h3>Handwriting dynamics</h3><p>92 exam-level samples combine spiral and meander motor features in a Random Forest branch.</p><span>5-fold exam-level CV • ROC-AUC 0.905</span></article>
       </div>
     </section>
 
@@ -346,15 +346,15 @@
       <div class="section-head compact">
         <div>
           <div class="eyebrow">HOW IT WOULD BE USED</div>
-          <h2>From voice capture to clinical review</h2>
-          <p>A supervised workflow connects signal capture, feature extraction, hybrid QML assessment and qualified review.</p>
+          <h2>From biomedical signals to qualified review</h2>
+          <p>A supervised research workflow connects available signal measurements, modality-specific processing, branch inference, late fusion and qualified review.</p>
         </div>
       </div>
       <div class="deployment-flow">
-        <div><span>1</span><strong>Capture</strong><p>Sustained vowel / standardized voice recording collected in a supervised screening workflow.</p></div>
-        <div><span>2</span><strong>Extract</strong><p>Acoustic engine derives pitch, jitter, shimmer, HNR/NHR and nonlinear voice features.</p></div>
-        <div class="current"><span>3</span><strong>Assess</strong><p>QuantumMed preprocesses the feature vector and runs RF + VQC + fidelity-kernel QSVM.</p></div>
-        <div><span>4</span><strong>Review</strong><p>Report is reviewed as decision support; concerning or indeterminate patterns are escalated appropriately.</p></div>
+        <div><span>1</span><strong>Acquire</strong><p>Collect any supported measurement: sustained voice features, gait sensor data, handwriting dynamics or resting-state EEG.</p></div>
+        <div><span>2</span><strong>Process</strong><p>Apply modality-specific feature extraction and training-fitted preprocessing without injecting diagnostic labels.</p></div>
+        <div class="current"><span>3</span><strong>Assess & fuse</strong><p>Run the appropriate branch models and combine available outputs with validation-weighted late fusion.</p></div>
+        <div><span>4</span><strong>Review</strong><p>Interpret the pattern index, agreement and branch contributions as research decision support and escalate when appropriate.</p></div>
       </div>
     </section>
   </main>

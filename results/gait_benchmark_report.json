@@ -1,0 +1,36 @@
+{
+  "dataset": "PhysioNet Gait in Parkinson's Disease",
+  "protocol": "usual-walk recordings only (*_01.txt)",
+  "samples": 165,
+  "participants": 165,
+  "controls": 72,
+  "parkinsons": 93,
+  "train_participants": 123,
+  "test_participants": 42,
+  "n_features": 65,
+  "split": "participant-separated stratified holdout",
+  "models": {
+    "Logistic Regression": {
+      "accuracy": 0.7619047619047619,
+      "sensitivity": 0.75,
+      "specificity": 0.7777777777777778,
+      "f1": 0.782608695652174,
+      "roc_auc": 0.849537037037037
+    },
+    "RBF SVM": {
+      "accuracy": 0.8095238095238095,
+      "sensitivity": 0.8333333333333334,
+      "specificity": 0.7777777777777778,
+      "f1": 0.8333333333333334,
+      "roc_auc": 0.8819444444444444
+    },
+    "Random Forest": {
+      "accuracy": 0.8333333333333334,
+      "sensitivity": 0.875,
+      "specificity": 0.7777777777777778,
+      "f1": 0.8571428571428571,
+      "roc_auc": 0.8634259259259259
+    }
+  },
+  "selected_model": "RBF SVM"
+}

@@ -1,0 +1,44 @@
+{
+  "dataset": "HandPD Spiral + Meander feature CSVs",
+  "unit_of_evaluation": "_ID_EXAM (one row per examination/session)",
+  "subjects_or_exams": 92,
+  "controls": 18,
+  "parkinsons": 74,
+  "raw_spiral_records": 368,
+  "raw_meander_records": 368,
+  "aggregated_feature_count": 36,
+  "validation": "5-fold stratified exam-level cross-validation",
+  "class_encoding": {
+    "1": "Healthy Control",
+    "2": "Parkinson's Disease"
+  },
+  "demographics_excluded_from_model": [
+    "AGE",
+    "GENDER",
+    "RIGH/LEFT-HANDED"
+  ],
+  "models": {
+    "Logistic Regression": {
+      "accuracy": 0.8043478260869565,
+      "sensitivity": 0.8513513513513513,
+      "specificity": 0.6111111111111112,
+      "f1": 0.875,
+      "roc_auc": 0.8558558558558559
+    },
+    "RBF SVM": {
+      "accuracy": 0.8152173913043478,
+      "sensitivity": 0.918918918918919,
+      "specificity": 0.3888888888888889,
+      "f1": 0.8888888888888888,
+      "roc_auc": 0.8438438438438438
+    },
+    "Random Forest": {
+      "accuracy": 0.8913043478260869,
+      "sensitivity": 0.9459459459459459,
+      "specificity": 0.6666666666666666,
+      "f1": 0.9333333333333333,
+      "roc_auc": 0.9054054054054054
+    }
+  },
+  "selected_model": "Random Forest"
+}

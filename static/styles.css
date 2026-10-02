@@ -234,3 +234,66 @@ html[data-theme="light"] .secondary:hover,html[data-theme="light"] .ghost:hover{
 /* Footer */
 html[data-theme="light"] footer{color:#6b7e8d!important;border-top-color:#dde5ea!important}
 html[data-theme="light"] footer strong{color:#29465b!important}
+
+/* ================================
+   MULTIMODAL FUSION PANEL
+   ================================ */
+.mm-actions { display:flex; gap:.7rem; align-items:center; flex-wrap:wrap; }
+.mm-method-note {
+  margin: 1rem 0 1.1rem;
+  padding: .85rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  background: var(--surface-soft, rgba(255,255,255,.55));
+  color: var(--muted);
+}
+.mm-method-note strong { color: var(--text); }
+.mm-empty {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 1.1rem;
+  color: var(--muted);
+  background: var(--surface, #fff);
+}
+.mm-result { display:grid; gap:1rem; }
+.mm-summary {
+  display:grid;
+  grid-template-columns: 135px 1fr;
+  gap:1.25rem;
+  align-items:center;
+  padding: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+}
+.mm-index {
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  border: 9px solid var(--primary, #163b64);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.15rem;
+  background: var(--surface, #fff);
+  color: var(--text);
+}
+.mm-index strong { font-size: 2rem; line-height:1; }
+.mm-index span { color:var(--muted); }
+.mm-summary h3 { margin:.25rem 0 .35rem; }
+.mm-summary p { margin:.15rem 0 .6rem; color:var(--muted); }
+.mm-table-wrap { overflow-x:auto; }
+.mm-table td, .mm-table th { white-space:nowrap; }
+html[data-theme="light"] .mm-method-note,
+html[data-theme="light"] .mm-empty,
+html[data-theme="light"] .mm-summary {
+  background:#fff;
+  border-color:#d8e5ee;
+  box-shadow:0 7px 20px rgba(17,48,74,.05);
+}
+html[data-theme="light"] .mm-index { border-color:#163b64; background:#fff; color:#12304a; }
+@media (max-width:700px) {
+  .mm-summary { grid-template-columns:1fr; }
+  .mm-index { width:96px; height:96px; }
+}

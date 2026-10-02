@@ -391,6 +391,45 @@ async function loadBenchmarks() {
   highlight.innerHTML = `<strong>Held-out validation:</strong> ${esc(best.model_name)} reached <b>${(best.accuracy*100).toFixed(1)}% accuracy</b> on ${ds.test_samples} held-out recordings using participant-separated evaluation. <span>Small research cohort — not external clinical validation.</span>`;
 }
 
+
+async function runMultimodalDemo(kind) {
+  await ensureReady();
+  setLoading(true, "Running multimodal fusion…", "Evaluating voice, gait and handwriting branches");
+  try {
+    const result = await api(`/api/multimodal/demo/${kind}`, {method:"POST", body:"{}"});
+    renderMultimodalResult(result);
+  } catch (e) {
+    alert(`Multimodal assessment failed: ${e.message}`);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function renderMultimodalResult(r) {
+  document.getElementById("mmEmpty")?.classList.add("hidden");
+  document.getElementById("mmResult")?.classList.remove("hidden");
+  document.getElementById("mmScore").textContent = Number(r.assessment.multimodal_pattern_index).toFixed(1);
+  document.getElementById("mmBand").textContent = r.assessment.risk_band;
+  document.getElementById("mmAgreement").textContent = r.assessment.modality_agreement;
+  document.getElementById("mmScope").textContent = `${r.known_label_text} demonstration • ${r.bundle_scope}`;
+  document.getElementById("mmFusionNote").textContent = r.fusion_note || "";
+
+  const labels = {voice:"Voice", gait:"Gait", handwriting:"Handwriting"};
+  const rows = Object.entries(r.branch_details || {}).map(([name, d]) => {
+    const weight = Number((r.fusion_weights || {})[name] || 0) * 100;
+    const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);
+    return `<tr>
+      <td><strong>${esc(labels[name] || name)}</strong></td>
+      <td>${esc(d.model_name || "—")}</td>
+      <td>${Number(d.score_percent).toFixed(1)}/100</td>
+      <td>${auc}</td>
+      <td>${weight.toFixed(1)}%</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("mmBranchBody").innerHTML = rows;
+  document.getElementById("multimodal").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
 function downloadJSON() {
   if (!lastResult) return;
   const payload = {generated_at:new Date().toISOString(), input_source:currentSource, input:currentInputs, result:lastResult};
@@ -415,6 +454,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("controlSampleBtn").addEventListener("click", () => loadSample("control"));
   document.getElementById("pdSampleBtn").addEventListener("click", () => loadSample("pd"));
   document.getElementById("runBtn").addEventListener("click", runAssessment);
+  document.getElementById("mmControlBtn")?.addEventListener("click", () => runMultimodalDemo("control"));
+  document.getElementById("mmPdBtn")?.addEventListener("click", () => runMultimodalDemo("pd"));
   document.getElementById("printBtn").addEventListener("click", printReport);
   document.getElementById("jsonBtn").addEventListener("click", downloadJSON);
   try {

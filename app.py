@@ -14,6 +14,7 @@ from qml_platform.classical_models import ClassicalBaselines
 from qml_platform.quantum_models import VariationalQuantumClassifier, QuantumSVM
 from qml_platform.evaluation import ModelEvaluator, ExplainabilityEngine
 from qml_platform.severity import ParkinsonSeverityRegressor
+from qml_platform.multimodal_fusion import MultimodalFusionEngine
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -35,6 +36,7 @@ STATE = {
     "last_error": None,
     "severity": None,
     "severity_error": None,
+    "multimodal": None,
 }
 
 
@@ -42,6 +44,33 @@ def get_loader(n_qubits=4):
     if STATE["loader"] is None or STATE["loader"].n_qubits != n_qubits:
         STATE["loader"] = BiomedicalDatasetLoader(DATA_FILE, n_qubits=n_qubits).load_data()
     return STATE["loader"]
+
+
+def get_multimodal_engine():
+    if STATE["multimodal"] is None:
+        STATE["multimodal"] = MultimodalFusionEngine(os.getcwd())
+    else:
+        STATE["multimodal"].reload()
+    return STATE["multimodal"]
+
+
+def voice_branch_score(patient):
+    if not STATE["evaluation_results"]:
+        raise RuntimeError("Voice QML models are not trained yet. Initialize the QML engine first.")
+    loader = STATE["loader"]
+    x_classical, x_quantum = loader.transform_single_patient(patient)
+    rf = STATE["classical"].get_model("Random Forest")
+    rf_score = float(rf.predict_proba(x_classical)[0, 1])
+    vqc_score = float(STATE["vqc"].predict_proba(x_quantum)[0, 1])
+    qsvm_score = float(STATE["qsvm"].predict_proba(x_quantum)[0, 1])
+    return {
+        "score": float(np.mean([rf_score, vqc_score, qsvm_score])),
+        "components": {
+            "Random Forest": rf_score,
+            "Quantum VQC": vqc_score,
+            "Quantum SVM": qsvm_score,
+        },
+    }
 
 
 def severity_validation_gate():
@@ -356,6 +385,161 @@ def api_predict():
             "missing_features": total - provided,
             "missing_value_policy": "Missing inputs are imputed using medians learned from the training split only.",
         },
+    })
+
+
+@app.route("/api/multimodal/status")
+def api_multimodal_status():
+    engine = get_multimodal_engine()
+    return jsonify({
+        "branches": engine.branch_status(),
+        "fusion_method": "validation-weighted late decision fusion",
+        "cohort_note": (
+            "Voice, gait and handwriting benchmark datasets contain different research participants. "
+            "The current multimodal prototype therefore fuses independently validated branch scores rather than "
+            "training a joint classifier on mismatched subjects."
+        ),
+    })
+
+
+@app.route("/api/multimodal/sample/<kind>")
+def api_multimodal_sample(kind):
+    label = 1 if kind.lower() in {"pd", "parkinsons", "positive", "high"} else 0
+    loader = get_loader()
+    engine = get_multimodal_engine()
+    return jsonify({
+        "known_label": label,
+        "known_label_text": "Parkinson's cohort" if label == 1 else "Control cohort",
+        "bundle_scope": "Cross-cohort demonstration bundle; modality samples are not the same individual.",
+        "voice": {
+            "features": loader.get_demo_sample(label),
+            "source": "held-out voice participant recording",
+        },
+        "gait": engine.get_sample_features("gait", label),
+        "handwriting": engine.get_sample_features("handwriting", label),
+    })
+
+
+@app.route("/api/multimodal/predict", methods=["POST"])
+def api_multimodal_predict():
+    if not STATE["evaluation_results"]:
+        return jsonify({"error": "Initialize the voice QML engine first."}), 409
+
+    payload = request.get_json(silent=True) or {}
+    engine = get_multimodal_engine()
+    scores = {}
+    aucs = {}
+    details = {}
+
+    voice = payload.get("voice")
+    if isinstance(voice, dict) and voice:
+        vr = voice_branch_score(voice)
+        scores["voice"] = vr["score"]
+        status = engine.branch_status().get("voice", {})
+        aucs["voice"] = status.get("roc_auc")
+        details["voice"] = {
+            "score_percent": round(vr["score"] * 100.0, 1),
+            "model_name": "RF + VQC + Fidelity-Kernel QSVM",
+            "components": {k: round(v * 100.0, 1) for k, v in vr["components"].items()},
+            "roc_auc": aucs["voice"],
+        }
+
+    for modality in ("gait", "handwriting"):
+        features = payload.get(modality)
+        if isinstance(features, dict) and features:
+            result = engine.predict_branch(modality, features)
+            scores[modality] = result["score"]
+            aucs[modality] = result.get("roc_auc")
+            details[modality] = {
+                **result,
+                "score_percent": round(result["score"] * 100.0, 1),
+            }
+
+    if not scores:
+        return jsonify({"error": "No usable modality inputs were supplied."}), 400
+
+    fused = engine.fuse(scores, aucs)
+    assessment_id = "QM-MM-" + datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:4].upper()
+
+    return jsonify({
+        "meta": {
+            "assessment_id": assessment_id,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "modalities_used": list(scores.keys()),
+            "fusion_type": fused["method"],
+        },
+        "assessment": {
+            "multimodal_pattern_index": fused["index_percent"],
+            "risk_band": fused["band"],
+            "risk_band_key": fused["band_key"],
+            "modality_agreement": fused["agreement"],
+            "dispersion": fused["dispersion"],
+            "interpretation": (
+                "This prototype combines independently trained biomedical-signal branches at decision level. "
+                "The index is a research screening signal, not a calibrated probability of Parkinson's disease."
+            ),
+            "disclaimer": (
+                "Research prototype only. Current benchmark cohorts are independent across modalities; "
+                "external paired-cohort clinical validation is required before clinical use."
+            ),
+        },
+        "branch_details": details,
+        "fusion_weights": fused["normalized_weights"],
+        "fusion_note": fused["note"],
+    })
+
+
+@app.route("/api/multimodal/demo/<kind>", methods=["POST"])
+def api_multimodal_demo(kind):
+    if not STATE["evaluation_results"]:
+        return jsonify({"error": "Initialize the voice QML engine first."}), 409
+    label = 1 if kind.lower() in {"pd", "parkinsons", "positive", "high"} else 0
+    loader = get_loader()
+    engine = get_multimodal_engine()
+    gait = engine.get_sample_features("gait", label)
+    handwriting = engine.get_sample_features("handwriting", label)
+    payload = {
+        "voice": loader.get_demo_sample(label),
+        "gait": gait["features"],
+        "handwriting": handwriting["features"],
+    }
+
+    # Reuse the same computation without an internal HTTP call.
+    scores = {}
+    aucs = {}
+    details = {}
+    vr = voice_branch_score(payload["voice"])
+    scores["voice"] = vr["score"]
+    voice_auc = engine.branch_status().get("voice", {}).get("roc_auc")
+    aucs["voice"] = voice_auc
+    details["voice"] = {
+        "score_percent": round(vr["score"] * 100.0, 1),
+        "model_name": "RF + VQC + Fidelity-Kernel QSVM",
+        "components": {k: round(v * 100.0, 1) for k, v in vr["components"].items()},
+        "roc_auc": voice_auc,
+    }
+    for modality, sample in (("gait", gait), ("handwriting", handwriting)):
+        result = engine.predict_branch(modality, sample["features"])
+        scores[modality] = result["score"]
+        aucs[modality] = result.get("roc_auc")
+        details[modality] = {**result, "score_percent": round(result["score"] * 100.0, 1), "sample_meta": sample.get("meta", {})}
+
+    fused = engine.fuse(scores, aucs)
+    return jsonify({
+        "known_label": label,
+        "known_label_text": "Parkinson's cohort" if label == 1 else "Control cohort",
+        "bundle_scope": "Cross-cohort demonstration bundle; modality examples are not from the same person.",
+        "assessment": {
+            "multimodal_pattern_index": fused["index_percent"],
+            "risk_band": fused["band"],
+            "risk_band_key": fused["band_key"],
+            "modality_agreement": fused["agreement"],
+            "dispersion": fused["dispersion"],
+            "disclaimer": "Research prototype; not a diagnosis or calibrated disease probability.",
+        },
+        "branch_details": details,
+        "fusion_weights": fused["normalized_weights"],
+        "fusion_note": fused["note"],
     })
 
 

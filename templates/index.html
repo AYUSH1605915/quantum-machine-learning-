@@ -24,6 +24,7 @@
     <nav>
       <button data-scroll="overview">Overview</button>
       <button data-scroll="screening">Live Assessment</button>
+      <button data-scroll="multimodal">Multimodal</button>
       <button data-scroll="benchmarks">Validation</button>
       <button data-scroll="quantum">Quantum Core</button>
     </nav>
@@ -236,6 +237,49 @@
       </div>
     </section>
 
+    <section class="panel multimodal-panel" id="multimodal">
+      <div class="section-head compact">
+        <div>
+          <div class="eyebrow">WORKING MULTIMODAL PROTOTYPE</div>
+          <h2>Three independently trained signal branches, one fusion layer</h2>
+          <p>Voice, gait and handwriting are evaluated by their own validated models and combined only at decision level. This avoids training a false joint model across unrelated research participants.</p>
+        </div>
+        <div class="mm-actions">
+          <button class="ghost" id="mmControlBtn">Run control bundle</button>
+          <button class="primary" id="mmPdBtn">Run Parkinson's bundle</button>
+        </div>
+      </div>
+
+      <div class="mm-method-note">
+        <strong>Fusion method:</strong> validation-weighted late fusion. Branch weights are based on research ROC-AUC above chance and renormalized across available modalities.
+      </div>
+
+      <div class="mm-empty" id="mmEmpty">
+        Initialize the voice QML engine, then run either demonstration bundle to evaluate all three working branches.
+      </div>
+
+      <div class="mm-result hidden" id="mmResult">
+        <div class="mm-summary">
+          <div class="mm-index"><strong id="mmScore">—</strong><span>/100</span></div>
+          <div>
+            <div class="eyebrow">MULTIMODAL PATTERN INDEX</div>
+            <h3 id="mmBand">—</h3>
+            <p id="mmScope">—</p>
+            <span class="mini-chip">Modality agreement: <b id="mmAgreement">—</b></span>
+          </div>
+        </div>
+
+        <div class="mm-table-wrap">
+          <table class="benchmark-table mm-table">
+            <thead><tr><th>Signal branch</th><th>Selected model</th><th>Branch index</th><th>Validation ROC-AUC</th><th>Fusion weight</th></tr></thead>
+            <tbody id="mmBranchBody"></tbody>
+          </table>
+        </div>
+        <p class="footnote" id="mmFusionNote"></p>
+        <p class="footnote"><strong>Important:</strong> the demonstration bundle uses label-matched examples from independent datasets; it does not represent one person measured across all modalities. A paired multimodal cohort is required for clinical validation.</p>
+      </div>
+    </section>
+
     <section class="panel" id="benchmarks">
       <div class="section-head">
         <div>
@@ -291,10 +335,10 @@
         </div>
       </div>
       <div class="module-grid">
-        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">◉</div><h3>Voice biomarkers</h3><p>22 sustained-phonation features drive the live Parkinsonian-pattern assessment.</p><span>Working in this SIH prototype</span></article>
-        <article class="module-card"><div class="module-status roadmap">ROADMAP</div><div class="module-icon">↟</div><h3>Gait signals</h3><p>Sensor-derived movement features can be fused as a separate model branch in future work.</p><span>Dataset staged, not integrated</span></article>
-        <article class="module-card"><div class="module-status roadmap">ROADMAP</div><div class="module-icon">≈</div><h3>EEG signals</h3><p>Neurophysiological features could add a complementary signal after modality-specific validation.</p><span>Dataset staged, not integrated</span></article>
-        <article class="module-card"><div class="module-status roadmap">ROADMAP</div><div class="module-icon">✎</div><h3>Handwriting / imaging</h3><p>Image-derived motor biomarkers are a planned extension of the modular platform architecture.</p><span>Future integration</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">◉</div><h3>Voice biomarkers</h3><p>22 sustained-phonation features drive the hybrid RF + VQC + QSVM pathway.</p><span>Working branch</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">↟</div><h3>Gait signals</h3><p>65 force, timing, asymmetry and center-of-pressure features feed an RBF-SVM branch.</p><span>Working branch • participant-separated benchmark</span></article>
+        <article class="module-card"><div class="module-status roadmap">NEXT</div><div class="module-icon">≈</div><h3>EEG signals</h3><p>Rest/walk EEG is staged for modality-specific spectral feature extraction and validation.</p><span>Next integration</span></article>
+        <article class="module-card active"><div class="module-status">ACTIVE</div><div class="module-icon">✎</div><h3>Handwriting dynamics</h3><p>Spiral and meander motor features feed an exam-level Random Forest branch.</p><span>Working branch • cross-validated benchmark</span></article>
       </div>
     </section>
 

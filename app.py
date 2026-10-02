@@ -423,11 +423,14 @@ def api_multimodal_sample(kind):
 
 @app.route("/api/multimodal/predict", methods=["POST"])
 def api_multimodal_predict():
-    if not STATE["evaluation_results"]:
-        return jsonify({"error": "Initialize the voice QML engine first."}), 409
-
     payload = request.get_json(silent=True) or {}
     engine = get_multimodal_engine()
+
+    # Only the voice branch depends on the trained QML engine. Gait,
+    # handwriting and EEG can be assessed independently.
+    voice_requested = isinstance(payload.get("voice"), dict) and bool(payload.get("voice"))
+    if voice_requested and not STATE["evaluation_results"]:
+        return jsonify({"error": "Initialize the voice QML engine before using the voice modality."}), 409
     scores = {}
     aucs = {}
     details = {}
@@ -492,53 +495,87 @@ def api_multimodal_predict():
 
 @app.route("/api/multimodal/demo/<kind>", methods=["POST"])
 def api_multimodal_demo(kind):
-    if not STATE["evaluation_results"]:
-        return jsonify({"error": "Initialize the voice QML engine first."}), 409
     label = 1 if kind.lower() in {"pd", "parkinsons", "positive", "high"} else 0
+    request_payload = request.get_json(silent=True) or {}
+
+    allowed_modalities = ("voice", "gait", "handwriting", "eeg")
+    requested = request_payload.get("modalities")
+    if isinstance(requested, list):
+        selected = [m for m in allowed_modalities if m in requested]
+    else:
+        selected = list(allowed_modalities)
+
+    if not selected:
+        return jsonify({"error": "Select at least one modality."}), 400
+
+    if "voice" in selected and not STATE["evaluation_results"]:
+        return jsonify({"error": "Initialize the voice QML engine before using the voice modality."}), 409
+
     loader = get_loader()
     engine = get_multimodal_engine()
-    gait = engine.get_sample_features("gait", label)
-    handwriting = engine.get_sample_features("handwriting", label)
-    eeg = engine.get_sample_features("eeg", label)
-    payload = {
-        "voice": loader.get_demo_sample(label),
-        "gait": gait["features"],
-        "handwriting": handwriting["features"],
-        "eeg": eeg["features"],
-    }
 
-    # Reuse the same computation without an internal HTTP call.
     scores = {}
     aucs = {}
     details = {}
-    vr = voice_branch_score(payload["voice"])
-    scores["voice"] = vr["score"]
-    voice_auc = engine.branch_status().get("voice", {}).get("roc_auc")
-    aucs["voice"] = voice_auc
-    details["voice"] = {
-        "score_percent": round(vr["score"] * 100.0, 1),
-        "model_name": "RF + VQC + Fidelity-Kernel QSVM",
-        "components": {k: round(v * 100.0, 1) for k, v in vr["components"].items()},
-        "roc_auc": voice_auc,
-    }
-    for modality, sample in (("gait", gait), ("handwriting", handwriting), ("eeg", eeg)):
+
+    if "voice" in selected:
+        voice_features = loader.get_demo_sample(label)
+        vr = voice_branch_score(voice_features)
+        voice_auc = engine.branch_status().get("voice", {}).get("roc_auc")
+        scores["voice"] = vr["score"]
+        aucs["voice"] = voice_auc
+        details["voice"] = {
+            "score_percent": round(vr["score"] * 100.0, 1),
+            "model_name": "RF + VQC + Fidelity-Kernel QSVM",
+            "components": {k: round(v * 100.0, 1) for k, v in vr["components"].items()},
+            "roc_auc": voice_auc,
+            "sample_meta": {"source": "held-out voice cohort example"},
+        }
+
+    for modality in ("gait", "handwriting", "eeg"):
+        if modality not in selected:
+            continue
+        sample = engine.get_sample_features(modality, label)
         result = engine.predict_branch(modality, sample["features"])
         scores[modality] = result["score"]
         aucs[modality] = result.get("roc_auc")
-        details[modality] = {**result, "score_percent": round(result["score"] * 100.0, 1), "sample_meta": sample.get("meta", {})}
+        details[modality] = {
+            **result,
+            "score_percent": round(result["score"] * 100.0, 1),
+            "sample_meta": sample.get("meta", {}),
+        }
 
     fused = engine.fuse(scores, aucs)
+    assessment_id = "QM-MM-" + datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:4].upper()
+
     return jsonify({
+        "meta": {
+            "assessment_id": assessment_id,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "modalities_used": list(scores.keys()),
+            "modalities_available": list(allowed_modalities),
+            "fusion_type": fused["method"],
+        },
         "known_label": label,
         "known_label_text": "Parkinson's cohort" if label == 1 else "Control cohort",
-        "bundle_scope": "Cross-cohort demonstration bundle; modality examples are not from the same person.",
+        "bundle_scope": (
+            "Cross-cohort demonstration bundle; selected modality examples are label-matched "
+            "but are not measurements from the same individual."
+        ),
         "assessment": {
             "multimodal_pattern_index": fused["index_percent"],
             "risk_band": fused["band"],
             "risk_band_key": fused["band_key"],
             "modality_agreement": fused["agreement"],
             "dispersion": fused["dispersion"],
-            "disclaimer": "Research prototype; not a diagnosis or calibrated disease probability.",
+            "interpretation": (
+                "The pattern index combines the selected independently validated signal branches. "
+                "Review branch agreement and contribution alongside the overall index."
+            ),
+            "disclaimer": (
+                "Research prototype only. The demonstration uses independent research cohorts and "
+                "does not represent a clinical diagnosis or calibrated disease probability."
+            ),
         },
         "branch_details": details,
         "fusion_weights": fused["normalized_weights"],

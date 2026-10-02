@@ -1,5 +1,6 @@
 let datasetInfo = null;
 let lastResult = null;
+let lastMultimodalResult = null;
 let currentInputs = {};
 let currentSource = "Manual entry";
 let initTicker = null;
@@ -392,11 +393,31 @@ async function loadBenchmarks() {
 }
 
 
+function getSelectedModalities() {
+  return [...document.querySelectorAll('input[name="mmModality"]:checked')].map(el => el.value);
+}
+
 async function runMultimodalDemo(kind) {
-  await ensureReady();
-  setLoading(true, "Running multimodal fusion…", "Evaluating voice, gait, handwriting and EEG branches");
+  const modalities = getSelectedModalities();
+  if (!modalities.length) {
+    alert("Select at least one modality.");
+    return;
+  }
+
+  if (modalities.includes("voice")) {
+    await ensureReady();
+  }
+
+  const labels = {voice:"voice", gait:"gait", handwriting:"handwriting", eeg:"EEG"};
+  const readable = modalities.map(m => labels[m] || m).join(", ");
+  setLoading(true, "Running multimodal fusion…", `Evaluating selected branches: ${readable}`);
+
   try {
-    const result = await api(`/api/multimodal/demo/${kind}`, {method:"POST", body:"{}"});
+    const result = await api(`/api/multimodal/demo/${kind}`, {
+      method:"POST",
+      body:JSON.stringify({modalities})
+    });
+    lastMultimodalResult = result;
     renderMultimodalResult(result);
   } catch (e) {
     alert(`Multimodal assessment failed: ${e.message}`);
@@ -413,21 +434,106 @@ function renderMultimodalResult(r) {
   document.getElementById("mmAgreement").textContent = r.assessment.modality_agreement;
   document.getElementById("mmScope").textContent = `${r.known_label_text} demonstration • ${r.bundle_scope}`;
   document.getElementById("mmFusionNote").textContent = r.fusion_note || "";
+  document.getElementById("mmInterpretation").textContent = r.assessment.interpretation || "";
+  document.getElementById("mmDisclaimer").textContent = r.assessment.disclaimer || "";
+
+  const used = r.meta?.modalities_used || Object.keys(r.branch_details || {});
+  const available = r.meta?.modalities_available || ["voice","gait","handwriting","eeg"];
+  document.getElementById("mmCoverage").textContent = `${used.length} / ${available.length}`;
+  document.getElementById("mmSelectedNames").textContent = used.map(x => ({
+    voice:"Voice", gait:"Gait", handwriting:"Handwriting", eeg:"EEG"
+  }[x] || x)).join(" + ");
+  document.getElementById("mmAssessmentId").textContent = r.meta?.assessment_id || "—";
 
   const labels = {voice:"Voice", gait:"Gait", handwriting:"Handwriting", eeg:"EEG"};
-  const rows = Object.entries(r.branch_details || {}).map(([name, d]) => {
-    const weight = Number((r.fusion_weights || {})[name] || 0) * 100;
-    const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);
-    return `<tr>
-      <td><strong>${esc(labels[name] || name)}</strong></td>
-      <td>${esc(d.model_name || "—")}</td>
-      <td>${Number(d.score_percent).toFixed(1)}/100</td>
-      <td>${auc}</td>
-      <td>${weight.toFixed(1)}%</td>
-    </tr>`;
-  }).join("");
+  const order = ["voice","gait","handwriting","eeg"];
+  const rows = order
+    .filter(name => (r.branch_details || {})[name])
+    .map(name => {
+      const d = r.branch_details[name];
+      const weight = Number((r.fusion_weights || {})[name] || 0) * 100;
+      const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);
+      return `<tr>
+        <td><strong>${esc(labels[name] || name)}</strong></td>
+        <td>${esc(d.model_name || "—")}</td>
+        <td>${Number(d.score_percent).toFixed(1)}/100</td>
+        <td>${auc}</td>
+        <td>${weight.toFixed(1)}%</td>
+      </tr>`;
+    }).join("");
+
   document.getElementById("mmBranchBody").innerHTML = rows;
   document.getElementById("multimodal").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function downloadMultimodalJSON() {
+  if (!lastMultimodalResult) return;
+  const blob = new Blob([JSON.stringify(lastMultimodalResult, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${lastMultimodalResult.meta?.assessment_id || "quantummed_multimodal_assessment"}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function printMultimodalReport() {
+  const r = lastMultimodalResult;
+  if (!r) return;
+
+  const labels = {voice:"Voice", gait:"Gait", handwriting:"Handwriting", eeg:"EEG"};
+  const rows = ["voice","gait","handwriting","eeg"]
+    .filter(name => (r.branch_details || {})[name])
+    .map(name => {
+      const d = r.branch_details[name];
+      const w = Number((r.fusion_weights || {})[name] || 0) * 100;
+      const auc = d.roc_auc == null ? "—" : Number(d.roc_auc).toFixed(3);
+      return `<tr>
+        <td>${esc(labels[name] || name)}</td>
+        <td>${esc(d.model_name || "—")}</td>
+        <td>${Number(d.score_percent).toFixed(1)}/100</td>
+        <td>${auc}</td>
+        <td>${w.toFixed(1)}%</td>
+      </tr>`;
+    }).join("");
+
+  const used = r.meta?.modalities_used || [];
+  const report = window.open("", "_blank");
+  if (!report) {
+    alert("Allow pop-ups to print the multimodal report.");
+    return;
+  }
+  report.opener = null;
+  report.document.write(`<!doctype html>
+  <html><head><meta charset="utf-8"><title>${esc(r.meta?.assessment_id || "QuantumMed Multimodal Assessment")}</title>
+  <style>
+    body{font-family:Arial,sans-serif;color:#172b3d;margin:36px;line-height:1.45}
+    h1{font-size:24px;margin:0 0 4px} h2{font-size:18px;margin-top:28px}
+    .sub{color:#62778b;margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+    .card{border:1px solid #d7e1e8;border-radius:10px;padding:14px}.card span{display:block;color:#6b7f90;font-size:12px}.card strong{font-size:18px}
+    table{border-collapse:collapse;width:100%;margin-top:12px} th,td{border-bottom:1px solid #dbe3e9;padding:10px;text-align:left;font-size:12px}
+    th{background:#f3f6f8;color:#50677a}.note{background:#f6f9fa;border-left:4px solid #2d7f89;padding:12px 14px;margin:16px 0}
+    .warn{background:#fff8e8;border:1px solid #ead7a3;padding:12px 14px;margin-top:20px;font-size:12px}
+    .footer{margin-top:28px;color:#708292;font-size:11px}
+    @media print{body{margin:18mm}.no-print{display:none}}
+  </style></head><body>
+    <h1>QuantumMed Multimodal Research Assessment</h1>
+    <div class="sub">Assessment ID: ${esc(r.meta?.assessment_id || "—")} • Generated: ${esc(formatDate(r.meta?.generated_at))}</div>
+    <div class="grid">
+      <div class="card"><span>Multimodal Pattern Index</span><strong>${Number(r.assessment.multimodal_pattern_index).toFixed(1)} / 100</strong></div>
+      <div class="card"><span>Pattern</span><strong>${esc(r.assessment.risk_band)}</strong></div>
+      <div class="card"><span>Agreement</span><strong>${esc(r.assessment.modality_agreement)}</strong></div>
+    </div>
+    <div class="note"><strong>Modalities evaluated:</strong> ${esc(used.map(x => labels[x] || x).join(", "))}<br>
+    <strong>Fusion:</strong> ${esc(r.meta?.fusion_type || "validation-weighted late decision fusion")}</div>
+    <h2>Branch evidence</h2>
+    <table><thead><tr><th>Signal</th><th>Selected model</th><th>Branch index</th><th>Validation ROC-AUC</th><th>Fusion weight</th></tr></thead><tbody>${rows}</tbody></table>
+    <h2>Interpretation</h2><p>${esc(r.assessment.interpretation || "")}</p>
+    <h2>Demonstration scope</h2><p>${esc(r.bundle_scope || "")}</p>
+    <div class="warn"><strong>Important:</strong> ${esc(r.assessment.disclaimer || "")}</div>
+    <div class="footer">ThunderStars • SIH 2026 • Research screening prototype</div>
+    <script>window.onload=()=>setTimeout(()=>window.print(),250);<\/script>
+  </body></html>`);
+  report.document.close();
 }
 
 function downloadJSON() {
@@ -456,6 +562,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("runBtn").addEventListener("click", runAssessment);
   document.getElementById("mmControlBtn")?.addEventListener("click", () => runMultimodalDemo("control"));
   document.getElementById("mmPdBtn")?.addEventListener("click", () => runMultimodalDemo("pd"));
+  document.getElementById("mmReportBtn")?.addEventListener("click", printMultimodalReport);
+  document.getElementById("mmJsonBtn")?.addEventListener("click", downloadMultimodalJSON);
   document.getElementById("printBtn").addEventListener("click", printReport);
   document.getElementById("jsonBtn").addEventListener("click", downloadJSON);
   try {

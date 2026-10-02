@@ -251,12 +251,26 @@
         </div>
       </div>
 
+      <div class="mm-selector" aria-label="Select available modalities">
+        <div class="mm-selector-copy">
+          <strong>Select available signal branches</strong>
+          <span>Deselect any unavailable measurement. Fusion weights renormalize automatically across the selected modalities.</span>
+        </div>
+        <div class="mm-check-grid">
+          <label class="mm-check"><input type="checkbox" name="mmModality" value="voice" checked><span><b>Voice</b><small>RF + VQC + QSVM</small></span></label>
+          <label class="mm-check"><input type="checkbox" name="mmModality" value="gait" checked><span><b>Gait</b><small>RBF-SVM</small></span></label>
+          <label class="mm-check"><input type="checkbox" name="mmModality" value="handwriting" checked><span><b>Handwriting</b><small>Random Forest</small></span></label>
+          <label class="mm-check"><input type="checkbox" name="mmModality" value="eeg" checked><span><b>EEG</b><small>Logistic Regression</small></span></label>
+        </div>
+        <p class="mm-selector-note"><strong>Demo note:</strong> these buttons use label-matched examples from independent research cohorts. In a real paired assessment, only measurements collected for the same person should be fused.</p>
+      </div>
+
       <div class="mm-method-note">
-        <strong>Fusion method:</strong> validation-weighted late fusion. Branch weights are based on research ROC-AUC above chance and renormalized across available modalities.
+        <strong>Fusion method:</strong> validation-weighted late fusion. Branch weights are based on research ROC-AUC above chance and renormalized across whichever modalities are available.
       </div>
 
       <div class="mm-empty" id="mmEmpty">
-        Initialize the QML engine, then run either cross-cohort demonstration bundle to evaluate all four working branches.
+        Select one or more modalities and run a demonstration bundle. Voice initializes the QML engine when selected; gait, handwriting and EEG can also run independently.
       </div>
 
       <div class="mm-result hidden" id="mmResult">
@@ -266,8 +280,17 @@
             <div class="eyebrow">MULTIMODAL PATTERN INDEX</div>
             <h3 id="mmBand">—</h3>
             <p id="mmScope">—</p>
-            <span class="mini-chip">Modality agreement: <b id="mmAgreement">—</b></span>
+            <div class="mm-summary-chips">
+              <span class="mini-chip">Modality agreement: <b id="mmAgreement">—</b></span>
+              <span class="mini-chip">Evaluated: <b id="mmCoverage">—</b></span>
+            </div>
           </div>
+        </div>
+
+        <div class="mm-meta-grid">
+          <div><span>Selected signals</span><strong id="mmSelectedNames">—</strong></div>
+          <div><span>Fusion method</span><strong>Validation-weighted late fusion</strong></div>
+          <div><span>Assessment ID</span><strong id="mmAssessmentId">—</strong></div>
         </div>
 
         <div class="mm-table-wrap">
@@ -276,8 +299,16 @@
             <tbody id="mmBranchBody"></tbody>
           </table>
         </div>
+        <div class="mm-interpretation-box">
+          <span>ASSESSMENT INTERPRETATION</span>
+          <p id="mmInterpretation">—</p>
+        </div>
         <p class="footnote" id="mmFusionNote"></p>
-        <p class="footnote"><strong>Important:</strong> the demonstration bundle uses label-matched examples from independent datasets; it does not represent one person measured across all modalities. A paired multimodal cohort is required for clinical validation.</p>
+        <div class="mm-disclaimer"><strong>Research-use limitation:</strong> <span id="mmDisclaimer">—</span></div>
+        <div class="mm-result-actions">
+          <button class="secondary" id="mmReportBtn">Print / Save multimodal report</button>
+          <button class="ghost" id="mmJsonBtn">Download multimodal JSON</button>
+        </div>
       </div>
     </section>
 

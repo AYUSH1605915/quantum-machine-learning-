@@ -1,0 +1,491 @@
+{
+  "dataset_summary": {
+    "dataset_name": "UCI Oxford Parkinson's Disease Detection (voice measurements)",
+    "total_samples": 195,
+    "train_samples": 146,
+    "test_samples": 49,
+    "total_features": 22,
+    "target_name": "status",
+    "target_definition": "status: control=0 / Parkinson's cohort=1",
+    "id_column": "name",
+    "feature_names": [
+      "MDVP:Fo(Hz)",
+      "MDVP:Fhi(Hz)",
+      "MDVP:Flo(Hz)",
+      "MDVP:Jitter(%)",
+      "MDVP:Jitter(Abs)",
+      "MDVP:RAP",
+      "MDVP:PPQ",
+      "Jitter:DDP",
+      "MDVP:Shimmer",
+      "MDVP:Shimmer(dB)",
+      "Shimmer:APQ3",
+      "Shimmer:APQ5",
+      "MDVP:APQ",
+      "Shimmer:DDA",
+      "NHR",
+      "HNR",
+      "RPDE",
+      "DFA",
+      "spread1",
+      "spread2",
+      "D2",
+      "PPE"
+    ],
+    "n_qubits": 4,
+    "selected_features": [
+      "MDVP:Fo(Hz)",
+      "MDVP:APQ",
+      "spread1",
+      "PPE"
+    ],
+    "reduction_method": "select_k_best",
+    "split_strategy": "participant-grouped stratified split",
+    "unique_participants": 32,
+    "train_participants": 24,
+    "test_participants": 8,
+    "train_class_distribution": {
+      "control (0)": 36,
+      "parkinsons (1)": 110
+    },
+    "test_class_distribution": {
+      "control (0)": 12,
+      "parkinsons (1)": 37
+    },
+    "class_distribution": {
+      "control (0)": 48,
+      "parkinsons (1)": 147
+    }
+  },
+  "models_evaluation": [
+    {
+      "model_name": "Logistic Regression",
+      "accuracy": 0.8776,
+      "sensitivity": 0.8378,
+      "specificity": 1.0,
+      "precision": 1.0,
+      "f1_score": 0.9118,
+      "roc_auc": 0.964,
+      "confusion_matrix": {
+        "tp": 31,
+        "fp": 0,
+        "tn": 12,
+        "fn": 6
+      },
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.08333333333333333,
+          0.08333333333333333,
+          0.5833333333333334,
+          0.5833333333333334,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.02702702702702703,
+          0.8918918918918919,
+          0.8918918918918919,
+          0.9459459459459459,
+          0.9459459459459459,
+          1.0,
+          1.0
+        ]
+      },
+      "training_time_sec": 0.03,
+      "inference_latency_ms": 0.0
+    },
+    {
+      "model_name": "Classical SVM (RBF)",
+      "accuracy": 0.8776,
+      "sensitivity": 1.0,
+      "specificity": 0.5,
+      "precision": 0.8605,
+      "f1_score": 0.925,
+      "roc_auc": 0.9527,
+      "confusion_matrix": {
+        "tp": 37,
+        "fp": 6,
+        "tn": 6,
+        "fn": 0
+      },
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.08333333333333333,
+          0.08333333333333333,
+          0.3333333333333333,
+          0.3333333333333333,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.02702702702702703,
+          0.7567567567567568,
+          0.7567567567567568,
+          0.8918918918918919,
+          0.8918918918918919,
+          1.0,
+          1.0
+        ]
+      },
+      "training_time_sec": 0.011,
+      "inference_latency_ms": 0.0
+    },
+    {
+      "model_name": "Random Forest",
+      "accuracy": 0.9592,
+      "sensitivity": 0.9459,
+      "specificity": 1.0,
+      "precision": 1.0,
+      "f1_score": 0.9722,
+      "roc_auc": 0.9707,
+      "confusion_matrix": {
+        "tp": 35,
+        "fp": 0,
+        "tn": 12,
+        "fn": 2
+      },
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.4166666666666667,
+          0.4166666666666667,
+          0.6666666666666666,
+          0.6666666666666666,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.13513513513513514,
+          0.32432432432432434,
+          0.43243243243243246,
+          0.9459459459459459,
+          0.9459459459459459,
+          0.972972972972973,
+          0.972972972972973,
+          1.0,
+          1.0
+        ]
+      },
+      "training_time_sec": 0.283,
+      "inference_latency_ms": 0.377
+    },
+    {
+      "model_name": "Multilayer Perceptron (MLP)",
+      "accuracy": 0.7959,
+      "sensitivity": 0.9189,
+      "specificity": 0.4167,
+      "precision": 0.8293,
+      "f1_score": 0.8718,
+      "roc_auc": 0.8739,
+      "confusion_matrix": {
+        "tp": 34,
+        "fp": 7,
+        "tn": 5,
+        "fn": 3
+      },
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.08333333333333333,
+          0.08333333333333333,
+          0.16666666666666666,
+          0.16666666666666666,
+          0.25,
+          0.25,
+          0.3333333333333333,
+          0.3333333333333333,
+          0.4166666666666667,
+          0.4166666666666667,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.75,
+          0.75,
+          0.8333333333333334,
+          0.8333333333333334,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.16216216216216217,
+          0.5945945945945946,
+          0.5945945945945946,
+          0.7297297297297297,
+          0.7297297297297297,
+          0.7567567567567568,
+          0.7567567567567568,
+          0.8378378378378378,
+          0.8378378378378378,
+          0.8648648648648649,
+          0.8648648648648649,
+          0.918918918918919,
+          0.918918918918919,
+          0.9459459459459459,
+          0.9459459459459459,
+          0.972972972972973,
+          0.972972972972973,
+          1.0,
+          1.0
+        ]
+      },
+      "training_time_sec": 0.583,
+      "inference_latency_ms": 0.0
+    },
+    {
+      "model_name": "Quantum VQC (PQC)",
+      "accuracy": 0.8367,
+      "sensitivity": 0.7838,
+      "specificity": 1.0,
+      "precision": 1.0,
+      "f1_score": 0.8788,
+      "roc_auc": 0.9707,
+      "confusion_matrix": {
+        "tp": 29,
+        "fp": 0,
+        "tn": 12,
+        "fn": 8
+      },
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.08333333333333333,
+          0.08333333333333333,
+          0.16666666666666666,
+          0.16666666666666666,
+          0.25,
+          0.25,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.02702702702702703,
+          0.8378378378378378,
+          0.8378378378378378,
+          0.8918918918918919,
+          0.8918918918918919,
+          0.918918918918919,
+          0.918918918918919,
+          1.0,
+          1.0
+        ]
+      },
+      "training_time_sec": 44.893,
+      "inference_latency_ms": 13.858
+    },
+    {
+      "model_name": "Quantum SVM (Fidelity Kernel)",
+      "accuracy": 0.9796,
+      "sensitivity": 0.973,
+      "specificity": 1.0,
+      "precision": 1.0,
+      "f1_score": 0.9863,
+      "roc_auc": 1.0,
+      "confusion_matrix": {
+        "tp": 36,
+        "fp": 0,
+        "tn": 12,
+        "fn": 1
+      },
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.02702702702702703,
+          1.0,
+          1.0
+        ]
+      },
+      "training_time_sec": 0.005,
+      "inference_latency_ms": 0.03
+    }
+  ],
+  "feature_importance": [
+    {
+      "feature": "PPE",
+      "f_score": 50.87,
+      "normalized_importance": 0.1422,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.1422
+    },
+    {
+      "feature": "spread1",
+      "f_score": 54.54,
+      "normalized_importance": 0.123,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.123
+    },
+    {
+      "feature": "MDVP:Fo(Hz)",
+      "f_score": 24.96,
+      "normalized_importance": 0.1052,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.1052
+    },
+    {
+      "feature": "MDVP:Flo(Hz)",
+      "f_score": 20.25,
+      "normalized_importance": 0.0596,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0596
+    },
+    {
+      "feature": "MDVP:Fhi(Hz)",
+      "f_score": 4.57,
+      "normalized_importance": 0.0481,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0481
+    },
+    {
+      "feature": "spread2",
+      "f_score": 21.77,
+      "normalized_importance": 0.047,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.047
+    },
+    {
+      "feature": "MDVP:RAP",
+      "f_score": 7.26,
+      "normalized_importance": 0.0447,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0447
+    },
+    {
+      "feature": "MDVP:APQ",
+      "f_score": 23.81,
+      "normalized_importance": 0.0428,
+      "is_quantum_encoded": true,
+      "rf_importance": 0.0428
+    },
+    {
+      "feature": "Jitter:DDP",
+      "f_score": 7.25,
+      "normalized_importance": 0.0365,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0365
+    },
+    {
+      "feature": "Shimmer:DDA",
+      "f_score": 13.67,
+      "normalized_importance": 0.0364,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0364
+    },
+    {
+      "feature": "Shimmer:APQ5",
+      "f_score": 17.12,
+      "normalized_importance": 0.0355,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0355
+    },
+    {
+      "feature": "DFA",
+      "f_score": 11.51,
+      "normalized_importance": 0.0329,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0329
+    },
+    {
+      "feature": "Shimmer:APQ3",
+      "f_score": 13.67,
+      "normalized_importance": 0.0317,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0317
+    },
+    {
+      "feature": "MDVP:Shimmer",
+      "f_score": 17.31,
+      "normalized_importance": 0.0316,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0316
+    },
+    {
+      "feature": "HNR",
+      "f_score": 9.08,
+      "normalized_importance": 0.0291,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0291
+    },
+    {
+      "feature": "NHR",
+      "f_score": 3.07,
+      "normalized_importance": 0.0267,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0267
+    },
+    {
+      "feature": "D2",
+      "f_score": 9.71,
+      "normalized_importance": 0.0259,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0259
+    },
+    {
+      "feature": "MDVP:Shimmer(dB)",
+      "f_score": 16.64,
+      "normalized_importance": 0.0229,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0229
+    },
+    {
+      "feature": "MDVP:Jitter(%)",
+      "f_score": 7.16,
+      "normalized_importance": 0.021,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.021
+    },
+    {
+      "feature": "MDVP:Jitter(Abs)",
+      "f_score": 12.77,
+      "normalized_importance": 0.0202,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0202
+    },
+    {
+      "feature": "MDVP:PPQ",
+      "f_score": 9.4,
+      "normalized_importance": 0.0192,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0192
+    },
+    {
+      "feature": "RPDE",
+      "f_score": 10.58,
+      "normalized_importance": 0.0177,
+      "is_quantum_encoded": false,
+      "rf_importance": 0.0177
+    }
+  ],
+  "circuit_ascii": "PennyLane VQC Circuit with 4 qubits, 2 layers.",
+  "validation_note": "Participant-grouped holdout split used when subject IDs are available.",
+  "auxiliary_updrs_gate": {
+    "passed": false,
+    "status": "Withheld by validation gate",
+    "reason": "Withheld: participant-separated UPDRS regression did not outperform a mean-prediction baseline (R\u00b2 <= 0 on at least one target).",
+    "metrics": {
+      "motor_mae": 7.15,
+      "motor_r2": -0.178,
+      "total_mae": 9.15,
+      "total_r2": -0.412,
+      "test_subjects": 10,
+      "train_subjects": 32
+    }
+  }
+}
